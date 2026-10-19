@@ -173,5 +173,20 @@ class IntegracaoUI(unittest.TestCase):
         self.assertEqual(r['ultimaPesquisa']['etapa'], 'erro_de_execucao')
         self.assertIsNone(r['ultimaPesquisa']['selecionado'])
 
+    def test_manual_check_does_not_require_empty_service_confirmation(self):
+        self.page.evaluate('''() => { chrome.scripting.executeScript=async p=>{
+          if(p.func.name==='lerVinculosCenti')return [{result:{tipo:'captura_vinculos_centi',registros:[],linhasNaoInterpretadas:0}}];
+          window.pedidoManual=p.args[0];window.mundoManual=p.world;
+          return [{result:{ok:true,salvo:false,selecionado:true,origemSelecao:'operador',etapa:'servico_conferido',mensagem:'Seleção manual conferida.'}}];
+        }; }''')
+        self.page.locator('#comparar').click()
+        self.page.locator('#pesquisa').wait_for(state='visible')
+        self.assertFalse(self.page.locator('#ausencia-conferida').is_checked())
+        self.page.locator('#conferir-manual').click()
+        self.page.wait_for_function('document.querySelector("#status-pesquisa").textContent.includes("Seleção manual conferida")')
+        self.assertTrue(self.page.evaluate('pedidoManual.conferirManual'))
+        self.assertFalse(self.page.evaluate('pedidoManual.ausenciaConferida'))
+        self.assertEqual(self.page.evaluate('mundoManual'), 'ISOLATED')
+
 
 if __name__ == '__main__': unittest.main()

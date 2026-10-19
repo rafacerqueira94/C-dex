@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ponte Centi — comparar serviços</title><link rel="stylesheet" href="consulta.css"><script type="module" src="integracao.mjs"></script></head>
 <body>
-<header><div class="marca">Ponte <strong>Centi</strong></div><span>Comparação e seleção · 0.10.1</span></header>
+<header><div class="marca">Ponte <strong>Centi</strong></div><span>Comparação e seleção · 0.10.2</span></header>
 <main>
   <section class="introducao"><h1>Comparar com a Centi</h1><p>Selecione a pasta Serviços na aba da Centi e mantenha essa aba aberta. Esta etapa lê os vínculos visíveis para comparar com sua lista conferida.</p></section>
   <section class="cartao"><h2>Lista e empresa</h2>
@@ -28,6 +28,8 @@
     <label class="aceite"><input id="ausencia-conferida" type="checkbox"> Conferi a mesma empresa e a ausência deste serviço, inclusive nos serviços herdados, filtros e páginas. Deixei um vínculo novo aberto, com Id 0, Serviço vazio e lupa fechada.</label>
     <button id="pesquisar-catalogo" type="button" disabled>Abrir lupa e pesquisar — sem selecionar nem salvar</button>
     <button id="pesquisar-selecionar" type="button" disabled>Pesquisar e selecionar — sem salvar</button>
+    <p>Se a lupa permanecer aberta após a tentativa, selecione o registro correto com dois cliques na Centi. Quando voltar ao formulário, use a conferência abaixo.</p>
+    <button id="conferir-manual" type="button" disabled>Conferir seleção manual — sem salvar</button>
     <p id="status-pesquisa" role="status" aria-live="polite"></p>
     <p class="ajuda">Ambas as ações refazem a pesquisa e exigem uma linha exata e atualizada. A opção de seleção aplica duplo clique, confere ID e descrição no formulário e verifica se as datas foram preservadas. Nenhuma opção aciona Salvar. Você pode exportar o resultado em Baixar comparação.</p>
   </section>

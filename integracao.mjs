@@ -10,9 +10,10 @@ const botoesPesquisa = ['pesquisar-catalogo', 'pesquisar-selecionar'];
 const habilitarPesquisa = () => botoesPesquisa.forEach(id => {
   $(id).disabled = !$('ausencia-conferida').checked || !$('servico-pesquisa').options.length;
 });
+const habilitarConferenciaManual = () => { $('conferir-manual').disabled = !resultado || !$('servico-pesquisa').options.length; };
 const limpar = () => {
   sequencia++; resultado = null; $('resultado').hidden = true; $('pesquisa').hidden = true;
-  $('ausencia-conferida').checked = false; habilitarPesquisa();
+  $('ausencia-conferida').checked = false; habilitarPesquisa(); habilitarConferenciaManual();
   $('status-pesquisa').textContent = ''; $('erro').hidden = true; $('status').textContent = '';
 };
 for (const id of ['lista', 'cnpj', 'conferido']) $(id).addEventListener('change', limpar);
@@ -65,6 +66,7 @@ $('form-comparar').addEventListener('submit', async e => {
       option.textContent = `${s.codigo} · ${s.aliquota}% · ${s.nome}`; return option;
     }));
     $('pesquisa').hidden = !candidatosPesquisa.length;
+    habilitarConferenciaManual();
   } catch (erro) {
     $('erro').textContent = erro.message; $('erro').hidden = false; $('status').textContent = '';
   } finally { $('comparar').disabled = false; }
@@ -73,20 +75,21 @@ $('ausencia-conferida').addEventListener('change', habilitarPesquisa);
 $('servico-pesquisa').addEventListener('change', () => {
   $('ausencia-conferida').checked = false; habilitarPesquisa(); $('status-pesquisa').textContent = '';
 });
-async function executarPesquisa(selecionar) {
-  if (!resultado || !$('ausencia-conferida').checked) return;
+async function executarPesquisa(selecionar, conferirManual = false) {
+  if (!resultado || (!conferirManual && !$('ausencia-conferida').checked)) return;
   const servico = resultado.servicos.find(s => s.codigo === $('servico-pesquisa').value && s.situacao === 'nao_localizado_na_captura');
   if (!servico) return;
   const pedido = {servico, cnpjEsperado: resultado.empresa.cnpj, cnpjConfirmado: $('cnpj').value,
-    conferido: $('conferido').checked, ausenciaConferida: true, selecionar};
-  const controles = [...document.querySelectorAll('#form-comparar input, #form-comparar button, #servico-pesquisa, #ausencia-conferida, #pesquisar-catalogo, #pesquisar-selecionar')];
+    conferido: $('conferido').checked, ausenciaConferida: !conferirManual, selecionar, conferirManual,
+    datasEsperadas: resultado.ultimaPesquisa?.codigo === servico.codigo ? resultado.ultimaPesquisa.detalhesSelecao?.datasAntes : null};
+  const controles = [...document.querySelectorAll('#form-comparar input, #form-comparar button, #servico-pesquisa, #ausencia-conferida, #pesquisar-catalogo, #pesquisar-selecionar, #conferir-manual')];
   const anteriores = controles.map(e => e.disabled);
   controles.forEach(e => { e.disabled = true; });
   resultado.ultimaPesquisa = {codigo: servico.codigo, idMunicipal: servico.id, ok: false, salvo: false,
     selecionado: null, etapa: 'execucao_em_andamento', selecaoSolicitada: selecionar};
-  $('status-pesquisa').textContent = selecionar ? 'Pesquisando e selecionando o serviço na Centi, sem salvar…' : 'Abrindo a lupa e pesquisando o serviço na Centi…';
+  $('status-pesquisa').textContent = conferirManual ? 'Conferindo o serviço escolhido manualmente…' : selecionar ? 'Pesquisando e selecionando o serviço na Centi, sem salvar…' : 'Abrindo a lupa e pesquisando o serviço na Centi…';
   try {
-    const respostas = await chrome.scripting.executeScript({target: {tabId: aba}, world: selecionar ? 'MAIN' : 'ISOLATED', func: pesquisarServicoCenti, args: [pedido]});
+    const respostas = await chrome.scripting.executeScript({target: {tabId: aba}, world: selecionar && !conferirManual ? 'MAIN' : 'ISOLATED', func: pesquisarServicoCenti, args: [pedido]});
     const preparacao = respostas[0]?.result;
     if (!preparacao || typeof preparacao.ok !== 'boolean') throw Error('Não foi possível obter o resultado da pesquisa. Verifique a aba Centi.');
     resultado.ultimaPesquisa = {codigo: servico.codigo, idMunicipal: servico.id, ...preparacao};
@@ -102,11 +105,12 @@ async function executarPesquisa(selecionar) {
   }
   finally {
     controles.forEach((e, i) => { e.disabled = anteriores[i]; });
-    $('ausencia-conferida').checked = false; habilitarPesquisa();
+    $('ausencia-conferida').checked = false; habilitarPesquisa(); habilitarConferenciaManual();
   }
 }
 $('pesquisar-catalogo').addEventListener('click', () => executarPesquisa(false));
 $('pesquisar-selecionar').addEventListener('click', () => executarPesquisa(true));
+$('conferir-manual').addEventListener('click', () => executarPesquisa(false, true));
 $('exportar-comparacao').addEventListener('click', () => {
   if (!resultado) return;
   const url = URL.createObjectURL(new Blob([JSON.stringify(resultado, null, 2)], {type: 'application/json'}));

@@ -17,7 +17,7 @@ export async function pesquisarServicoCenti(pedido) {
   };
   try {
     if (location.origin !== 'https://ba.centi.com.br' || !location.pathname.startsWith('/caetite/')) falhar('Abra a Centi de Caetité.');
-    if (pedido?.conferido !== true || pedido.ausenciaConferida !== true
+    if (pedido?.conferido !== true || (pedido.conferirManual !== true && pedido.ausenciaConferida !== true)
         || !/^\d{14}$/.test(cnpj(pedido.cnpjEsperado)) || cnpj(pedido.cnpjEsperado) !== cnpj(pedido.cnpjConfirmado)) {
       falhar('Confira a empresa e a ausência do serviço, inclusive páginas, filtros e serviços herdados.');
     }
@@ -35,12 +35,27 @@ export async function pesquisarServicoCenti(pedido) {
       conferirVinculo();
       if (!['', '0'].includes(primario.value.trim()) || campo('IdServico' + sufixo + '-second').value.trim()) falhar('O vínculo já contém um serviço.');
     };
+    const grades = () => [...document.querySelectorAll('.wj-flexgrid.tableFilterSearch--modal')].filter(visivel);
+    if (pedido.conferirManual === true) {
+      etapa = 'conferir_selecao_manual'; conferirVinculo();
+      if (grades().length) falhar('Selecione o serviço manualmente e aguarde a lupa fechar antes de conferir.');
+      const idServico = primario.value.trim(), nome = campo('IdServico' + sufixo + '-second').value;
+      if (![String(s.id), s.codigo].includes(idServico) || normal(nome) !== normal(s.nome)) falhar('O Serviço no formulário não corresponde ao registro esperado.');
+      const dataInicio = campo('DataInicio' + sufixo).value, dataFim = campo('DataFim' + sufixo).value;
+      const esperadas = pedido.datasEsperadas;
+      const datasPreservadas = esperadas && typeof esperadas.inicio === 'string' && typeof esperadas.fim === 'string'
+        ? esperadas.inicio === dataInicio && esperadas.fim === dataFim : null;
+      if (datasPreservadas === false) falhar('As datas diferem da tentativa anterior. Confira o formulário.');
+      return {ok: true, salvo: false, selecionado: true, origemSelecao: 'operador', etapa: 'servico_conferido',
+        interacaoIniciada: false, pesquisaAcionada: false, selecaoAcionada: false, conferenciaParcial: true, datasPreservadas,
+        campos: {idVinculo: '0', idServico, nome, dataInicio, dataFim},
+        mensagem: 'Seleção manual conferida: ID e descrição correspondem ao serviço esperado. Nenhum campo foi alterado pela conferência e nenhum botão Salvar foi acionado.'};
+    }
     conferir();
     const datasAntes = pedido.selecionar === true ? {
       inicio: campo('DataInicio' + sufixo).value, fim: campo('DataFim' + sufixo).value
     } : null;
     const secundario = campo('IdServico' + sufixo + '-second');
-    const grades = () => [...document.querySelectorAll('.wj-flexgrid.tableFilterSearch--modal')].filter(visivel);
     if (grades().length) falhar('Feche a lupa antes de iniciar a pesquisa.');
     const grupo = secundario.closest('.input-right');
     const lupa = unico(grupo ? [...grupo.querySelectorAll('.iconSearchReference')].filter(visivel) : [], 'A lupa de Serviço não foi identificada.');
@@ -109,7 +124,7 @@ export async function pesquisarServicoCenti(pedido) {
           // eventos sintéticos. Usar a API pública e conferir a seleção antes
           // do duplo clique; não acessar propriedades privadas do Wijmo.
           const controle = globalThis.wijmo?.Control?.getControl?.(atual.grade);
-          detalhesSelecao = {apiWijmoDisponivel: Boolean(controle), linhaConferida: false};
+          detalhesSelecao = {apiWijmoDisponivel: Boolean(controle), linhaConferida: false, datasAntes};
           if (!controle || typeof controle.select !== 'function' || typeof controle.getCellData !== 'function') {
             falhar('A API pública da grade Wijmo não está disponível nesta tela. Nenhum duplo clique foi acionado.');
           }
@@ -128,15 +143,32 @@ export async function pesquisarServicoCenti(pedido) {
           if (typeof controle.focus === 'function') controle.focus();
           await esperar(100); conferir();
           if (controle.selection?.row !== indiceLinha || !coincide(indiceLinha)) falhar('A grade não manteve a seleção do registro esperado. Nenhum duplo clique foi acionado.');
-          detalhesSelecao = {apiWijmoDisponivel: true, linhaConferida: true, indiceLinha, idMunicipal: String(s.id), aliquota: s.aliquota};
+          detalhesSelecao = {apiWijmoDisponivel: true, linhaConferida: true, indiceLinha, idMunicipal: String(s.id), aliquota: s.aliquota, datasAntes};
           const atuais = [...atual.grade.querySelectorAll('.wj-cells > .wj-row')].filter(visivel)
             .map(l => [...l.children].filter(c => c.matches('.wj-cell')))
             .filter(c => c.length >= 4 && normal(c[0].textContent) === String(s.id) && normal(c[1].textContent) === s.codigo
               && normal(c[2].textContent) === normal(s.nome) && normal(c[3].textContent).replace('.', ',') === s.aliquota);
           const celula = habilitado(unico(atuais, 'A linha mudou após a seleção na grade.')[0]), rect = celula.getBoundingClientRect();
+          const alvo = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
+          if (!(alvo === celula || celula.contains(alvo))) falhar('O alvo do clique está fora da célula conferida.');
+          detalhesSelecao.alvoClique = {tag: alvo.tagName.toLowerCase(), interno: alvo !== celula};
+          detalhesSelecao.eventos = [];
+          const disparar = (tipo, detail, buttons = 0) => {
+            if (!grades().length) return;
+            if (!alvo.isConnected) falhar('A célula foi reconstruída durante a ativação. Confira a lupa antes de repetir.');
+            const C = tipo.startsWith('pointer') && typeof PointerEvent === 'function' ? PointerEvent : MouseEvent;
+            alvo.dispatchEvent(new C(tipo, {bubbles: true, cancelable: true, view: window, button: 0, buttons, detail,
+              pointerId: 1, pointerType: 'mouse', isPrimary: true, clientX: rect.x + rect.width / 2, clientY: rect.y + rect.height / 2}));
+            detalhesSelecao.eventos.push(tipo);
+          };
           selecaoAcionada = true;
-          celula.dispatchEvent(new MouseEvent('dblclick', {bubbles: true, cancelable: true, view: window, button: 0, detail: 2,
-            clientX: rect.x + rect.width / 2, clientY: rect.y + rect.height / 2}));
+          for (const n of [1, 2]) {
+            if (!grades().length) break;
+            disparar('pointerdown', n, 1); disparar('mousedown', n, 1);
+            disparar('pointerup', n); disparar('mouseup', n); disparar('click', n);
+            if (grades().length && controle.selection?.row !== indiceLinha) falhar('A seleção da grade mudou durante os cliques. Nenhum duplo clique adicional foi acionado.');
+          }
+          if (grades().length) disparar('dblclick', 2);
           etapa = 'conferir_servico';
           const fimSelecao = Date.now() + 8000;
           while (true) {

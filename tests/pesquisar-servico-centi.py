@@ -47,8 +47,10 @@ class PesquisaCenti(unittest.TestCase):
         window.wijmo={Control:{getControl:()=>controle}};
         document.querySelector('#resultados').innerHTML=row();
         document.querySelector('#salvar').onclick=()=>window.salvos++;
-        document.querySelector('#resultados').onclick=()=>window.selecionados++;
-        document.querySelector('#resultados').ondblclick=()=>{
+        window.cliquesInternos=[];
+        document.querySelector('#resultados').onclick=e=>{window.selecionados++;if(e.target.matches('.alvo'))window.cliquesInternos.push(e.detail)};
+        document.querySelector('#resultados').ondblclick=e=>{
+          if(window.modo==='alvoInterno'&&(!e.target.matches('.alvo')||window.cliquesInternos.join(',')!=='1,2'))return;
           document.querySelector('#IdServicoTESTE').value=window.modo==='codigo'?'09.02.000':window.modo==='selecaoErrada'?'999':controle.getCellData(controle.selection.row,0);
           document.querySelector('#IdServicoTESTE-second').value=controle.getCellData(controle.selection.row,2);
           if(window.modo==='alterarDatas')document.querySelector('#DataInicioTESTE').value='01/01/2020';
@@ -58,7 +60,7 @@ class PesquisaCenti(unittest.TestCase):
         document.querySelector('.btnPesquisar').onclick=()=>{window.pesquisas++;
           if(window.modo==='antigo')return;
           const html=window.modo==='tresAliquotas'?row().replace('238','740').replace('4%','5%').replace('4,00','5,00')+row().replace('238','494').replace('4%','2%').replace('4,00','2,00')+row():window.modo==='duplicado'?row()+row():window.modo==='errado'?row().replace('238','999'):row();
-          setTimeout(()=>document.querySelector('#resultados').innerHTML=html,20);
+          setTimeout(()=>document.querySelector('#resultados').innerHTML=window.modo==='alvoInterno'?html.replace('<div class="wj-cell">238</div>','<div class="wj-cell"><span class="alvo" style="display:block;width:100%;height:100%">238</span></div>'):html,20);
         };
         </script>''')
 
@@ -179,6 +181,46 @@ class PesquisaCenti(unittest.TestCase):
         self.assertFalse(r['selecaoAcionada'])
         self.assertIn('não manteve a seleção',r['mensagem'])
         self.assertEqual(self.page.locator('#IdServicoTESTE').input_value(), '')
+
+    def test_click_sequence_targets_actual_child_inside_id_cell(self):
+        self.pedido['selecionar'] = True
+        self.page.evaluate("window.modo='alvoInterno'")
+        r = self.run_search()
+        self.assertTrue(r['ok'], r)
+        self.assertTrue(r['detalhesSelecao']['alvoClique']['interno'])
+        self.assertEqual(self.page.evaluate('cliquesInternos'), [1,2])
+        self.assertEqual(self.page.evaluate('salvos'), 0)
+
+    def test_manual_verification_reads_existing_selection_without_clicks(self):
+        self.pedido.update(conferirManual=True, ausenciaConferida=False)
+        self.page.locator('#IdServicoTESTE').fill('238')
+        self.page.locator('#IdServicoTESTE-second').fill('SERVIÇO DE TESTE - 4%')
+        self.page.evaluate('window.wijmo=undefined')
+        r = self.run_search()
+        self.assertTrue(r['ok'], r)
+        self.assertEqual(r['origemSelecao'], 'operador')
+        self.assertIsNone(r['datasPreservadas'])
+        self.assertFalse(r['interacaoIniciada'])
+        self.assertEqual(self.page.evaluate('salvos+selecionados+pesquisas+lupas'), 0)
+
+    def test_manual_verification_rejects_wrong_service_and_open_lookup(self):
+        self.pedido.update(conferirManual=True, ausenciaConferida=False)
+        self.page.locator('#IdServicoTESTE').fill('740')
+        self.page.locator('#IdServicoTESTE-second').fill('SERVIÇO DE TESTE - 5%')
+        self.assertFalse(self.run_search()['ok'])
+        self.page.locator('#IdServicoTESTE').fill('238')
+        self.page.locator('#IdServicoTESTE-second').fill('SERVIÇO DE TESTE - 4%')
+        self.page.evaluate('document.querySelector("#modal").style.display="block"')
+        self.assertFalse(self.run_search()['ok'])
+        self.assertEqual(self.page.evaluate('salvos+selecionados+pesquisas+lupas'), 0)
+
+    def test_manual_verification_checks_previously_observed_dates(self):
+        self.pedido.update(conferirManual=True, ausenciaConferida=False, datasEsperadas={'inicio':'01/01/2020','fim':''})
+        self.page.locator('#IdServicoTESTE').fill('238')
+        self.page.locator('#IdServicoTESTE-second').fill('SERVIÇO DE TESTE - 4%')
+        self.assertFalse(self.run_search()['ok'])
+        self.pedido['datasEsperadas']['inicio']='19/10/2026'
+        self.assertTrue(self.run_search()['datasPreservadas'])
 
 
 if __name__ == '__main__': unittest.main()

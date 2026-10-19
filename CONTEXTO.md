@@ -1,6 +1,6 @@
 # Ponte Centi — contexto recuperado
 
-As seções abaixo preservam o histórico. A versão vigente e a próxima validação estão na seção Correção 0.10.1, ao final deste documento.
+As seções abaixo preservam o histórico. A versão vigente e a próxima validação estão na seção Ativação e conferência 0.10.2, ao final deste documento.
 
 Este documento foi reconstruído a partir dos arquivos recuperados e desta conversa. Não é o CONTEXTO.md original nem o palácio de memória mencionado pelo usuário; ambos continuam ausentes.
 
@@ -104,3 +104,13 @@ O primeiro teste 0.10.0 parou sem interação por ausência de um único formul�
 A versão 0.10.1 trata a hipótese de que os eventos sintéticos não alteraram a seleção interna do Wijmo. A opção de seleção agora é injetada em MAIN para usar a API pública wijmo.Control.getControl; encontra uma única linha por colunas ID/código/nome/alíquota, usa select e verifica a seleção antes do duplo clique. Não usa propriedades privadas. Sem API ou seleção confirmada, não dá duplo clique. A conferência do formulário, Id 0 e datas preservadas continua obrigatória. Em timeout, exporta os campos observados e quantas lupas permanecem abertas; não reutiliza sucesso anterior.
 
 Passaram 12 testes DOM da pesquisa/seleção e nove UI simulados, incluindo o cenário de três alíquotas com a correta na terceira linha. A API Wijmo nesses testes é simulada; a disponibilidade dela na Centi e o fechamento real da lupa ainda não foram verificados. Próximo teste do operador: atualizar raiz para 0.10.1, fechar lupa anterior, refazer comparação na pasta Serviços, reabrir o vínculo novo vazio, confirmar ausência e usar Pesquisar e selecionar. Exportar comparação sem salvar.
+
+## Ativação e conferência 0.10.2
+
+O relatório real comparacao-centi-1792419418894.json confirmou API Wijmo disponível, linha 2/ID 238/4% selecionada e conferida. Porém a lupa continuou aberta e Serviço/descrição permaneceram vazios; datas 19/10/2026 e fim vazio. Isso valida a seleção na grade, mas não a ativação/retorno ao formulário. Não declarar seleção automática concluída. A tentativa de consultar scripts públicos da Centi a partir da máquina cloud recebeu bloqueio 403 do túnel; não foram obtidos scripts nem solicitadas credenciais.
+
+A versão 0.10.2 tenta a sequência completa de cliques no elemento sob o centro da célula (incluindo filhos), mantendo a pré-seleção pela API. Interrompe eventos se a lupa fechar ou se a seleção mudar. Exporta alvo/eventos e datas anteriores. A ativação real ainda não foi validada.
+
+Foi adicionado Conferir seleção manual — sem salvar. Após o operador escolher a linha exata por duplo clique, esse modo lê o mesmo vínculo novo Id 0 e compara ID/código/descrição com o serviço esperado. Não clica, não pesquisa, não escreve campos e não salva. Registra origemSelecao operador; não atribuir esse resultado à automação. Confere preservação de datas apenas se houver registro anterior da mesma tentativa, senão retorna null. Recusa serviço errado ou lupa aberta. A opção usa a confirmação da empresa da comparação, sem exigir declaração incompatível de Serviço vazio.
+
+Passaram 16 testes DOM e 10 UI simulados nesta etapa, inclusive alvo interno com dois cliques, conferência manual sem mutações e datas. Falta validação real das novas rotas. Próximo teste: atualizar raiz para 0.10.2, refazer comparação na pasta Serviços e manter o código 09.02.000 selecionado. Pesquisar na lupa, escolher manualmente a linha 238 / 4% se a ativação automática não fechar a lupa, voltar ao Ponte Centi e usar Conferir seleção manual. Exportar resultado sem salvar. O objetivo de automatizar completamente a ativação e o preenchimento continua pendente; não tratar a conferência manual como solução definitiva dessa parte.

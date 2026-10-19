@@ -1,14 +1,14 @@
-# Comparação com a Centi — versão 0.10.1
+# Comparação com a Centi — versão 0.10.2
 
 ## Instalação
 
-Baixe o ZIP do repositório e extraia. No Chrome/Edge, abra Extensões, ative o modo do desenvolvedor e carregue sem compactação a pasta **C-dex-main**, que contém o manifesto principal 0.10.1. Esta é a aplicação completa; não selecionar `tools/diagnostico-centi`, que continua sendo a ferramenta separada 0.2.0. Ao atualizar uma pasta já carregada, recarregue a extensão e confira a versão exibida. A versão 0.10.1 requer activeTab e scripting para ler a aba Centi após o clique no ícone.
+Baixe o ZIP do repositório e extraia. No Chrome/Edge, abra Extensões, ative o modo do desenvolvedor e carregue sem compactação a pasta **C-dex-main**, que contém o manifesto principal 0.10.2. Esta é a aplicação completa; não selecionar `tools/diagnostico-centi`, que continua sendo a ferramenta separada 0.2.0. Ao atualizar uma pasta já carregada, recarregue a extensão e confira a versão exibida. A versão 0.10.2 requer activeTab e scripting para ler a aba Centi após o clique no ícone.
 
 ## Usar
 
 1. Gere e baixe a lista conferida da empresa pelo fluxo PDF do Ponte Centi. Para abrir esse fluxo, clique no ícone da extensão a partir de uma aba que não seja a Centi.
 2. Na Centi de Caetité, abra a mesma empresa e selecione a pasta Serviços, exibindo a tabela com ID, Serviço, Data início e Data fim. Deixe o formulário de vínculo e a lupa fechados.
-3. Nessa aba Centi, clique no ícone do **Ponte Centi** (aplicativo completo, versão 0.10.1). Será aberta uma nova aba de comparação; mantenha a aba Centi aberta. Se ainda tiver apenas o PDF, use o link **Gerar lista conferida a partir do PDF**; ele abre a consulta em outra aba, preservando a comparação.
+3. Nessa aba Centi, clique no ícone do **Ponte Centi** (aplicativo completo, versão 0.10.2). Será aberta uma nova aba de comparação; mantenha a aba Centi aberta. Se ainda tiver apenas o PDF, use o link **Gerar lista conferida a partir do PDF**; ele abre a consulta em outra aba, preservando a comparação.
 4. Selecione o JSON da lista conferida. Informe o CNPJ que você verificou no cadastro da Centi e marque a confirmação da empresa.
 5. Clique em Ler vínculos visíveis e comparar. A aplicação lê os vínculos renderizados na aba indicada e compara as descrições exatas normalizadas com o catálogo municipal. ID do vínculo e ID do catálogo são tratados separadamente.
 6. Revise os resultados e, se necessário, clique em Baixar comparação. O JSON contém CNPJ confirmado pelo operador, dados dos serviços da lista e ID/descrição/datas dos vínculos lidos; compartilhe-o apenas se desejar que esses dados sejam analisados.
@@ -52,9 +52,9 @@ A conferência é parcial: não valida Especificar CNAE, vigência, herança ou 
 - `node --test tests/conciliacao.test.mjs tests/comparar-captura.test.mjs`: 21 testes passaram.
 - `node --test tests/worker.test.mjs`: três testes da abertura do aplicativo passaram.
 - `python tests/ler-vinculos-centi.py`: oito testes DOM com Playwright/Chromium passaram.
-- `python tests/integracao-ui.py`: nove testes da interface em navegador com API Chrome simulada passaram, incluindo importação, comparação, exportação, invalidação após alterar o CNPJ, rejeição orientada de PDF/JSON inválido/diagnóstico abertura da consulta em outra aba e pesquisa condicionada à confirmação com exportação do resultado.
+- `python tests/integracao-ui.py`: 10 testes da interface em navegador com API Chrome simulada passaram, incluindo importação, comparação, exportação, invalidação após alterar o CNPJ, rejeição orientada de PDF/JSON inválido/diagnóstico abertura da consulta em outra aba e pesquisa condicionada à confirmação com exportação do resultado.
 
-- `python tests/pesquisar-servico-centi.py`: 12 testes DOM passaram, incluindo seleção pela API pública seguida de duplo clique, três alíquotas com o registro correto na terceira linha, recusa de API indisponível ou seleção não retida e seleção por duplo clique, preservação de datas, rejeição de retorno incorreto ao formulário e pesquisa atualizada, ausência de seleção/salvamento, recusas de formulário existente, falta de confirmação, domínio incorreto, resultados antigos, divergentes ou duplicados.
+- `python tests/pesquisar-servico-centi.py`: 16 testes DOM passaram, incluindo seleção pela API pública seguida de duplo clique, três alíquotas com o registro correto na terceira linha, recusa de API indisponível ou seleção não retida e seleção por duplo clique, preservação de datas, rejeição de retorno incorreto ao formulário e pesquisa atualizada, ausência de seleção/salvamento, recusas de formulário existente, falta de confirmação, domínio incorreto, resultados antigos, divergentes ou duplicados.
 
 Os testes locais usam páginas simuladas. A leitura e comparação foram observadas na Centi real na versão 0.8.1. A pesquisa 0.9.0 foi validada no relatório real comparacao-centi-1792416949140.json: serviço 09.02.000, ID 238, pesquisa_conferida, sem selecionar ou salvar. A seleção nova 0.10.1 ainda precisa ser validada pelo operador. O diagnóstico 0.2.0 fornecido pelo usuário confirmou cabeçalhos duplicados, cinco células por linha e sete linhas renderizadas, mas não seus conteúdos; não é prova de que exista uma cópia de medição específica na tela real. O leitor só unifica repetições com o mesmo ID de vínculo e os mesmos dados; IDs diferentes nunca são unificados.
 
@@ -65,3 +65,20 @@ O relatório real comparacao-centi-1792418316642.json mostrou timeout após acio
 A seleção agora executa no contexto principal da página para acessar a API pública `wijmo.Control.getControl`. Usa `columns`, `rows`, `getCellData`, `select` e a seleção pública; não lê propriedades privadas. Se a API não estiver exposta pela instalação da Centi ou houver divergência, interrompe antes do duplo clique e registra detalhes. Em timeout após o duplo clique, registra também os valores do Serviço e datas observados e a quantidade de lupas abertas. Esses dados são do formulário de serviço e estarão no JSON exportado.
 
 A correção passou em 12 testes DOM de pesquisa/seleção e nove testes UI com API Chrome simulada. A API Wijmo é simulada nesses testes; sua disponibilidade e a seleção efetiva na instalação Centi do usuário ainda precisam ser validadas. Para testar, atualizar a extensão, fechar a lupa anterior, refazer a comparação na pasta Serviços e reabrir o vínculo novo vazio, preservando alterações pendentes. Usar Pesquisar e selecionar e exportar o resultado, sem clicar em Salvar.
+
+## Ativação e conferência manual — 0.10.2
+
+O relatório real comparacao-centi-1792419418894.json confirmou que a API pública existe e selecionou a terceira linha (ID 238, 4%), mas a lupa permaneceu aberta e os campos Serviço ficaram vazios. Portanto seleção da linha e ativação da escolha são etapas distintas; a ativação automática ainda não foi validada.
+
+A versão 0.10.2 preserva a pré-seleção conferida, procura o elemento sob o centro da célula e envia a sequência de cliques e duplo clique a esse elemento interno. Interrompe eventos adicionais se a lupa fechar ou se a seleção mudar. O relatório registra o alvo e os eventos enviados. Esses eventos continuam sintéticos; os testes não provam que a Centi real os processará.
+
+Para conferir a escolha feita pelo operador:
+
+1. Faça a comparação e mantenha o serviço esperado selecionado no Ponte Centi.
+2. Na Centi, escolha a linha exata manualmente. Para o teste observado: ID **238**, código **09.02.000**, alíquota **4,00** (não a linha 740 / 5%). Dê o duplo clique e aguarde voltar ao formulário do vínculo novo Id 0, sem salvar.
+3. Na aba Ponte Centi, clique em **Conferir seleção manual — sem salvar**. Esse botão não exige a confirmação de Serviço vazio, pois agora ele deve estar preenchido; usa a confirmação de empresa da comparação.
+4. A conferência apenas lê ID/código e descrição do Serviço e as datas do formulário; não envia cliques, não pesquisa e não altera campos. Recusa serviço diferente, vínculo já salvo ou lupa ainda aberta. A origem da seleção é registrada como **operador**, e não como automação.
+5. Se houver datas anteriores registradas da mesma tentativa, compara-as; caso contrário, `datasPreservadas` é null, não uma confirmação de preservação. A validação de Especificar CNAE e demais regras continua manual.
+6. Baixe a comparação para registrar os campos conferidos. O vínculo continua não salvo.
+
+Passaram 16 testes DOM da pesquisa/seleção/conferência e 10 UI com API Chrome simulada nesta etapa. O teste com elemento interno exige dois cliques antes do duplo clique; os testes manuais verificam ausência de alterações, serviço incorreto, lupa aberta e comparação de datas. A nova ativação automática e a conferência manual ainda dependem da validação do operador na Centi real.
