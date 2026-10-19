@@ -204,5 +204,16 @@ class IntegracaoUI(unittest.TestCase):
         self.assertEqual(r['totalVinculosPendentes'], 1)
         self.assertFalse(r['salvo'])
 
+    def test_saved_service_displayed_as_numeric_reference_is_not_offered_again(self):
+        capture = {'tipo': 'captura_vinculos_centi', 'registros': [
+            {'idVinculo': '16192', 'nome': str(self.servico['Id']), 'dataInicio': '19/10/2026', 'dataFim': ''}
+        ], 'linhasNaoInterpretadas': 0}
+        self.page.evaluate('c => { chrome.scripting.executeScript=async()=>[{result:c}]; }', capture)
+        self.page.locator('#comparar').click()
+        self.page.locator('#resultado').wait_for(state='visible')
+        self.assertIn('Localizado na captura', self.page.locator('#servicos-comparados').inner_text())
+        self.assertTrue(self.page.locator('#pesquisa').is_hidden())
+        self.assertEqual(self.page.locator('#servico-pesquisa option').count(), 0)
+
 
 if __name__ == '__main__': unittest.main()

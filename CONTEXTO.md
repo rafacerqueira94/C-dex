@@ -1,6 +1,6 @@
 # Ponte Centi — contexto recuperado
 
-As seções abaixo preservam o histórico. A versão vigente e a próxima validação estão na seção Proteção de pendências 0.11.0, ao final deste documento.
+As seções abaixo preservam o histórico. A versão vigente e a próxima validação estão na seção Referência numérica 0.11.1, ao final deste documento.
 
 Este documento foi reconstruído a partir dos arquivos recuperados e desta conversa. Não é o CONTEXTO.md original nem o palácio de memória mencionado pelo usuário; ambos continuam ausentes.
 
@@ -130,3 +130,11 @@ A captura final enviada pelo usuário confirmou o formulário preenchido com 09.
 Foi acrescentado reconhecimento de linhas renderizadas com Id 0 e descrição em `vinculosPendentes`. A comparação resolve as descrições pelo catálogo e classifica um serviço único assim encontrado como preenchido_sem_salvar, excluindo-o das opções de nova inclusão. Vínculo existente mais novo ou dois novos para o mesmo código geram conflito. Não unificar ID 0 por conteúdo igual, pois pode haver duplicidade real. Pendência sem correspondência permanece destacada; leitura sempre parcial, podePreencher false. Não prometer detecção de pendências fora da grade ou sem dados reconhecíveis.
 
 Passaram 11 testes Node da comparação, nove DOM do leitor e 11 UI simulados nesta etapa (31). Falta observar a leitura real de pendências 0.11.0 e a confirmação de persistência de qualquer vínculo. O programa não salva. Para efetivar um cadastro, o operador decide e usa Salvar na Centi; só considerar salvo após ID definitivo ou confirmação e releitura da lista. Próximo teste de deduplicação após eventual salvamento manual: reler Serviços com o mesmo JSON, confirmar 09.02.000 localizado e não oferecido novamente; 10.03.000 continua não testado. Não pedir para repetir a seleção 09.02.000 nem iniciar o segundo enquanto o primeiro estiver pendente.
+
+## Referência numérica 0.11.1
+
+O usuário enviou comparacao-centi-1792421312126.json após o passo de salvamento manual/releitura. A captura tem sete vínculos e um novo ID definitivo 16192, data início 19/10/2026, fim vazio, Serviço exibido como "238". Isso é a referência ao catálogo municipal 238/09.02.000/4%, não o ID de vínculo. O comparador antigo só aceitava a descrição e deixou esse serviço como não localizado. A tentativa adicional registrada na mesma exportação parou antes de qualquer interação por ausência de formulário novo. Não recomendar repetir a inclusão de 09.02.000.
+
+A versão 0.11.1 resolve o texto numérico positivo da coluna Serviço pelo ID exato do catálogo ativo, sem usar idVinculo. Se houver ambiguidade, desconhecimento ou só um código sem alíquota, não aproxima. Também trata referência numérica em pendente Id 0 como preenchido_sem_salvar. Exporta formasIdentificacao/identificadoPor. O campo salvo=false no relatório significa que a extensão não acionou Salvar, não que não houve salvamento manual pelo operador.
+
+Foram reprocessados localmente o JSON real e a lista conferida original: 09.02.000 localizado no vínculo 16192; 08.02.000, 13.02.000 e 17.06.000 localizados; somente 10.03.000 não localizado na captura. O (VETADO) permanece sem correspondência. Não houve operação na Centi nesse reprocessamento. Passaram 16 testes Node da comparação e 12 UI simulados. Falta executar a comparação corrigida na extensão real para validar a retirada de 09.02.000 das opções; o dado real já reproduziu a correção localmente. Próximo passo: atualizar raiz 0.11.1, refazer apenas comparação, nunca recadastrar 09.02.000; preparar 10.03.000/ID 51/4% somente após conferir ausência inclusive herança/paginação/filtros e abrir vínculo novo vazio. Não afirmar que o segundo serviço já foi selecionado ou salvo.

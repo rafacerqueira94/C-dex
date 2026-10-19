@@ -75,3 +75,36 @@ test('pendência desconhecida é destacada e ID 0 não pode entrar como vínculo
   assert.equal(compararCaptura(plano, c, [registro], cnpj).vinculosSemIdentificacao.length, 1);
   assert.throws(() => compararCaptura(plano, captura([{...vinculo, idVinculo: '0'}]), [registro], cnpj));
 });
+
+test('Serviço exibido como ID municipal resolve sem usar o ID do vínculo', () => {
+  const c = captura([{...vinculo, idVinculo: '16192', nome: '219'}]);
+  const r = compararCaptura(plano, c, [registro], cnpj);
+  assert.equal(r.servicos[0].situacao, 'localizado');
+  assert.deepEqual(r.servicos[0].idsVinculos, ['16192']);
+  assert.deepEqual(r.servicos[0].formasIdentificacao, ['id_municipal']);
+  assert.equal(r.vinculosSemIdentificacao.length, 0);
+});
+test('ID do vínculo jamais substitui referência desconhecida na coluna Serviço', () => {
+  const c = captura([{...vinculo, idVinculo: '219', nome: '16192'}]);
+  const r = compararCaptura(plano, c, [registro], cnpj);
+  assert.equal(r.servicos[0].situacao, 'nao_localizado_na_captura');
+  assert.equal(r.vinculosSemIdentificacao.length, 1);
+});
+test('referência numérica ambígua ou inativa não é aceita como correspondência', () => {
+  const outro = {...registro, Id: '300', CodigoCompleto: '07.08.000'};
+  for (const extras of [[outro,{...outro,CodigoCompleto:'07.09.000'}],[{...outro,Situacao:'Inativo'}]]) {
+    const r = compararCaptura(plano, captura([{...vinculo,nome:'300'}]), [registro,...extras], cnpj);
+    assert.equal(r.servicos[0].situacao, 'nao_localizado_na_captura');
+    assert.equal(r.vinculosSemIdentificacao.length, 1);
+  }
+});
+test('referência numérica em vínculo Id 0 continua pendente, não localizado como salvo', () => {
+  const c = {...captura([]), vinculosPendentes:[{...vinculo,idVinculo:'0',nome:'219'}]};
+  assert.equal(compararCaptura(plano,c,[registro],cnpj).servicos[0].situacao,'preenchido_sem_salvar');
+});
+test('código sem alíquota e números parciais não recebem correspondência por aproximação', () => {
+  for (const nome of ['07.07.000','219abc','0219']) {
+    const r = compararCaptura(plano,captura([{...vinculo,nome}]),[registro],cnpj);
+    assert.equal(r.vinculosSemIdentificacao.length,1);
+  }
+});

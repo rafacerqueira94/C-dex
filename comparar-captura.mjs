@@ -20,8 +20,14 @@ export function compararCaptura(plano, captura, catalogo, cnpjConfirmado) {
     if (candidatos.length !== 1) throw Error('Um serviço da lista não corresponde ao catálogo atual.');
   }
   const resolver = (v, pendente) => {
-    const candidatos = catalogo.filter(r => normal(r.Nome) === normal(v.nome) && r.Situacao === 'Ativo');
+    // A coluna Serviço pode mostrar a descrição ou só a chave da referência
+    // (ex.: "238"). Nunca usar o ID do vínculo como ID do catálogo.
+    const referencia = v.nome.trim();
+    const referenciaNumerica = /^[1-9]\d*$/.test(referencia);
+    const candidatos = catalogo.filter(r => r.Situacao === 'Ativo'
+      && ((referenciaNumerica && String(r.Id) === referencia) || normal(r.Nome) === normal(referencia)));
     return {...v, pendente, registroMunicipal: candidatos.length === 1 ? candidatos[0] : null,
+      identificadoPor: candidatos.length !== 1 ? null : referenciaNumerica && String(candidatos[0].Id) === referencia ? 'id_municipal' : 'descricao',
       identificacao: candidatos.length === 1 ? 'resolvida' : candidatos.length ? 'ambigua' : 'fora_do_catalogo'};
   };
   const vistos = new Set();
@@ -43,7 +49,8 @@ export function compararCaptura(plano, captura, catalogo, cnpjConfirmado) {
     const exatos = mesmoCodigo.filter(v => String(v.registroMunicipal.Id) === String(s.id) && v.registroMunicipal.Aliquota === s.aliquota);
     const situacao = mesmoCodigo.length === 1 && exatos.length === 1 ? (exatos[0].pendente ? 'preenchido_sem_salvar' : 'localizado')
       : mesmoCodigo.length ? 'conflito' : 'nao_localizado_na_captura';
-    return {...s, situacao, idsVinculos: mesmoCodigo.map(v => v.idVinculo)};
+    return {...s, situacao, idsVinculos: mesmoCodigo.map(v => v.idVinculo),
+      formasIdentificacao: [...new Set(mesmoCodigo.map(v => v.identificadoPor))]};
   });
   return {
     tipo: 'comparacao_parcial_centi', versao: 1,
