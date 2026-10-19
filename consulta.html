@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ponte Centi — conferir serviços</title><link rel="stylesheet" href="consulta.css"><script type="module" src="consulta.mjs"></script></head>
+<body>
+<header><div class="marca">Ponte <strong>Centi</strong></div><span>Consulta e conferência · 0.7.2</span></header>
+<main>
+  <section class="introducao"><p class="passo">1. IDENTIFICAR → 2. REVISAR → 3. CONFERIR</p><h1>Do CNPJ à lista de serviços</h1><p>Anexe o cartão CNPJ da Receita e confira os serviços sugeridos antes do cadastro na Centi.</p></section>
+  <section class="cartao" aria-labelledby="titulo-consulta"><h2 id="titulo-consulta">Identificar empresa</h2>
+    <form id="form-consulta">
+      <div class="campos"><div id="entrada-pdf"><label for="arquivo-pdf">Cartão CNPJ da Receita Federal (.pdf)<input id="arquivo-pdf" name="arquivo-pdf" type="file" accept=".pdf,application/pdf" required></label><p class="ajuda">PDF com texto selecionável, até 10 MB. A leitura é feita neste navegador.</p></div>
+      <fieldset><legend>A empresa se enquadra em coworking?</legend><label class="radio"><input type="radio" name="coworking" value="sim" required> Sim</label><label class="radio"><input type="radio" name="coworking" value="nao" required> Não</label></fieldset></div>
+      <button id="consultar" type="submit" disabled>Ler cartão e sugerir serviços</button>
+      <p id="ajuda-fonte" class="ajuda">Anexe o cartão completo e informe o enquadramento em coworking. Confira os dados extraídos antes de cadastrar.</p>
+    </form>
+    <p id="status" role="status" aria-live="polite">Carregando as bases de serviços…</p><p id="erro" role="alert" hidden></p>
+  </section>
+  <section id="empresa" class="cartao" hidden aria-labelledby="razao"><p class="passo">DADOS DA EMPRESA</p><h2 id="razao"></h2><dl id="dados-empresa"></dl>
+    <label id="classificacao" hidden for="porte-manual">O porte não foi reconhecido. Confirme a classificação:
+      <select id="porte-manual"><option value="">Selecione o porte</option><option value="grande">Grande porte / DEMAIS</option><option value="outros">Outro porte</option></select>
+    </label>
+    <p id="situacao-aviso" class="aviso" hidden></p>
+    <p id="anexo" hidden><a id="visualizar-pdf" target="_blank" rel="noopener">Visualizar cartão anexado</a><span id="nome-anexo"></span><small class="ajuda"> O anexo fica disponível enquanto esta aba estiver aberta.</small></p>
+    <h3>CNAEs da empresa</h3><ul id="cnaes"></ul>
+  </section>
+  <section id="revisao" class="cartao" hidden aria-labelledby="titulo-revisao"><p class="passo">REVISAR SUGESTÕES</p><h2 id="titulo-revisao">Serviços para conferência</h2><p id="aliquota" class="destaque"></p>
+    <p>Marque os serviços que deseja incluir na lista. Confira a atividade efetivamente exercida e o enquadramento municipal.</p>
+    <div id="lacunas" class="aviso" hidden></div><p id="sem-servicos" hidden></p>
+    <div class="tabela"><table><thead><tr><th scope="col">Selecionar</th><th scope="col">Serviço</th><th scope="col">CNAEs de origem</th><th scope="col">Registro na Centi</th></tr></thead><tbody id="servicos"></tbody></table></div>
+    <p id="contagem" role="status"></p>
+    <form id="form-confirmacao"><label class="aceite"><input id="aceite" type="checkbox" required> Conferi os dados da empresa, a alíquota e os serviços selecionados, incluindo os avisos de correspondências ausentes.</label><button id="confirmar" disabled type="submit">Confirmar lista</button></form>
+  </section>
+  <section id="resultado" class="cartao confirmado" hidden aria-labelledby="titulo-resultado"><p class="passo">LISTA CONFERIDA</p><h2 id="titulo-resultado"></h2><p id="resumo"></p><ul id="lista-final"></ul><p id="aviso-final"></p><button id="exportar" type="button">Baixar lista conferida</button><p class="ajuda">Esta etapa prepara a lista. Nenhum dado foi preenchido ou salvo na Centi.</p></section>
+  <footer>Correspondências CNAE/ISS e catálogo municipal fornecidos pelo usuário. A lista pode ser parcial quando faltam correspondências.</footer>
+</main>
+</body></html>

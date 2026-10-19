@@ -1,0 +1,32 @@
+Ponte Centi 0.7.2 — cartão CNPJ em PDF e conferência
+
+1. No Chrome/Edge, carregue a pasta da extensão em Carregar sem compactação.
+2. Clique no ícone Ponte Centi — consulta e conferência para abrir o aplicativo.
+   Não abra consulta.html diretamente pela pasta no Windows.
+3. A única entrada é Anexar cartão CNPJ (PDF). Escolha o comprovante completo
+   da Receita Federal, com texto selecionável, até 10 MB e 20 páginas.
+4. Informe Sim ou Não para coworking e clique em Ler cartão e sugerir serviços.
+5. Confira CNPJ, razão social, porte, CNAEs e avisos com o cartão anexado.
+6. Selecione os serviços, confirme a conferência e baixe a lista em JSON.
+
+O PDF é lido localmente, sem consulta por número, APIs ou envio do documento.
+Visualizar cartão anexado abre o original; o anexo fica disponível enquanto
+esta aba estiver aberta. Guarde o arquivo original para uso posterior.
+O JSON exportado inclui nome, tamanho, páginas e SHA-256 do documento; não
+inclui o conteúdo do PDF nem o armazena permanentemente.
+Não há OCR para arquivos digitalizados como imagem. PDFs protegidos por senha,
+com campos obrigatórios ilegíveis ou com vários CNPJs são recusados.
+
+Porte não reconhecido exige classificação pelo operador.
+A extensão não tem permissão de acesso a sites externos.
+Esta etapa não preenche nem salva na Centi. As correspondências são parciais:
+CNAEs sem vínculo conhecido são destacados, sem classificação por aproximação.
+
+Desenvolvimento: npm ci --cache /tmp/cdex-npm-cache --ignore-scripts --no-audit
+--no-fund; npm run build:consulta. O pacote incorpora PDF.js 5.4.624 e sua licença.
+O computador do operador não precisa de Node.js para carregar o pacote pronto.
+O instalador PowerShell por texto baixa a biblioteca PDF.js pelo registro npm,
+confere seu SHA-512 e cria outra pasta, preservando a versão anterior.
+
+Para atualizar da 0.7.1: npm run build:atualizador-pdf gera um PowerShell
+que reutiliza as bases e PDF.js locais e cria outra pasta, sem downloads.

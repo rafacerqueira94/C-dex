@@ -1,0 +1,13 @@
+{
+  "modoExtracao": "JSON literal e CSV, sem executar scripts do HTML",
+  "sha256": {
+    "itens-servico-iss-cnpj.html": "a40378b9a0c63afc1c66c6953f0eb3f3a84263e0d45dd3b5730d21361ae0e39b",
+    "PESQUISA.CSV": "f99e47fc02b4fe145ed7aaf12cc33f4a64518087030ab355c800facb89e8ee3e"
+  },
+  "cnaes": 420,
+  "vinculos": 538,
+  "itensIss": 171,
+  "registrosCenti": 603,
+  "idsCenti": 603,
+  "codigosCenti": 201
+}
