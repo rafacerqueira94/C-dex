@@ -31,7 +31,7 @@ class IntegracaoUI(unittest.TestCase):
             else:
                 mime = 'text/javascript' if path.suffix == '.mjs' else mimetypes.guess_type(path.name)[0] or 'application/octet-stream'
                 r.fulfill(status=200, content_type=mime, body=path.read_bytes())
-        self.page.route('http://ponte.test/**', route)
+        self.ctx.route('http://ponte.test/**', route)
         capture = {'tipo': 'captura_vinculos_centi', 'registros': [
             {'idVinculo': '9999', 'nome': self.servico['Nome'], 'dataInicio': '18/11/2025', 'dataFim': ''},
             {'idVinculo': '10000', 'nome': '<img src=x onerror="window.injetado=true"> - 4%', 'dataInicio': '', 'dataFim': ''}
@@ -77,6 +77,33 @@ class IntegracaoUI(unittest.TestCase):
         self.page.locator('#erro').wait_for(state='visible')
         self.assertIn('Permissão', self.page.locator('#erro').inner_text())
         self.assertTrue(self.page.locator('#resultado').is_hidden())
+
+    def test_pdf_rejection_explains_how_to_generate_list_without_reading_centi(self):
+        for name in ['download.pdf', 'arquivo.json']:
+            self.page.locator('#lista').set_input_files({'name': name, 'mimeType': 'application/pdf', 'buffer': b'%PDF-1.4\nsecret document content'})
+            self.page.locator('#comparar').click()
+            self.page.locator('#erro').wait_for(state='visible')
+            self.assertIn('Gerar lista conferida a partir do PDF', self.page.locator('#erro').inner_text())
+            self.assertNotIn('secret document content', self.page.locator('#erro').inner_text())
+            self.assertEqual(self.page.evaluate('window.leituras'), 0)
+
+    def test_invalid_json_and_diagnostic_have_clear_errors(self):
+        for content in [b'{ private text invalid', b'{"tipo":"diagnostico_estrutura_centi"}']:
+            self.page.locator('#lista').set_input_files({'name': 'arquivo.json', 'mimeType': 'application/json', 'buffer': content})
+            self.page.locator('#comparar').click()
+            self.page.locator('#erro').wait_for(state='visible')
+            self.assertIn('servi', self.page.locator('#erro').inner_text())
+            self.assertNotIn('private text', self.page.locator('#erro').inner_text())
+            self.assertEqual(self.page.evaluate('window.leituras'), 0)
+
+    def test_generate_list_link_preserves_comparison_tab(self):
+        with self.page.expect_popup() as popup:
+            self.page.locator('#gerar-lista').click()
+        new_page = popup.value
+        new_page.wait_for_load_state()
+        self.assertTrue(new_page.url.endswith('/consulta.html'))
+        self.assertIn('integracao.html?aba=123', self.page.url)
+        self.assertEqual(new_page.locator('#arquivo-pdf').count(), 1)
 
 
 if __name__ == '__main__': unittest.main()

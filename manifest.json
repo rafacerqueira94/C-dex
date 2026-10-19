@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Ponte Centi — consulta e conferência",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Lê cartão CNPJ e compara a lista conferida com serviços visíveis na Centi, sem salvar.",
   "permissions": ["activeTab", "scripting"],
   "background": {

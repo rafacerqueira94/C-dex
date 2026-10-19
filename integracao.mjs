@@ -16,7 +16,16 @@ $('form-comparar').addEventListener('submit', async e => {
     if (!$('conferido').checked) throw Error('Confira a empresa antes de ler os vínculos.');
     const arquivo = $('lista').files[0];
     if (!arquivo || arquivo.size > 2 * 1024 * 1024) throw Error('Selecione uma lista JSON de até 2 MB.');
-    const plano = JSON.parse(await arquivo.text());
+    const texto = (await arquivo.text()).replace(/^\uFEFF/, '');
+    if (/\.pdf$/i.test(arquivo.name) || texto.trimStart().startsWith('%PDF-')) {
+      throw Error('Você selecionou um cartão PDF. Use “Gerar lista conferida a partir do PDF”, confira os serviços e baixe a lista. Depois importe aqui o arquivo servicos-conferidos-….json.');
+    }
+    let plano;
+    try { plano = JSON.parse(texto); }
+    catch { throw Error('Não foi possível ler a lista. Selecione o arquivo servicos-conferidos-….json baixado pelo Ponte Centi após confirmar os serviços.'); }
+    if (plano?.tipo !== 'lista_servicos_conferida') {
+      throw Error('Este arquivo não é uma lista conferida de serviços. Use “Gerar lista conferida a partir do PDF” e baixe o arquivo após confirmar os serviços.');
+    }
     const cnpj = $('cnpj').value;
     const resposta = await fetch('data/servicos-centi-extraido.json');
     if (!resposta.ok) throw Error('Não foi possível carregar o catálogo.');

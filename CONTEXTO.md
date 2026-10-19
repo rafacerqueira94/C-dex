@@ -65,6 +65,10 @@ A aplicação principal foi atualizada para 0.8.0 com activeTab e scripting. Ao 
 
 Validação local: 21 testes Node de conciliação/comparação, três testes do worker, seis testes DOM do leitor e três testes UI com API Chrome simulada passaram (33 no total). Falta validar instalação e leitura 0.8.0 na máquina do usuário. Instruções em `docs/COMPARACAO-CENTI.md`. Instalar a pasta raiz do aplicativo, não a pasta da ferramenta de diagnóstico. O objetivo de preenchimento ainda não está concluído; o próximo passo depende da validação da leitura e identificação completa dos vínculos/empresa.
 
+### Correção 0.8.1
+
+O usuário abriu a comparação 0.8.0, mas selecionou um PDF no campo JSON e recebeu um erro técnico de JSON.parse. A versão 0.8.1 adiciona um link visível para gerar a lista a partir do PDF em outra aba, instruções do arquivo esperado e mensagens claras para PDF, JSON inválido e relatórios de outro tipo. A comparação original e a referência à aba Centi são preservadas. Seis testes UI passaram, incluindo três novos cenários de regressão; os demais módulos não foram alterados. A leitura da Centi real continua pendente de validação com uma lista válida.
+
 O segundo relatório, `diagnostico-centi-1792412718698.json`, identificou uma grade Wijmo do tipo lista, sem formulário aberto, porém sem cabeçalhos ou linhas reconhecidos. Foi criada a ferramenta 0.2.0 com seletores de classes Wijmo além de ARIA; sete testes DOM simulados passaram. Solicitar relatório dessa versão na mesma tela; não presumir lista vazia pelo relatório anterior. Captura da tela com dados privados ocultados é alternativa para esclarecer estrutura não reconhecida.
 
 A captura enviada depois revela vínculos organizados em árvore à esquerda, sob Serviços, e formulário de detalhes à direita. A tela exibida é de inclusão pendente (Id 0, Serviço vazio, Salvar(1)). Há também Serviços herdados CNAE, que deve ser considerado no levantamento de regras de duplicidade. Priorizar mapeamento da árvore e de um vínculo já salvo, sem presumir que a grade encontrada seja a relação de serviços e sem descartar alterações pendentes do operador.

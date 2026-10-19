@@ -1,4 +1,4 @@
-Ponte Centi 0.8.0 — cartão CNPJ, conferência e comparação com a Centi
+Ponte Centi 0.8.1 — cartão CNPJ, conferência e comparação com a Centi
 
 1. No Chrome/Edge, carregue a pasta da extensão em Carregar sem compactação.
 2. Clique no ícone Ponte Centi — consulta e conferência para abrir o aplicativo.
