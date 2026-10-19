@@ -1,5 +1,7 @@
 # Ponte Centi — contexto recuperado
 
+Para recuperação rápida e cópias de segurança, leia **RETOMAR.md**. O marco desta recuperação é a tag **progresso-2026-10-19** e a cópia completa fica na branch **backup/progresso-2026-10-19**.
+
 As seções abaixo preservam o histórico. A versão do código é 0.11.2; o caso de teste está concluído na seção Validação final dos cinco serviços, ao final deste documento.
 
 Este documento foi reconstruído a partir dos arquivos recuperados e desta conversa. Não é o CONTEXTO.md original nem o palácio de memória mencionado pelo usuário; ambos continuam ausentes.
