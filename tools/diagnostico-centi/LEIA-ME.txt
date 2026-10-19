@@ -1,0 +1,17 @@
+Ponte Centi — diagnóstico da tela (ferramenta separada do aplicativo)
+
+1. Extraia o ZIP para uma pasta permanente.
+2. Em chrome://extensions ou edge://extensions, ative o modo do desenvolvedor.
+3. Use Carregar sem compactação e selecione a pasta que contém este manifest.json.
+4. Entre normalmente na Centi de Caetité, abra um cadastro e deixe visível a lista
+   dos serviços já vinculados à empresa, com a lupa fechada.
+5. Clique no ícone Ponte Centi — diagnóstico da tela e salve o JSON oferecido.
+6. Envie esse JSON na conversa para continuar a reconstrução da integração.
+
+A ferramenta não preenche, pesquisa, seleciona ou salva na Centi. Não lê valores
+dos campos ou células, CNPJ, nome da empresa, cookies ou armazenamento. O relatório
+contém apenas estrutura e contagens visíveis e rótulos de uma lista fixa.
+Ela não comprova leitura completa dos registros. Não acessa conteúdo de iframes.
+Se aparecer ! no ícone, passe o mouse sobre ele para ler o motivo.
+
+Esta ferramenta ainda não implementa o preenchimento nem a deduplicação na Centi.
