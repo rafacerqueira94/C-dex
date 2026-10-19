@@ -1,0 +1,11 @@
+{
+  "marco": "progresso-2026-10-19",
+  "commit": "01f8419fd18cf318eef7ffb14701b52ff18f5867",
+  "versao": "0.11.2",
+  "bundle_completo_verificado": true,
+  "restauracao_sem_rede": true,
+  "git_fsck": "passou",
+  "zip_crc": "passou",
+  "arquivos_comparados_byte_a_byte": 221,
+  "restauracao_sem_alteracoes": true
+}
