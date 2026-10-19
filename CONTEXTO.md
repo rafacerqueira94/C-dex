@@ -1,6 +1,6 @@
 # Ponte Centi — contexto recuperado
 
-As seções abaixo preservam o histórico. A versão vigente e a próxima validação estão na seção Ativação e conferência 0.10.2, ao final deste documento.
+As seções abaixo preservam o histórico. A versão vigente e a próxima validação estão na seção Seleção automática confirmada, ao final deste documento.
 
 Este documento foi reconstruído a partir dos arquivos recuperados e desta conversa. Não é o CONTEXTO.md original nem o palácio de memória mencionado pelo usuário; ambos continuam ausentes.
 
@@ -114,3 +114,11 @@ A versão 0.10.2 tenta a sequência completa de cliques no elemento sob o centro
 Foi adicionado Conferir seleção manual — sem salvar. Após o operador escolher a linha exata por duplo clique, esse modo lê o mesmo vínculo novo Id 0 e compara ID/código/descrição com o serviço esperado. Não clica, não pesquisa, não escreve campos e não salva. Registra origemSelecao operador; não atribuir esse resultado à automação. Confere preservação de datas apenas se houver registro anterior da mesma tentativa, senão retorna null. Recusa serviço errado ou lupa aberta. A opção usa a confirmação da empresa da comparação, sem exigir declaração incompatível de Serviço vazio.
 
 Passaram 16 testes DOM e 10 UI simulados nesta etapa, inclusive alvo interno com dois cliques, conferência manual sem mutações e datas. Falta validação real das novas rotas. Próximo teste: atualizar raiz para 0.10.2, refazer comparação na pasta Serviços e manter o código 09.02.000 selecionado. Pesquisar na lupa, escolher manualmente a linha 238 / 4% se a ativação automática não fechar a lupa, voltar ao Ponte Centi e usar Conferir seleção manual. Exportar resultado sem salvar. O objetivo de automatizar completamente a ativação e o preenchimento continua pendente; não tratar a conferência manual como solução definitiva dessa parte.
+
+## Seleção automática confirmada — 0.10.2 / mensagem 0.10.3
+
+O JSON real comparacao-centi-1792419986717.json confirmou ok true, etapa servico_conferido, selecionado true, selecaoAcionada true, datasPreservadas true e salvo false. Serviço 09.02.000, ID municipal 238, devolvido ao formulário como código 09.02.000 e descrição de 4%. Id do vínculo permanece 0. Data início 19/10/2026 e data fim vazia. A origem é automática: API Wijmo selecionou a terceira linha e a sequência pointerdown/mousedown/pointerup/mouseup/click fechou a lupa. Não houve dblclick nem uso do modo manual. A mensagem antiga mencionava duplo clique incorretamente.
+
+A versão 0.10.3 corrige somente a mensagem de sucesso e adiciona metodoAtivacao, inferido dos eventos efetivamente enviados. Passaram os 17 testes DOM de pesquisa/seleção/conferência, incluindo o fechamento no primeiro clique e ausência de eventos adicionais. O usuário não precisa repetir a seleção ou atualizar para validar o mesmo caso já concluído.
+
+O objetivo de ativação automática do serviço foi validado para 09.02.000/238 na Centi real. O vínculo segue sem salvar, como solicitado para os testes. Ainda falta conferir Especificar CNAE e os demais dados do formulário antes de discutir salvamento. Próxima entrada: captura do formulário preenchido (não da lupa), para conferir o campo Especificar CNAE. Não repetir pesquisa no vínculo preenchido, não criar outro vínculo 09.02.000 e não iniciar o segundo serviço antes de resolver o primeiro pendente. Não afirmar que a seleção 10.03.000 foi testada; ela não foi.

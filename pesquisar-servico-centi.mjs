@@ -178,10 +178,11 @@ export async function pesquisarServicoCenti(pedido) {
               const dataInicio = campo('DataInicio' + sufixo).value, dataFim = campo('DataFim' + sufixo).value;
               if (dataInicio !== datasAntes.inicio || dataFim !== datasAntes.fim) falhar('As datas mudaram durante a seleção. Confira o formulário antes de continuar.');
               selecionado = true;
+              const metodoAtivacao = detalhesSelecao.eventos.includes('dblclick') ? 'duplo_clique' : 'clique';
               return {ok: true, salvo: false, selecionado, selecaoAcionada, etapa: 'servico_conferido', interacaoIniciada, pesquisaAcionada,
-                pesquisaAtualizada: true, datasPreservadas: true, conferenciaParcial: true, detalhesSelecao,
+                pesquisaAtualizada: true, datasPreservadas: true, conferenciaParcial: true, detalhesSelecao, metodoAtivacao,
                 campos: {idVinculo: '0', idServico, nome, dataInicio, dataFim},
-                mensagem: 'Serviço selecionado por duplo clique, ID e descrição conferidos. Datas preservadas. Confira os demais campos; nenhum botão Salvar foi acionado.'};
+                mensagem: 'Serviço selecionado, ID e descrição conferidos. Datas preservadas. Confira os demais campos; nenhum botão Salvar foi acionado.'};
             }
             if (Date.now() >= fimSelecao) {
               detalhesSelecao.formularioAoFinal = {lupasVisiveis: grades().length, idServico, nome,

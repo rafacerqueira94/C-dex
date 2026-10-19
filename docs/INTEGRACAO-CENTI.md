@@ -2,6 +2,8 @@
 
 ## Implementação atual
 
+A seleção automática 0.10.2 foi confirmada na Centi real pelo relatório comparacao-centi-1792419986717.json: 09.02.000/238 correto no formulário novo, datas preservadas, sem salvar. A ativação ocorreu no primeiro clique após selecionar a linha pela API, sem dblclick ou conferência manual. A versão vigente 0.10.3 corrige a mensagem e registra o método efetivo. Os 17 testes DOM passaram. Não repetir esse teste apenas para atualizar; conferir Especificar CNAE no formulário antes de qualquer salvamento. O restante desta seção é histórico.
+
 Versão vigente 0.10.2: o relatório real mais recente confirmou que a seleção pública do Wijmo chegou à linha correta 238 / 4%, mas a ativação não fechou a lupa e os campos ficaram vazios. A nova versão envia eventos ao alvo interno da célula e adiciona conferência somente de leitura de uma seleção feita pelo operador, registrando essa origem. Passaram 16 testes DOM e 10 UI simulados; ambas as novas rotas ainda precisam de validação real. A ativação automática e o restante do preenchimento seguem pendentes. Instruções e limites em COMPARACAO-CENTI.md; estado vigente no fim de CONTEXTO.md.
 
 A versão vigente é 0.10.1. O teste de seleção 0.10.0 falhou na conferência do retorno; a captura mostrou a lupa ainda aberta com a primeira linha (740 / 5%) destacada, e o alvo (238 / 4%) na terceira. A seleção usa agora a API pública do Wijmo em MAIN, verifica a linha selecionada e só então dá duplo clique; sem API ou seleção confirmada, interrompe. Testes: 12 DOM da pesquisa/seleção e nove UI simulados passaram. Falta validar API e seleção na Centi real. O histórico abaixo descreve versões anteriores; veja o final de CONTEXTO.md para a próxima validação.

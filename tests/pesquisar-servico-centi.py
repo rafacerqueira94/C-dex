@@ -222,5 +222,23 @@ class PesquisaCenti(unittest.TestCase):
         self.pedido['datasEsperadas']['inicio']='19/10/2026'
         self.assertTrue(self.run_search()['datasPreservadas'])
 
+    def test_lookup_closing_on_first_click_stops_without_additional_clicks(self):
+        self.pedido['selecionar'] = True
+        self.page.evaluate('''() => {
+          const grid=wijmo.Control.getControl(document.querySelector('.wj-flexgrid'));
+          document.querySelector('#resultados').onclick=()=>{
+            window.selecionados++;
+            document.querySelector('#IdServicoTESTE').value=grid.getCellData(grid.selection.row,0);
+            document.querySelector('#IdServicoTESTE-second').value=grid.getCellData(grid.selection.row,2);
+            document.querySelector('#modal').style.display='none';
+          };
+        }''')
+        r = self.run_search()
+        self.assertTrue(r['ok'], r)
+        self.assertEqual(r['metodoAtivacao'], 'clique')
+        self.assertEqual(r['detalhesSelecao']['eventos'], ['pointerdown','mousedown','pointerup','mouseup','click'])
+        self.assertEqual(self.page.evaluate('selecionados'), 1)
+        self.assertEqual(self.page.evaluate('salvos'), 0)
+
 
 if __name__ == '__main__': unittest.main()
