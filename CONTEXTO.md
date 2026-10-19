@@ -1,5 +1,7 @@
 # Ponte Centi — contexto recuperado
 
+As seções abaixo preservam o histórico. A versão vigente e a próxima validação estão na seção Progresso 0.9.0, ao final deste documento.
+
 Este documento foi reconstruído a partir dos arquivos recuperados e desta conversa. Não é o CONTEXTO.md original nem o palácio de memória mencionado pelo usuário; ambos continuam ausentes.
 
 ## Origem e preservação
@@ -69,8 +71,20 @@ Validação local: 21 testes Node de conciliação/comparação, três testes do
 
 O usuário abriu a comparação 0.8.0, mas selecionou um PDF no campo JSON e recebeu um erro técnico de JSON.parse. A versão 0.8.1 adiciona um link visível para gerar a lista a partir do PDF em outra aba, instruções do arquivo esperado e mensagens claras para PDF, JSON inválido e relatórios de outro tipo. A comparação original e a referência à aba Centi são preservadas. Seis testes UI passaram, incluindo três novos cenários de regressão; os demais módulos não foram alterados. A leitura da Centi real continua pendente de validação com uma lista válida.
 
+### Primeira comparação real observada
+
+O usuário enviou uma captura da comparação concluída na extensão 0.8.1 com a lista conferida válida: seis vínculos lidos; serviços 08.02.000, 13.02.000 e 17.06.000 localizados; 09.02.000 e 10.03.000 não localizados nessa captura; todos a 4%. O vínculo histórico (VETADO) continua sem correspondência no catálogo. A interface informa uma linha não interpretada. A causa dessa linha não foi identificada: não presumir que seja somente medição do Wijmo. Nenhum dado foi alterado na Centi. Isso valida instalação, leitura e comparação desse caso real, sem comprovar completude, vigência, herança, CNPJ automático ou preenchimento. Próxima entrada necessária: JSON exportado por Baixar comparação para analisar datas e metadados disponíveis antes de avançar à inclusão.
+
 O segundo relatório, `diagnostico-centi-1792412718698.json`, identificou uma grade Wijmo do tipo lista, sem formulário aberto, porém sem cabeçalhos ou linhas reconhecidos. Foi criada a ferramenta 0.2.0 com seletores de classes Wijmo além de ARIA; sete testes DOM simulados passaram. Solicitar relatório dessa versão na mesma tela; não presumir lista vazia pelo relatório anterior. Captura da tela com dados privados ocultados é alternativa para esclarecer estrutura não reconhecida.
 
 A captura enviada depois revela vínculos organizados em árvore à esquerda, sob Serviços, e formulário de detalhes à direita. A tela exibida é de inclusão pendente (Id 0, Serviço vazio, Salvar(1)). Há também Serviços herdados CNAE, que deve ser considerado no levantamento de regras de duplicidade. Priorizar mapeamento da árvore e de um vínculo já salvo, sem presumir que a grade encontrada seja a relação de serviços e sem descartar alterações pendentes do operador.
 
 A captura seguinte confirmou que selecionar a pasta Serviços apresenta uma grade com ID de vínculo, Serviço, Data início e Data fim, com seis linhas visíveis. A árvore mostra códigos que permitem relacionar os vínculos ao catálogo. O código 13.01.000 (VETADO), a 4%, está vinculado no cadastro, mas não está no catálogo atual; os outros cinco resolvem unicamente. A conciliação agora possui `normalizarVinculosCenti`, que distingue ID de vínculo de ID municipal e bloqueia registros não resolvidos. Os 14 testes passaram. O leitor da tela Centi ainda precisa ser conectado; a captura não comprova completude do cadastro nem CNPJ selecionado. Para mapear as células do DOM, a ferramenta de diagnóstico publicada foi atualizada para 0.2.0, mas o usuário ainda não enviou seu relatório dessa versão.
+
+## Progresso 0.9.0
+
+O JSON real `comparacao-centi-1792415283471.json` confirmou seis vínculos, todos com Data início 18/11/2025 e Data fim vazia. O leitor não relatou repetições de renderização e descartou uma linha sem detalhar a causa; não presumir clone de medição ou lista completa. Três dos cinco serviços da lista estão localizados. Não localizados na captura: 09.02.000, ID municipal 238, e 10.03.000, ID municipal 51, ambos a 4%. Não inferir que o vínculo (VETADO) deva ser removido. O leitor agora inclui motivos estruturais das linhas não interpretadas em novos relatórios.
+
+A versão 0.9.0 acrescenta pesquisa opcional em `pesquisar-servico-centi.mjs`, reconstruída do trecho 0.5.0 fornecido. A interface só oferece serviços não localizados, exige confirmação manual da empresa e ausência inclusive em herança/páginas/filtros e requer que o operador abra um vínculo novo, Id 0, Serviço vazio e lupa fechada. O script abre a lupa, define filtros de código/situação e pesquisa; só aceita resultado observado após atualização, único e exato por ID, código, nome e alíquota. Não seleciona a linha, não preenche serviço/datas e não salva. Recusa vínculo existente ou já preenchido. `ultimaPesquisa` é incluída em Baixar comparação. Falhas podem deixar lupa/filtros alterados; não tentar novamente sem conferir a tela.
+
+Nesta etapa passaram sete testes UI com API Chrome simulada, seis testes DOM do leitor e cinco testes DOM da pesquisa, além dos testes anteriores de lógica/worker. A pesquisa 0.9.0 ainda não foi executada na Centi real. Próxima validação do operador: atualizar a extensão raiz, reutilizar a lista JSON existente, refazer comparação, escolher um dos dois códigos, conferir ausência, abrir vínculo novo e testar somente Abrir lupa e pesquisar. Instruções completas em docs/COMPARACAO-CENTI.md. O objetivo de preenchimento ainda não está concluído; seleção do serviço e conferência de campos serão as etapas seguintes após validar a pesquisa.

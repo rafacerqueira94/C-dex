@@ -1,14 +1,14 @@
-# Comparação com a Centi — versão 0.8.1
+# Comparação com a Centi — versão 0.9.0
 
 ## Instalação
 
-Baixe o ZIP do repositório e extraia. No Chrome/Edge, abra Extensões, ative o modo do desenvolvedor e carregue sem compactação a pasta **C-dex-main**, que contém o manifesto principal 0.8.1. Esta é a aplicação completa; não selecionar `tools/diagnostico-centi`, que continua sendo a ferramenta separada 0.2.0. Ao atualizar uma pasta já carregada, recarregue a extensão e confira a versão exibida. A versão 0.8.1 requer activeTab e scripting para ler a aba Centi após o clique no ícone.
+Baixe o ZIP do repositório e extraia. No Chrome/Edge, abra Extensões, ative o modo do desenvolvedor e carregue sem compactação a pasta **C-dex-main**, que contém o manifesto principal 0.9.0. Esta é a aplicação completa; não selecionar `tools/diagnostico-centi`, que continua sendo a ferramenta separada 0.2.0. Ao atualizar uma pasta já carregada, recarregue a extensão e confira a versão exibida. A versão 0.9.0 requer activeTab e scripting para ler a aba Centi após o clique no ícone.
 
 ## Usar
 
 1. Gere e baixe a lista conferida da empresa pelo fluxo PDF do Ponte Centi. Para abrir esse fluxo, clique no ícone da extensão a partir de uma aba que não seja a Centi.
 2. Na Centi de Caetité, abra a mesma empresa e selecione a pasta Serviços, exibindo a tabela com ID, Serviço, Data início e Data fim. Deixe o formulário de vínculo e a lupa fechados.
-3. Nessa aba Centi, clique no ícone do **Ponte Centi** (aplicativo completo, versão 0.8.1). Será aberta uma nova aba de comparação; mantenha a aba Centi aberta. Se ainda tiver apenas o PDF, use o link **Gerar lista conferida a partir do PDF**; ele abre a consulta em outra aba, preservando a comparação.
+3. Nessa aba Centi, clique no ícone do **Ponte Centi** (aplicativo completo, versão 0.9.0). Será aberta uma nova aba de comparação; mantenha a aba Centi aberta. Se ainda tiver apenas o PDF, use o link **Gerar lista conferida a partir do PDF**; ele abre a consulta em outra aba, preservando a comparação.
 4. Selecione o JSON da lista conferida. Informe o CNPJ que você verificou no cadastro da Centi e marque a confirmação da empresa.
 5. Clique em Ler vínculos visíveis e comparar. A aplicação lê os vínculos renderizados na aba indicada e compara as descrições exatas normalizadas com o catálogo municipal. ID do vínculo e ID do catálogo são tratados separadamente.
 6. Revise os resultados e, se necessário, clique em Baixar comparação. O JSON contém CNPJ confirmado pelo operador, dados dos serviços da lista e ID/descrição/datas dos vínculos lidos; compartilhe-o apenas se desejar que esses dados sejam analisados.
@@ -20,13 +20,27 @@ Baixe o ZIP do repositório e extraia. No Chrome/Edge, abra Extensões, ative o 
 - **Não localizado nesta captura:** a leitura atual não encontrou correspondência. Isso não comprova ausência no cadastro nem autoriza nova inclusão.
 - **Sem identificação:** descrição ausente ou ambígua no catálogo; inclui serviços históricos como o 13.01.000 (VETADO) da captura fornecida. Não excluir ou recadastrar automaticamente.
 
-O aplicativo não clica em Novo, não preenche campos e não aciona Salvar. Não percorre páginas, não rola a grade e não lê serviços herdados automaticamente. O CNPJ é confirmado pelo operador, não detectado na página. O relatório é sempre parcial e retorna `podePreencher: false`.
+O aplicativo não clica em Novo, não preenche o serviço ou as datas do vínculo e não aciona Salvar. A pesquisa opcional descrita abaixo altera apenas os filtros da lupa e aciona Pesquisar. Não percorre páginas, não rola a grade e não lê serviços herdados automaticamente. O CNPJ é confirmado pelo operador, não detectado na página. O relatório é sempre parcial e retorna `podePreencher: false`.
+
+## Pesquisar pela lupa sem selecionar ou salvar
+
+1. Faça a comparação. A seção de pesquisa aparece somente se houver serviços não localizados na captura; serviços já localizados ou em conflito não são oferecidos.
+2. Escolha um serviço nessa seção. O relatório real recebido oferece 09.02.000 (ID municipal 238) e 10.03.000 (ID municipal 51), ambos a 4%.
+3. Volte à Centi, confira a empresa e confirme manualmente que esse código não está cadastrado, incluindo filtros, páginas e Serviços herdados CNAE. Se já existir ou houver dúvida, não prossiga com a pesquisa para inclusão.
+4. No grupo Serviços, abra um vínculo novo. Deixe Id 0, Serviço vazio e a lupa fechada. Não altere ou descarte outros vínculos pendentes para executar o teste.
+5. Volte à aba de comparação, marque a confirmação específica e clique em Abrir lupa e pesquisar — sem selecionar nem salvar.
+6. A extensão abre a lupa, define Código / Contendo / código escolhido e Situação / Igual / Ativo e aciona Pesquisar. Exige atualização observada da grade e uma única linha com ID, código, descrição e alíquota exatos.
+7. Confira a mensagem e o resultado na Centi. Use Baixar comparação para exportar também `ultimaPesquisa`. Não selecione nem salve o serviço para este teste. Em caso de falha, confira a tela antes de repetir: a lupa ou os filtros podem ter mudado.
+
+A pesquisa não comprova ausência de duplicidades e não muda `podePreencher: false`. Não seleciona a linha, não preenche datas e não salva. Essa é a parte reconstruída do teste 0.5.0 conhecido; seleção, conferência final e salvamento continuam fora desta versão. Não é necessário gerar novamente a lista JSON para cada atualização.
 
 ## Validação
 
 - `node --test tests/conciliacao.test.mjs tests/comparar-captura.test.mjs`: 21 testes passaram.
 - `node --test tests/worker.test.mjs`: três testes da abertura do aplicativo passaram.
 - `python tests/ler-vinculos-centi.py`: seis testes DOM com Playwright/Chromium passaram.
-- `python tests/integracao-ui.py`: seis testes da interface em navegador com API Chrome simulada passaram, incluindo importação, comparação, exportação, invalidação após alterar o CNPJ, rejeição orientada de PDF/JSON inválido/diagnóstico e abertura da consulta em outra aba.
+- `python tests/integracao-ui.py`: sete testes da interface em navegador com API Chrome simulada passaram, incluindo importação, comparação, exportação, invalidação após alterar o CNPJ, rejeição orientada de PDF/JSON inválido/diagnóstico abertura da consulta em outra aba e pesquisa condicionada à confirmação com exportação do resultado.
 
-Os testes locais usam páginas simuladas. A instalação e a leitura pela extensão 0.8.1 na Centi real ainda precisam ser validadas pelo operador. O diagnóstico 0.2.0 fornecido pelo usuário confirmou cabeçalhos duplicados, cinco células por linha e sete linhas renderizadas, mas não seus conteúdos; não é prova de que exista uma cópia de medição específica na tela real. O leitor só unifica repetições com o mesmo ID de vínculo e os mesmos dados; IDs diferentes nunca são unificados.
+- `python tests/pesquisar-servico-centi.py`: cinco testes DOM passaram, incluindo pesquisa atualizada, ausência de seleção/salvamento, recusas de formulário existente, falta de confirmação, domínio incorreto, resultados antigos, divergentes ou duplicados.
+
+Os testes locais usam páginas simuladas. A leitura e comparação foram observadas na Centi real na versão 0.8.1. A pesquisa nova 0.9.0 ainda precisa ser validada pelo operador. O diagnóstico 0.2.0 fornecido pelo usuário confirmou cabeçalhos duplicados, cinco células por linha e sete linhas renderizadas, mas não seus conteúdos; não é prova de que exista uma cópia de medição específica na tela real. O leitor só unifica repetições com o mesmo ID de vínculo e os mesmos dados; IDs diferentes nunca são unificados.

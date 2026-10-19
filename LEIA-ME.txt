@@ -1,4 +1,4 @@
-Ponte Centi 0.8.1 — cartão CNPJ, conferência e comparação com a Centi
+Ponte Centi 0.9.0 — cartão CNPJ, conferência, comparação e pesquisa na Centi
 
 1. No Chrome/Edge, carregue a pasta da extensão em Carregar sem compactação.
 2. Clique no ícone Ponte Centi — consulta e conferência para abrir o aplicativo.
@@ -34,3 +34,9 @@ e clique no ícone do Ponte Centi. Na nova aba, importe a lista JSON conferida
 e confirme o CNPJ. A comparação é parcial: usa somente vínculos renderizados,
 destaca conflitos e registros sem identificação e não autoriza inclusão.
 Instruções completas: docs/COMPARACAO-CENTI.md.
+
+Pesquisa opcional: após comparar, escolha um serviço não localizado. Confira
+sua ausência na Centi, inclusive páginas, filtros e serviços herdados, e abra
+um vínculo novo. Confirme na aba do Ponte Centi e use Abrir lupa e pesquisar.
+A ação altera os filtros da lupa e pesquisa, mas não seleciona nem salva.
+Baixar comparação inclui o resultado da última pesquisa.

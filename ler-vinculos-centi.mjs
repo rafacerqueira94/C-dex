@@ -25,14 +25,24 @@ export function lerVinculosCenti() {
       || cabecalhos.some((h, i) => h !== modelo[i % 5])) falhar('A ordem das colunas mudou; a leitura foi interrompida.');
   const linhas = [...grade.querySelectorAll('.wj-cells > .wj-row')].filter(visivel);
   const registros = new Map();
+  const detalhesLinhasNaoInterpretadas = [];
   let repeticoesDeRenderizacao = 0, linhasNaoInterpretadas = 0;
   for (const linha of linhas) {
     const celulas = [...linha.children].filter(e => e.matches('.wj-cell'));
-    if (celulas.length !== 5) { linhasNaoInterpretadas++; continue; }
+    if (celulas.length !== 5) {
+      linhasNaoInterpretadas++;
+      detalhesLinhasNaoInterpretadas.push({motivo: 'quantidade_de_celulas', quantidadeCelulas: celulas.length});
+      continue;
+    }
     const valores = celulas.map(e => (e.textContent ?? '').replace(/\s+/g, ' ').trim());
     const [, idVinculo, nome, dataInicio, dataFim] = valores;
     // Linhas vazias de inserção/medição não demonstram ausência de registros.
-    if (!/^[1-9]\d*$/.test(idVinculo) || !nome) { linhasNaoInterpretadas++; continue; }
+    if (!/^[1-9]\d*$/.test(idVinculo) || !nome) {
+      linhasNaoInterpretadas++;
+      detalhesLinhasNaoInterpretadas.push({motivo: 'identificacao_invalida', idVazio: !idVinculo, nomeVazio: !nome,
+        aparentaCabecalho: normal(idVinculo) === 'ID' && normal(nome) === 'SERVICO'});
+      continue;
+    }
     const registro = {idVinculo, nome, dataInicio, dataFim};
     const anterior = registros.get(idVinculo);
     if (anterior) {
@@ -42,7 +52,7 @@ export function lerVinculosCenti() {
   }
   return {
     tipo: 'captura_vinculos_centi', versao: 1, lidoEm: new Date().toISOString(),
-    registros: [...registros.values()], linhasNaoInterpretadas, repeticoesDeRenderizacao,
+    registros: [...registros.values()], linhasNaoInterpretadas, detalhesLinhasNaoInterpretadas, repeticoesDeRenderizacao,
     leituraCompleta: false, empresaVerificadaAutomaticamente: false,
     observacao: 'Somente linhas renderizadas. Paginação, filtros, serviços herdados e empresa não foram verificados automaticamente.'
   };

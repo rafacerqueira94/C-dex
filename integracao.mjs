@@ -1,11 +1,16 @@
 import {lerVinculosCenti} from './ler-vinculos-centi.mjs';
 import {compararCaptura} from './comparar-captura.mjs';
+import {pesquisarServicoCenti} from './pesquisar-servico-centi.mjs';
 
 const $ = id => document.getElementById(id);
 const aba = Number(new URLSearchParams(location.search).get('aba'));
 let resultado = null;
 let sequencia = 0;
-const limpar = () => { sequencia++; resultado = null; $('resultado').hidden = true; $('erro').hidden = true; $('status').textContent = ''; };
+const limpar = () => {
+  sequencia++; resultado = null; $('resultado').hidden = true; $('pesquisa').hidden = true;
+  $('ausencia-conferida').checked = false; $('pesquisar-catalogo').disabled = true;
+  $('status-pesquisa').textContent = ''; $('erro').hidden = true; $('status').textContent = '';
+};
 for (const id of ['lista', 'cnpj', 'conferido']) $(id).addEventListener('change', limpar);
 $('cnpj').addEventListener('input', limpar);
 $('form-comparar').addEventListener('submit', async e => {
@@ -50,9 +55,41 @@ $('form-comparar').addEventListener('submit', async e => {
     }));
     $('aviso').textContent = comparacao.observacao + (captura.linhasNaoInterpretadas ? ` ${captura.linhasNaoInterpretadas} linha(s) não puderam ser interpretadas.` : '');
     $('resultado').hidden = false; $('status').textContent = 'Comparação concluída. Nenhum dado foi alterado na Centi.';
+    const candidatosPesquisa = comparacao.servicos.filter(s => s.situacao === 'nao_localizado_na_captura');
+    $('servico-pesquisa').replaceChildren(...candidatosPesquisa.map(s => {
+      const option = document.createElement('option'); option.value = s.codigo;
+      option.textContent = `${s.codigo} · ${s.aliquota}% · ${s.nome}`; return option;
+    }));
+    $('pesquisa').hidden = !candidatosPesquisa.length;
   } catch (erro) {
     $('erro').textContent = erro.message; $('erro').hidden = false; $('status').textContent = '';
   } finally { $('comparar').disabled = false; }
+});
+$('ausencia-conferida').addEventListener('change', () => { $('pesquisar-catalogo').disabled = !$('ausencia-conferida').checked; });
+$('servico-pesquisa').addEventListener('change', () => {
+  $('ausencia-conferida').checked = false; $('pesquisar-catalogo').disabled = true; $('status-pesquisa').textContent = '';
+});
+$('pesquisar-catalogo').addEventListener('click', async () => {
+  if (!resultado || !$('ausencia-conferida').checked) return;
+  const servico = resultado.servicos.find(s => s.codigo === $('servico-pesquisa').value && s.situacao === 'nao_localizado_na_captura');
+  if (!servico) return;
+  const pedido = {servico, cnpjEsperado: resultado.empresa.cnpj, cnpjConfirmado: $('cnpj').value,
+    conferido: $('conferido').checked, ausenciaConferida: true};
+  const controles = [...document.querySelectorAll('#form-comparar input, #form-comparar button, #servico-pesquisa, #ausencia-conferida, #pesquisar-catalogo')];
+  const anteriores = controles.map(e => e.disabled);
+  controles.forEach(e => { e.disabled = true; });
+  $('status-pesquisa').textContent = 'Abrindo a lupa e pesquisando o serviço na Centi…';
+  try {
+    const respostas = await chrome.scripting.executeScript({target: {tabId: aba}, func: pesquisarServicoCenti, args: [pedido]});
+    const preparacao = respostas[0]?.result;
+    if (!preparacao || typeof preparacao.ok !== 'boolean') throw Error('Não foi possível obter o resultado da pesquisa. Verifique a aba Centi.');
+    resultado.ultimaPesquisa = {codigo: servico.codigo, idMunicipal: servico.id, ...preparacao};
+    $('status-pesquisa').textContent = preparacao.mensagem;
+  } catch (e) { $('status-pesquisa').textContent = `${e.message} Verifique a aba Centi antes de tentar novamente; a lupa ou os filtros podem ter mudado.`; }
+  finally {
+    controles.forEach((e, i) => { e.disabled = anteriores[i]; });
+    $('ausencia-conferida').checked = false; $('pesquisar-catalogo').disabled = true;
+  }
 });
 $('exportar-comparacao').addEventListener('click', () => {
   if (!resultado) return;

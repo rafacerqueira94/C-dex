@@ -61,6 +61,7 @@ class IntegracaoUI(unittest.TestCase):
         self.assertFalse(result['podePreencher'])
         self.assertFalse(result['salvo'])
         self.assertEqual(result['totalVinculosVisiveis'], 2)
+        self.assertTrue(self.page.locator('#pesquisa').is_hidden())
         self.page.locator('#cnpj').fill('00000000000000')
         self.assertTrue(self.page.locator('#resultado').is_hidden())
 
@@ -104,6 +105,30 @@ class IntegracaoUI(unittest.TestCase):
         self.assertTrue(new_page.url.endswith('/consulta.html'))
         self.assertIn('integracao.html?aba=123', self.page.url)
         self.assertEqual(new_page.locator('#arquivo-pdf').count(), 1)
+
+    def test_search_requires_confirmation_and_exports_its_result(self):
+        self.page.evaluate('''() => { chrome.scripting.executeScript=async p=>{
+          if(p.func.name==='lerVinculosCenti')return [{result:{tipo:'captura_vinculos_centi',registros:[],linhasNaoInterpretadas:0}}];
+          window.ultimoPedido=p.args[0];
+          return [{result:{ok:true,salvo:false,selecionado:false,etapa:'pesquisa_conferida',mensagem:'Pesquisa atualizada. Nenhum serviço foi selecionado.'}}];
+        }; }''')
+        self.page.locator('#comparar').click()
+        self.page.locator('#pesquisa').wait_for(state='visible')
+        self.assertTrue(self.page.locator('#pesquisar-catalogo').is_disabled())
+        self.assertEqual(self.page.locator('#servico-pesquisa option').count(), 1)
+        self.page.locator('#ausencia-conferida').check()
+        self.page.locator('#pesquisar-catalogo').click()
+        self.page.wait_for_function('document.querySelector("#status-pesquisa").textContent.includes("Pesquisa atualizada")')
+        pedido = self.page.evaluate('window.ultimoPedido')
+        self.assertTrue(pedido['ausenciaConferida'])
+        self.assertEqual(str(pedido['servico']['id']), str(self.servico['Id']))
+        self.assertTrue(self.page.locator('#pesquisar-catalogo').is_disabled())
+        with self.page.expect_download() as event:
+            self.page.locator('#exportar-comparacao').click()
+        r = json.loads(Path(event.value.path()).read_text())
+        self.assertEqual(r['ultimaPesquisa']['etapa'], 'pesquisa_conferida')
+        self.assertFalse(r['ultimaPesquisa']['selecionado'])
+        self.assertFalse(r['podePreencher'])
 
 
 if __name__ == '__main__': unittest.main()

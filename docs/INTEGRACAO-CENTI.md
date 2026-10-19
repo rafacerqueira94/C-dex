@@ -2,6 +2,8 @@
 
 ## Implementação atual
 
+A versão vigente é 0.9.0. A leitura/comparação já foi validada pelo usuário na Centi real em 0.8.1, com seis vínculos lidos e três serviços localizados. O JSON exportado confirmou as datas e a ausência de detalhes sobre uma linha descartada; o leitor agora coleta metadados estruturais desse descarte. A pesquisa opcional 0.9.0 foi reconstruída do trecho conhecido, com confirmação manual de ausência e vínculo novo vazio; abre a lupa, filtra e pesquisa com correspondência exata e atualização observada. Não seleciona, não preenche vínculo/datas nem salva. Testes desta etapa: sete UI, seis DOM leitor, cinco DOM pesquisa, todos passados. Falta validar a nova pesquisa na Centi real. Consulte COMPARACAO-CENTI.md e a seção final de CONTEXTO.md para o estado atual; os parágrafos seguintes registram o histórico.
+
 O diagnóstico 0.2.0 real `diagnostico-centi-1792413452118.json` confirmou os cabeçalhos e cinco células por linha, mas contou sete linhas renderizadas e dois conjuntos de cabeçalhos. A aplicação principal 0.8.0 já contém a primeira comparação de leitura: a partir do ícone na aba Centi, importa o plano conferido, confirma CNPJ manualmente, lê a grade e resolve descrições contra o catálogo. Nunca autoriza preenchimento e não afirma completude. O leitor só deduplica renderizações com ID de vínculo e conteúdo idênticos; vínculos distintos com o mesmo serviço permanecem separados. São 33 testes locais passados, com DOM e API Chrome simulados. Ainda falta validação da extensão principal na Centi real. Uso e limitações em `COMPARACAO-CENTI.md`. As seções abaixo preservam o histórico do levantamento; a leitura parcial atual não implementa a automação de preenchimento planejada.
 
 ## Ponto validado anteriormente

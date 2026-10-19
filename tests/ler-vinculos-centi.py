@@ -60,6 +60,7 @@ class LeituraVinculos(unittest.TestCase):
         r = self.read()
         self.assertEqual(len(r['registros']), 1)
         self.assertEqual(r['linhasNaoInterpretadas'], 1)
+        self.assertEqual(r['detalhesLinhasNaoInterpretadas'][0]['motivo'], 'identificacao_invalida')
         self.assertFalse(r['leituraCompleta'])
 
     def test_rejects_lookup_form_or_incorrect_headers(self):

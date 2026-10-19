@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ponte Centi — comparar serviços</title><link rel="stylesheet" href="consulta.css"><script type="module" src="integracao.mjs"></script></head>
 <body>
-<header><div class="marca">Ponte <strong>Centi</strong></div><span>Comparação de serviços · 0.8.1</span></header>
+<header><div class="marca">Ponte <strong>Centi</strong></div><span>Comparação e pesquisa · 0.9.0</span></header>
 <main>
   <section class="introducao"><h1>Comparar com a Centi</h1><p>Selecione a pasta Serviços na aba da Centi e mantenha essa aba aberta. Esta etapa lê os vínculos visíveis para comparar com sua lista conferida.</p></section>
   <section class="cartao"><h2>Lista e empresa</h2>
@@ -22,6 +22,14 @@
     <h3>Vínculos que precisam de identificação</h3><ul id="nao-identificados"></ul>
     <p id="aviso" class="aviso"></p><button id="exportar-comparacao" type="button">Baixar comparação</button>
   </section>
-  <p class="ajuda">A leitura inclui apenas ID do vínculo, descrição do serviço e datas da grade. Não lê senhas nem consulta APIs. O CNPJ é informado por você. Nenhum campo da Centi é preenchido e nenhum botão Salvar é acionado.</p>
+  <section id="pesquisa" class="cartao" hidden><h2>Pesquisar um serviço após conferência</h2>
+    <p>Escolha um serviço não localizado na captura. Na Centi, confira sua ausência nas páginas, filtros e serviços herdados. Depois abra um vínculo novo com Novo, deixando o campo Serviço vazio e a lupa fechada.</p>
+    <label for="servico-pesquisa">Serviço para pesquisar<select id="servico-pesquisa"></select></label>
+    <label class="aceite"><input id="ausencia-conferida" type="checkbox"> Conferi a mesma empresa e a ausência deste serviço, inclusive nos serviços herdados, filtros e páginas. Deixei um vínculo novo aberto, com Id 0, Serviço vazio e lupa fechada.</label>
+    <button id="pesquisar-catalogo" type="button" disabled>Abrir lupa e pesquisar — sem selecionar nem salvar</button>
+    <p id="status-pesquisa" role="status" aria-live="polite"></p>
+    <p class="ajuda">Esta ação abre a lupa, define Código contendo e Situação igual a Ativo e aciona Pesquisar. Só aceita resultado atualizado com ID, código, descrição e alíquota exatos. Você pode exportar o resultado em Baixar comparação.</p>
+  </section>
+  <p class="ajuda">A comparação lê ID do vínculo, descrição e datas da grade. A pesquisa opcional abre a lupa e altera seus filtros. O CNPJ é informado por você. Nenhum serviço é selecionado, as datas do vínculo permanecem intactas e nenhum botão Salvar é acionado.</p>
 </main>
 </body></html>
