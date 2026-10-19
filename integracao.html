@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ponte Centi — comparar serviços</title><link rel="stylesheet" href="consulta.css"><script type="module" src="integracao.mjs"></script></head>
+<body>
+<header><div class="marca">Ponte <strong>Centi</strong></div><span>Comparação de serviços · 0.8.0</span></header>
+<main>
+  <section class="introducao"><h1>Comparar com a Centi</h1><p>Selecione a pasta Serviços na aba da Centi e mantenha essa aba aberta. Esta etapa lê os vínculos visíveis para comparar com sua lista conferida.</p></section>
+  <section class="cartao"><h2>Lista e empresa</h2>
+    <form id="form-comparar">
+      <label for="lista">Lista conferida pelo Ponte Centi (.json)<input id="lista" type="file" accept=".json,application/json" required></label>
+      <p><label for="cnpj">CNPJ da empresa que você conferiu na aba da Centi<input id="cnpj" type="text" inputmode="numeric" autocomplete="off" required></label></p>
+      <label class="aceite"><input id="conferido" type="checkbox" required> Conferi que a aba da Centi está no cadastro dessa empresa e na pasta Serviços.</label>
+      <button id="comparar" type="submit">Ler vínculos visíveis e comparar</button>
+    </form>
+    <p id="status" role="status" aria-live="polite"></p><p id="erro" role="alert" hidden></p>
+  </section>
+  <section id="resultado" class="cartao" hidden><h2>Comparação da captura</h2>
+    <p id="resumo"></p><ul id="servicos-comparados"></ul>
+    <h3>Vínculos que precisam de identificação</h3><ul id="nao-identificados"></ul>
+    <p id="aviso" class="aviso"></p><button id="exportar-comparacao" type="button">Baixar comparação</button>
+  </section>
+  <p class="ajuda">A leitura inclui apenas ID do vínculo, descrição do serviço e datas da grade. Não lê senhas nem consulta APIs. O CNPJ é informado por você. Nenhum campo da Centi é preenchido e nenhum botão Salvar é acionado.</p>
+</main>
+</body></html>

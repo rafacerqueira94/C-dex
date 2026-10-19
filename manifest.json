@@ -1,13 +1,14 @@
 {
   "manifest_version": 3,
   "name": "Ponte Centi — consulta e conferência",
-  "version": "0.7.2",
-  "description": "Lê o cartão CNPJ em PDF e apresenta os serviços para conferência.",
+  "version": "0.8.0",
+  "description": "Lê cartão CNPJ e compara a lista conferida com serviços visíveis na Centi, sem salvar.",
+  "permissions": ["activeTab", "scripting"],
   "background": {
     "service_worker": "worker.js"
   },
   "action": {
-    "default_title": "Ler cartão CNPJ em PDF"
+    "default_title": "Ponte Centi — ler PDF ou comparar serviços na Centi"
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'none'; connect-src 'self'; worker-src 'self'"

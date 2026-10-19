@@ -1,5 +1,9 @@
 # Integração Centi — evidências recuperadas
 
+## Implementação atual
+
+O diagnóstico 0.2.0 real `diagnostico-centi-1792413452118.json` confirmou os cabeçalhos e cinco células por linha, mas contou sete linhas renderizadas e dois conjuntos de cabeçalhos. A aplicação principal 0.8.0 já contém a primeira comparação de leitura: a partir do ícone na aba Centi, importa o plano conferido, confirma CNPJ manualmente, lê a grade e resolve descrições contra o catálogo. Nunca autoriza preenchimento e não afirma completude. O leitor só deduplica renderizações com ID de vínculo e conteúdo idênticos; vínculos distintos com o mesmo serviço permanecem separados. São 33 testes locais passados, com DOM e API Chrome simulados. Ainda falta validação da extensão principal na Centi real. Uso e limitações em `COMPARACAO-CENTI.md`. As seções abaixo preservam o histórico do levantamento; a leitura parcial atual não implementa a automação de preenchimento planejada.
+
 ## Ponto validado anteriormente
 
 ### Diagnóstico da tela real recebido
