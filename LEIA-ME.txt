@@ -1,4 +1,4 @@
-Ponte Centi 0.11.1 — cartão CNPJ, conferência, comparação e seleção na Centi
+Ponte Centi 0.11.2 — cartão CNPJ, conferência, comparação e seleção na Centi
 
 1. No Chrome/Edge, carregue a pasta da extensão em Carregar sem compactação.
 2. Clique no ícone Ponte Centi — consulta e conferência para abrir o aplicativo.
@@ -68,3 +68,7 @@ manual; nenhuma versão aciona Salvar automaticamente.
 Correção 0.11.1: a coluna Serviço pode exibir apenas o ID municipal (ex.:
 238), em vez da descrição. A comparação consulta esse ID exato no catálogo,
 separa-o do ID do vínculo e não oferece o mesmo serviço para nova inclusão.
+
+Correção 0.11.2: erros da leitura retornam o motivo em português, em vez de
+um resultado vazio. Para comparar, deixe a tabela Serviços visível. Abra
+um vínculo novo apenas depois da comparação, para pesquisar e selecionar.

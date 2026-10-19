@@ -1,14 +1,14 @@
-# Comparação com a Centi — versão 0.11.1
+# Comparação com a Centi — versão 0.11.2
 
 ## Instalação
 
-Baixe o ZIP do repositório e extraia. No Chrome/Edge, abra Extensões, ative o modo do desenvolvedor e carregue sem compactação a pasta **C-dex-main**, que contém o manifesto principal 0.11.1. Esta é a aplicação completa; não selecionar `tools/diagnostico-centi`, que continua sendo a ferramenta separada 0.2.0. Ao atualizar uma pasta já carregada, recarregue a extensão e confira a versão exibida. A versão 0.11.1 requer activeTab e scripting para ler a aba Centi após o clique no ícone.
+Baixe o ZIP do repositório e extraia. No Chrome/Edge, abra Extensões, ative o modo do desenvolvedor e carregue sem compactação a pasta **C-dex-main**, que contém o manifesto principal 0.11.2. Esta é a aplicação completa; não selecionar `tools/diagnostico-centi`, que continua sendo a ferramenta separada 0.2.0. Ao atualizar uma pasta já carregada, recarregue a extensão e confira a versão exibida. A versão 0.11.2 requer activeTab e scripting para ler a aba Centi após o clique no ícone.
 
 ## Usar
 
 1. Gere e baixe a lista conferida da empresa pelo fluxo PDF do Ponte Centi. Para abrir esse fluxo, clique no ícone da extensão a partir de uma aba que não seja a Centi.
 2. Na Centi de Caetité, abra a mesma empresa e selecione a pasta Serviços, exibindo a tabela com ID, Serviço, Data início e Data fim. Deixe o formulário de vínculo e a lupa fechados.
-3. Nessa aba Centi, clique no ícone do **Ponte Centi** (aplicativo completo, versão 0.11.1). Será aberta uma nova aba de comparação; mantenha a aba Centi aberta. Se ainda tiver apenas o PDF, use o link **Gerar lista conferida a partir do PDF**; ele abre a consulta em outra aba, preservando a comparação.
+3. Nessa aba Centi, clique no ícone do **Ponte Centi** (aplicativo completo, versão 0.11.2). Será aberta uma nova aba de comparação; mantenha a aba Centi aberta. Se ainda tiver apenas o PDF, use o link **Gerar lista conferida a partir do PDF**; ele abre a consulta em outra aba, preservando a comparação.
 4. Selecione o JSON da lista conferida. Informe o CNPJ que você verificou no cadastro da Centi e marque a confirmação da empresa.
 5. Clique em Ler vínculos visíveis e comparar. A aplicação lê os vínculos renderizados na aba indicada e compara as descrições exatas normalizadas com o catálogo municipal. ID do vínculo e ID do catálogo são tratados separadamente.
 6. Revise os resultados e, se necessário, clique em Baixar comparação. O JSON contém CNPJ confirmado pelo operador, dados dos serviços da lista e ID/descrição/datas dos vínculos lidos; compartilhe-o apenas se desejar que esses dados sejam analisados.
@@ -70,7 +70,7 @@ A correção passou em 12 testes DOM de pesquisa/seleção e nove testes UI com 
 
 O relatório real comparacao-centi-1792419418894.json confirmou que a API pública existe e selecionou a terceira linha (ID 238, 4%), mas a lupa permaneceu aberta e os campos Serviço ficaram vazios. Portanto seleção da linha e ativação da escolha são etapas distintas; a ativação automática ainda não foi validada.
 
-A versão 0.11.1 preserva a pré-seleção conferida, procura o elemento sob o centro da célula e envia a sequência de cliques e duplo clique a esse elemento interno. Interrompe eventos adicionais se a lupa fechar ou se a seleção mudar. O relatório registra o alvo e os eventos enviados. Esses eventos continuam sintéticos; os testes não provam que a Centi real os processará.
+A versão 0.11.2 preserva a pré-seleção conferida, procura o elemento sob o centro da célula e envia a sequência de cliques e duplo clique a esse elemento interno. Interrompe eventos adicionais se a lupa fechar ou se a seleção mudar. O relatório registra o alvo e os eventos enviados. Esses eventos continuam sintéticos; os testes não provam que a Centi real os processará.
 
 Para conferir a escolha feita pelo operador:
 
@@ -87,7 +87,7 @@ Passaram 16 testes DOM da pesquisa/seleção/conferência e 10 UI com API Chrome
 
 O relatório real comparacao-centi-1792419986717.json confirmou sucesso para 09.02.000/238, com código 09.02.000 e descrição de 4% no vínculo novo Id 0. A data início 19/10/2026 e a data fim vazia foram preservadas. A sequência registrada terminou no primeiro click após a pré-seleção pela API Wijmo: não houve dblclick e a conferência manual não foi usada. Nenhum botão Salvar foi acionado.
 
-A versão 0.11.1 corrige a mensagem de sucesso para não atribuir incorretamente a operação a duplo clique e exporta metodoAtivacao (clique ou duplo_clique). Um novo teste reproduz o fechamento no primeiro clique e garante que nenhum evento adicional seja enviado. Os 17 testes DOM da pesquisa/seleção/conferência passaram. Não é necessário repetir a seleção já concluída apenas para atualizar a mensagem.
+A versão 0.11.2 corrige a mensagem de sucesso para não atribuir incorretamente a operação a duplo clique e exporta metodoAtivacao (clique ou duplo_clique). Um novo teste reproduz o fechamento no primeiro clique e garante que nenhum evento adicional seja enviado. Os 17 testes DOM da pesquisa/seleção/conferência passaram. Não é necessário repetir a seleção já concluída apenas para atualizar a mensagem.
 
 A validação continua parcial: o relatório não verifica Especificar CNAE. Próximo passo: conferir o formulário preenchido, incluindo esse campo e os demais dados, antes de qualquer salvamento ou preparação de outro vínculo. Não repetir pesquisa no vínculo já preenchido.
 
@@ -95,7 +95,7 @@ A validação continua parcial: o relatório não verifica Especificar CNAE. Pr�
 
 A captura do formulário após o teste real confirmou Serviço 09.02.000, data início 19/10/2026, data fim vazia e Especificar CNAE = Não. O campo Id ainda era 0 e o botão Salvar(1) indicava alteração pendente. A conferência de Especificar CNAE foi visual nessa captura; o aplicativo ainda não lê esse campo automaticamente.
 
-Na versão 0.11.1, a leitura da lista separa linhas renderizadas com Id 0 e descrição preenchida em `vinculosPendentes`, sem tratá-las como vínculos salvos nem descartá-las como inválidas. Uma correspondência única de catálogo para o serviço da lista recebe `preenchido_sem_salvar` e não é oferecida para nova pesquisa/inclusão. Um vínculo existente mais um novo com o mesmo código, ou dois novos iguais, gera conflito. Vínculos Id 0 não são unificados apenas por terem os mesmos dados. Pendências sem correspondência no catálogo são destacadas para revisão.
+Na versão 0.11.2, a leitura da lista separa linhas renderizadas com Id 0 e descrição preenchida em `vinculosPendentes`, sem tratá-las como vínculos salvos nem descartá-las como inválidas. Uma correspondência única de catálogo para o serviço da lista recebe `preenchido_sem_salvar` e não é oferecida para nova pesquisa/inclusão. Um vínculo existente mais um novo com o mesmo código, ou dois novos iguais, gera conflito. Vínculos Id 0 não são unificados apenas por terem os mesmos dados. Pendências sem correspondência no catálogo são destacadas para revisão.
 
 A proteção depende de o vínculo pendente estar renderizado na grade com Id 0 e descrição reconhecível. A leitura continua parcial e não prova completude, persistência ou ausência de outras pendências. O programa continua sem clicar em Salvar. Não repetir a seleção no vínculo já preenchido.
 
@@ -107,8 +107,18 @@ Testes desta etapa: `node --test tests/comparar-captura.test.mjs` (11), `python 
 
 O relatório real comparacao-centi-1792421312126.json mostrou sete vínculos, incluindo o novo vínculo com ID 16192, data início 19/10/2026 e campo Serviço exibido como "238". A comparação anterior aceitava apenas descrições e não resolveu essa referência. Por isso ofereceu indevidamente 09.02.000 para inclusão; a tentativa registrada no relatório foi bloqueada antes de interação por ausência de formulário novo. Não repetir essa inclusão.
 
-A versão 0.11.1 aceita uma referência formada exclusivamente por ID numérico positivo na coluna Serviço e consulta o catálogo ativo por esse ID exato. Nunca usa o ID do vínculo para isso. Correspondências múltiplas permanecem ambíguas; códigos sem alíquota, números parciais e IDs desconhecidos não recebem aproximação. O relatório registra identificadoPor/formasIdentificacao. A mesma regra vale para vínculos novos Id 0, mantendo seu estado pendente.
+A versão 0.11.2 aceita uma referência formada exclusivamente por ID numérico positivo na coluna Serviço e consulta o catálogo ativo por esse ID exato. Nunca usa o ID do vínculo para isso. Correspondências múltiplas permanecem ambíguas; códigos sem alíquota, números parciais e IDs desconhecidos não recebem aproximação. O relatório registra identificadoPor/formasIdentificacao. A mesma regra vale para vínculos novos Id 0, mantendo seu estado pendente.
 
 O JSON real foi reprocessado localmente com a lista conferida original: 09.02.000 ficou localizado no vínculo 16192; 08.02.000, 13.02.000 e 17.06.000 também ficaram localizados; apenas 10.03.000 permaneceu não localizado na captura. O vínculo histórico (VETADO) continua sem correspondência. Esse reprocessamento não executou comandos na Centi e não comprova ausência em páginas/filtros/herança.
 
 Passaram 16 testes Node da comparação e 12 UI com API Chrome simulada, incluindo prevenção da nova oferta de um serviço exibido por ID. Próximo teste na extensão: atualizar a raiz para 0.11.1 e refazer somente a comparação na pasta Serviços; não selecionar 09.02.000 novamente. Para preparar 10.03.000, confirmar sua ausência e usar um vínculo novo vazio, sem salvar automaticamente. O campo legado salvo=false registra que a extensão não acionou salvamento; não significa que o operador não tenha salvo manualmente os vínculos com ID definitivo.
+
+## Motivo de falha na leitura — 0.11.2
+
+Uma captura da comparação 0.11.1 exibiu "A aba da Centi não retornou a leitura". Essa mensagem, sozinha, não determina a causa: pode haver estado incorreto da tela, contexto/aba desatualizado ou falha de execução. Não atribuir a falha a formulário aberto como fato sem nova observação.
+
+O leitor agora captura seus erros internos e retorna um objeto serializável erro_leitura_centi com o motivo. A interface mostra esse motivo, inclusive quando a lupa ou um formulário de vínculo impede comparar, em vez de tratá-lo como retorno vazio. A instrução visual também explicita a sequência: comparar primeiro com a tabela Serviços visível; abrir vínculo novo somente depois, para pesquisa/seleção.
+
+Para retomar, voltar à Centi e selecionar a pasta Serviços (não um vínculo filho), deixando a tabela visível e a lupa fechada. Clicar no ícone da extensão nessa aba para abrir uma comparação nova e renovar a referência à origem. Importar o mesmo JSON e comparar. Só depois abrir um novo vínculo e retornar à comparação pronta para preparar 10.03.000. Não descartar alterações pendentes nem recadastrar 09.02.000.
+
+Passaram nove testes DOM do leitor e 13 testes UI com API Chrome simulada; os testes confirmam retorno de erro serializável e exibição do motivo sem oferecer resultados/ações de pesquisa. A causa da captura real ainda precisa ser confirmada caso a sequência correta não resolva.

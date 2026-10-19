@@ -45,6 +45,7 @@ $('form-comparar').addEventListener('submit', async e => {
     $('status').textContent = 'Lendo os vínculos visíveis da aba da Centi…';
     const leituras = await chrome.scripting.executeScript({target: {tabId: aba}, func: lerVinculosCenti});
     const captura = leituras[0]?.result;
+    if (captura?.tipo === 'erro_leitura_centi') throw Error(captura.mensagem || 'Não foi possível ler a relação de Serviços.');
     if (!captura) throw Error('A aba da Centi não retornou a leitura. Clique novamente no ícone na aba da Centi.');
     const comparacao = compararCaptura(plano, captura, catalogo, cnpj);
     if (atual !== sequencia) throw Error('Os dados foram alterados durante a leitura. Confira a empresa e compare novamente.');

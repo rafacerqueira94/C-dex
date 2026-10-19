@@ -52,8 +52,9 @@ class LeituraVinculos(unittest.TestCase):
 
     def test_conflicting_copies_of_same_id_abort(self):
         self.page.set_content(self.grid(self.row()+self.row(name='OUTRO - 4%')))
-        with self.assertRaisesRegex(Exception, 'dados divergentes'):
-            self.read()
+        r = self.read()
+        self.assertEqual(r['tipo'], 'erro_leitura_centi')
+        self.assertIn('dados divergentes', r['mensagem'])
 
     def test_unknown_extra_row_is_reported_and_does_not_imply_complete_read(self):
         self.page.set_content(self.grid(self.row()+self.row(id='desconhecido')))
@@ -66,14 +67,16 @@ class LeituraVinculos(unittest.TestCase):
     def test_rejects_lookup_form_or_incorrect_headers(self):
         for extra in ['<input id="IdServicoABC">', '<div class="tableFilterSearch--modal">Lupa</div>', '<input type="password">']:
             self.page.set_content(self.grid(self.row())+extra)
-            with self.assertRaises(Exception): self.read()
+            self.assertEqual(self.read()['tipo'], 'erro_leitura_centi')
         self.page.set_content(self.grid(self.row(), header='<div class="wj-cell">Código</div>'))
-        with self.assertRaises(Exception): self.read()
+        self.assertEqual(self.read()['tipo'], 'erro_leitura_centi')
 
     def test_rejects_wrong_origin(self):
         self.page.goto('https://exemplo.com/caetite/')
         self.page.set_content(self.grid(self.row()))
-        with self.assertRaisesRegex(Exception, 'Caetité'): self.read()
+        r = self.read()
+        self.assertEqual(r['tipo'], 'erro_leitura_centi')
+        self.assertIn('Caetité', r['mensagem'])
 
     def test_repeated_header_in_data_panel_is_reported_separately(self):
         header = '<div class="wj-row">'+''.join('<div class="wj-cell">'+text+'</div>' for text in ['', 'ID', 'Serviço', 'Data início', 'Data fim'])+'</div>'

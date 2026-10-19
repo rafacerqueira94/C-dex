@@ -1,6 +1,6 @@
 # Ponte Centi — contexto recuperado
 
-As seções abaixo preservam o histórico. A versão vigente e a próxima validação estão na seção Referência numérica 0.11.1, ao final deste documento.
+As seções abaixo preservam o histórico. A versão vigente e a próxima validação estão na seção Erro de leitura 0.11.2, ao final deste documento.
 
 Este documento foi reconstruído a partir dos arquivos recuperados e desta conversa. Não é o CONTEXTO.md original nem o palácio de memória mencionado pelo usuário; ambos continuam ausentes.
 
@@ -145,3 +145,9 @@ Foram reprocessados localmente o JSON real e a lista conferida original: 09.02.0
 O JSON comparacao-centi-1792421644811.json confirmou sete vínculos com ID, zero pendentes renderizados e zero linhas não interpretadas. 09.02.000 foi localizado no vínculo 16192 por id_municipal. Os outros três serviços anteriores continuam localizados. Apenas 10.03.000, ID municipal 51, alíquota 4%, está não localizado na captura. A correção de referência numérica está validada na extensão real; não pedir para repetir 09.02.000.
 
 O mesmo relatório contém uma tentativa de preparar 10.03.000 interrompida em conferir_formulario, sem interação, pesquisa, seleção ou salvamento: não havia exatamente um formulário novo visível. Não é uma falha da busca. Próximo passo operacional: na Centi, confirmar ausência de 10.03.000 também em herança/páginas/filtros, selecionar Serviços e abrir um vínculo novo vazio Id 0, lupa fechada. Na aba de comparação existente, escolher 10.03.000, confirmar e usar Pesquisar e selecionar sem salvar. Pedir o relatório após essa seleção; não é necessário atualizar a extensão ou gerar nova lista JSON agora.
+
+## Erro de leitura 0.11.2
+
+O usuário enviou uma captura da tela Ponte Centi 0.11.1 com a mensagem A aba da Centi não retornou a leitura. A imagem não mostra o estado da aba Centi; não concluir que o formulário estava aberto ou que a permissão expirou. O código antigo lançava erros internos do leitor sem serializar seu motivo para a interface. Foi adicionado retorno erro_leitura_centi e tratamento explícito para mostrar o motivo em português. A tela também esclarece: comparar primeiro na tabela da pasta Serviços, abrir vínculo novo somente depois para pesquisa/seleção. Passaram nove testes DOM e 13 UI simulados.
+
+Para retomar sem exigir atualização só para a navegação: voltar à Centi, clicar na pasta Serviços (não no vínculo filho) e deixar a tabela visível/lupa fechada, preservando alterações pendentes. Clicar no ícone da extensão a partir dessa aba para abrir uma comparação nova, importar o JSON já existente e comparar. Depois abrir vínculo novo e usar a comparação pronta para 10.03.000. Se a falha persistir, a 0.11.2 permite obter o motivo interno; falha de navegador/aba sem retorno continua pedindo reabertura pelo ícone. Não repetir inclusão 09.02.000, já localizado no vínculo 16192.

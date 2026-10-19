@@ -215,5 +215,14 @@ class IntegracaoUI(unittest.TestCase):
         self.assertTrue(self.page.locator('#pesquisa').is_hidden())
         self.assertEqual(self.page.locator('#servico-pesquisa option').count(), 0)
 
+    def test_read_error_preserves_form_open_reason_instead_of_no_return_message(self):
+        self.page.evaluate('''() => { chrome.scripting.executeScript=async()=>[{result:{tipo:'erro_leitura_centi',mensagem:'Selecione a pasta Serviços, fora do formulário e com a lupa fechada.'}}]; }''')
+        self.page.locator('#comparar').click()
+        self.page.locator('#erro').wait_for(state='visible')
+        self.assertIn('fora do formulário', self.page.locator('#erro').inner_text())
+        self.assertNotIn('não retornou a leitura', self.page.locator('#erro').inner_text())
+        self.assertTrue(self.page.locator('#resultado').is_hidden())
+        self.assertTrue(self.page.locator('#pesquisa').is_hidden())
+
 
 if __name__ == '__main__': unittest.main()
