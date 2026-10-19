@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Ponte Centi — diagnóstico da tela",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Exporta a estrutura visível da tela para reconstruir a integração. Não preenche nem salva na Centi.",
   "permissions": ["activeTab", "scripting", "downloads"],
   "background": {"service_worker": "worker.js", "type": "module"},

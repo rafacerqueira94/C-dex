@@ -34,15 +34,23 @@ export function inspecionarTelaCenti() {
   const grades = [...document.querySelectorAll('.wj-flexgrid, table, [role=grid]')]
     .filter(e => visivel(e) && !e.parentElement?.closest('.wj-flexgrid, table, [role=grid]'))
     .map((grade, indice) => {
-      const linhas = [...grade.querySelectorAll('[role=row], tr')].filter(visivel);
+      const linhas = [...grade.querySelectorAll('[role=row], tr, .wj-cells > .wj-row')].filter(visivel);
+      const seletorCelulas = '[role=gridcell], td, .wj-cell';
+      const linhasDados = linhas.filter(l => !l.closest('.wj-colheaders, .wj-rowheaders, thead')
+        && l.querySelector(seletorCelulas));
       return {
         indice,
         tipo: grade.matches('.tableFilterSearch--modal') ? 'lupa' : 'lista',
         tecnologia: grade.matches('.wj-flexgrid') ? 'wijmo' : grade.tagName === 'TABLE' ? 'table' : 'aria-grid',
-        cabecalhos: [...grade.querySelectorAll('[role=columnheader], th')].filter(visivel).map(rotulo),
-        linhasVisiveis: linhas.filter(l => l.querySelector('[role=gridcell], td')).length,
-        celulasPorLinha: [...new Set(linhas.filter(l => l.querySelector('[role=gridcell], td'))
-          .map(l => l.querySelectorAll('[role=gridcell], td').length))],
+        cabecalhos: [...grade.querySelectorAll('[role=columnheader], th, .wj-colheaders .wj-cell')].filter(visivel).map(rotulo),
+        linhasVisiveis: linhasDados.length,
+        celulasPorLinha: [...new Set(linhasDados.map(l => l.querySelectorAll(seletorCelulas).length))],
+        estruturaWijmo: {
+          paineisDados: grade.querySelectorAll('.wj-cells').length,
+          paineisCabecalho: grade.querySelectorAll('.wj-colheaders').length,
+          linhasNoDom: grade.querySelectorAll('.wj-cells > .wj-row').length,
+          celulasNoDom: grade.querySelectorAll('.wj-cells .wj-cell').length
+        },
         possuiRolagem: grade.scrollHeight > grade.clientHeight
           || [...grade.querySelectorAll('.wj-cells, .wj-content, [wj-part=root]')]
             .some(e => e.scrollHeight > e.clientHeight)
@@ -51,7 +59,7 @@ export function inspecionarTelaCenti() {
   const botoes = [...document.querySelectorAll('button, [role=button], input[type=button], input[type=submit]')]
     .filter(visivel).map(e => ({rotulo: rotulo(e), desabilitado: Boolean(e.disabled)}));
   return {
-    tipo: 'diagnostico_estrutura_centi', versao: 1, geradoEm: new Date().toISOString(),
+    tipo: 'diagnostico_estrutura_centi', versao: 2, geradoEm: new Date().toISOString(),
     destino: 'Centi de Caetité', somenteLeitura: true, salvo: false,
     campos, grades, botoes,
     lupasVisiveis: [...document.querySelectorAll('.iconSearchReference')].filter(visivel).length,

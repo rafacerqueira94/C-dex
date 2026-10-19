@@ -1,4 +1,8 @@
-Ponte Centi — diagnóstico da tela (ferramenta separada do aplicativo)
+Ponte Centi — diagnóstico da tela 0.2.0 (ferramenta separada do aplicativo)
+
+Esta versão reconhece também células e linhas Wijmo sem atributos ARIA.
+Ao atualizar, selecione a nova pasta ou use Recarregar em Extensões caso tenha
+substituído os arquivos da pasta já carregada. Confira a versão 0.2.0.
 
 1. Extraia o ZIP para uma pasta permanente.
 2. Em chrome://extensions ou edge://extensions, ative o modo do desenvolvedor.
