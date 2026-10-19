@@ -89,3 +89,8 @@ As cópias extraídas estão fora do checkout, em `/workspace/recuperacao-ponte-
 5. Integrar a busca e seleção já testadas aos serviços pendentes, com nova leitura para evitar duplicidade entre operações. Manter o salvamento manual nesta etapa, preservando o comportamento anteriormente testado.
 
 `conciliacao.mjs` e seus nove testes já preparam a comparação dos dados normalizados. A integração com a tela ainda não está implementada.
+
+
+## Comparação 0.11.1 validada pelo operador
+
+O relatório comparacao-centi-1792421644811.json confirmou reconhecimento real do serviço 09.02.000 no vínculo 16192 pela referência municipal numérica. Quatro serviços da lista estão localizados; apenas 10.03.000/51/4% não foi localizado na captura. A tentativa de pesquisar esse segundo serviço parou antes de interação porque o formulário novo não estava aberto. Não recomendar nova inclusão do primeiro serviço nem atualização para repetir essa comparação; preparar o formulário do segundo conforme o procedimento existente.
