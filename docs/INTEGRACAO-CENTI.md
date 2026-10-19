@@ -101,3 +101,10 @@ O relatório comparacao-centi-1792421644811.json confirmou reconhecimento real d
 ## Seleção real do segundo serviço confirmada
 
 O relatório comparacao-centi-1792426021171.json confirmou seleção automática 10.03.000/51/4%, ID e descrição conferidos, datas preservadas (19/10/2026 e fim vazio), vínculo novo Id 0 e nenhum salvamento. A captura de comparação no relatório precede a seleção; não confundir seu nao_localizado com falha da etapa posterior bem-sucedida. Falta conferir Especificar CNAE no formulário, eventual salvamento manual e releitura final da lista para confirmar os cinco serviços localizados. Não repetir a seleção do segundo vínculo.
+
+
+## Resultado final do caso real
+
+O relatório comparacao-centi-1792426509098.json confirmou os cinco serviços selecionados como localizados: 08.02.000, 09.02.000, 10.03.000, 13.02.000 e 17.06.000. Os dois novos vínculos aparecem com IDs definitivos 16192 e 16198, respectivamente. Há oito vínculos com ID na captura, zero pendentes identificados e zero linhas não interpretadas. A lista não deve mais oferecer serviços para nova inclusão. Não repetir as inclusões ou salvamentos.
+
+O teste desse caso está concluído: comparação, seleção assistida, salvamento manual e releitura com reconhecimento dos registros. O programa não salvou automaticamente. O vínculo histórico (VETADO) continua sinalizado sem correspondência no catálogo. O sucesso cobre os cinco serviços selecionados; não comprova correspondências completas de todos os CNAEs, ausência em páginas/filtros/herança ou validação de todos os cadastros.

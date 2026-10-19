@@ -122,3 +122,10 @@ O leitor agora captura seus erros internos e retorna um objeto serializável err
 Para retomar, voltar à Centi e selecionar a pasta Serviços (não um vínculo filho), deixando a tabela visível e a lupa fechada. Clicar no ícone da extensão nessa aba para abrir uma comparação nova e renovar a referência à origem. Importar o mesmo JSON e comparar. Só depois abrir um novo vínculo e retornar à comparação pronta para preparar 10.03.000. Não descartar alterações pendentes nem recadastrar 09.02.000.
 
 Passaram nove testes DOM do leitor e 13 testes UI com API Chrome simulada; os testes confirmam retorno de erro serializável e exibição do motivo sem oferecer resultados/ações de pesquisa. A causa da captura real ainda precisa ser confirmada caso a sequência correta não resolva.
+
+
+## Resultado final do caso real
+
+O relatório comparacao-centi-1792426509098.json confirmou os cinco serviços selecionados como localizados: 08.02.000, 09.02.000, 10.03.000, 13.02.000 e 17.06.000. Os dois novos vínculos aparecem com IDs definitivos 16192 e 16198, respectivamente. Há oito vínculos com ID na captura, zero pendentes identificados e zero linhas não interpretadas. A lista não deve mais oferecer serviços para nova inclusão. Não repetir as inclusões ou salvamentos.
+
+O teste desse caso está concluído: comparação, seleção assistida, salvamento manual e releitura com reconhecimento dos registros. O programa não salvou automaticamente. O vínculo histórico (VETADO) continua sinalizado sem correspondência no catálogo. O sucesso cobre os cinco serviços selecionados; não comprova correspondências completas de todos os CNAEs, ausência em páginas/filtros/herança ou validação de todos os cadastros.

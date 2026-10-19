@@ -1,6 +1,6 @@
 # Ponte Centi — contexto recuperado
 
-As seções abaixo preservam o histórico. A versão vigente e a próxima validação estão na seção Erro de leitura 0.11.2, ao final deste documento.
+As seções abaixo preservam o histórico. A versão do código é 0.11.2; o caso de teste está concluído na seção Validação final dos cinco serviços, ao final deste documento.
 
 Este documento foi reconstruído a partir dos arquivos recuperados e desta conversa. Não é o CONTEXTO.md original nem o palácio de memória mencionado pelo usuário; ambos continuam ausentes.
 
@@ -160,3 +160,12 @@ O JSON real comparacao-centi-1792426021171.json confirmou ok true, etapa servico
 A comparação contida nesse mesmo JSON é anterior à seleção: sete vínculos com ID, zero pendentes naquela captura e quatro serviços localizados, incluindo 09.02.000 no vínculo 16192. Não interpretar o estado nao_localizado de 10.03.000 nessa captura antiga como falha da seleção bem-sucedida que ocorreu depois. Não pedir para repetir a seleção ou abrir outro vínculo 10.03.000.
 
 Próximo passo: operador conferir Especificar CNAE = Não no formulário atual e demais dados. Se decidir efetivar o vínculo, salvar manualmente na Centi. Depois voltar à pasta Serviços e refazer somente a comparação com o mesmo JSON; esperar os cinco serviços da lista localizados, sem oferta de nova inclusão. Ainda falta observar esse salvamento/ID definitivo do segundo vínculo e a comparação final. Não afirmar que a extensão salvou ou que o caso completo já foi concluído.
+
+
+## Validação final dos cinco serviços — caso concluído
+
+O relatório real comparacao-centi-1792426509098.json confirmou todos os cinco serviços da lista selecionada como localizados: 08.02.000 (vínculo 12126), 09.02.000 (16192), 10.03.000 (16198), 13.02.000 (7403) e 17.06.000 (2592). São oito vínculos com ID renderizados, zero pendentes identificados, zero linhas não interpretadas e nenhuma ultimaPesquisa nessa releitura. O segundo serviço já aparece com ID definitivo após o salvamento manual/releitura; não pedir para selecioná-lo ou salvá-lo novamente.
+
+O caso de teste de comparação, seleção assistida dos dois serviços inicialmente não localizados, salvamento pelo operador e reconhecimento dos vínculos na releitura foi concluído. Como os cinco serviços estão localizados, nenhum deve aparecer nas opções de nova inclusão para essa lista. A automação não acionou Salvar; não atribuir a persistência ao programa.
+
+Permanece um vínculo histórico (VETADO), ID 3601, sem correspondência no catálogo atual e separado para revisão; o programa não o alterou. A lista original tinha listaPossivelmenteIncompleta true, portanto conclusão dos cinco selecionados não significa cobertura completa de todos os CNAEs ou ausência de registros fora da captura. Paginação, filtros, herança, vigência e empresa continuam com as limitações documentadas. A leitura/conferência automática de Especificar CNAE e o salvamento automático não foram implementados. Não afirmar validação de generalização para todos os cadastros. Nenhuma nova instalação, repetição dos testes de inclusão ou ação no cadastro é necessária para concluir este caso.
