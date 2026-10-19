@@ -50,3 +50,28 @@ test('não considera data fim como autorização para recadastrar ou altera os d
   assert.equal(r.podePreencher, false);
   assert.deepEqual(v, antes);
 });
+
+test('serviço já preenchido com ID 0 não é confundido com ausente ou salvo', () => {
+  const c = {...captura([]), vinculosPendentes: [{...vinculo, idVinculo: '0'}]};
+  const r = compararCaptura(plano, c, [registro], cnpj);
+  assert.equal(r.servicos[0].situacao, 'preenchido_sem_salvar');
+  assert.equal(r.totalVinculosPendentes, 1);
+  assert.equal(r.totalVinculosVisiveis, 0);
+  assert.equal(r.podePreencher, false);
+});
+test('vínculos salvo e pendente para o mesmo serviço são conflito', () => {
+  const c = {...captura([vinculo]), vinculosPendentes: [{...vinculo, idVinculo: '0'}]};
+  assert.equal(compararCaptura(plano, c, [registro], cnpj).servicos[0].situacao, 'conflito');
+});
+test('dois vínculos novos iguais não são eliminados como cópia visual', () => {
+  const p = {...vinculo, idVinculo: '0'};
+  const c = {...captura([]), vinculosPendentes: [p, {...p}]};
+  const r = compararCaptura(plano, c, [registro], cnpj);
+  assert.equal(r.servicos[0].situacao, 'conflito');
+  assert.equal(r.totalVinculosPendentes, 2);
+});
+test('pendência desconhecida é destacada e ID 0 não pode entrar como vínculo salvo', () => {
+  const c = {...captura([]), vinculosPendentes: [{...vinculo, idVinculo: '0', nome: 'SEM CORRESPONDÊNCIA'}]};
+  assert.equal(compararCaptura(plano, c, [registro], cnpj).vinculosSemIdentificacao.length, 1);
+  assert.throws(() => compararCaptura(plano, captura([{...vinculo, idVinculo: '0'}]), [registro], cnpj));
+});

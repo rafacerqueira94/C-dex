@@ -49,8 +49,8 @@ $('form-comparar').addEventListener('submit', async e => {
     const comparacao = compararCaptura(plano, captura, catalogo, cnpj);
     if (atual !== sequencia) throw Error('Os dados foram alterados durante a leitura. Confira a empresa e compare novamente.');
     resultado = {...comparacao, captura};
-    $('resumo').textContent = `${comparacao.totalVinculosVisiveis} vínculo(s) lido(s). Esta comparação é parcial e não autoriza inclusão automática.`;
-    const rotulos = {localizado: 'Localizado na captura — confira a vigência', conflito: 'Conflito — revisar', nao_localizado_na_captura: 'Não localizado nesta captura — ainda não incluir'};
+    $('resumo').textContent = `${comparacao.totalVinculosVisiveis} vínculo(s) com ID e ${comparacao.totalVinculosPendentes} novo(s) pendente(s) visíveis. Esta comparação é parcial e não autoriza inclusão automática.`;
+    const rotulos = {localizado: 'Localizado na captura — confira a vigência', preenchido_sem_salvar: 'Já preenchido em vínculo pendente — não incluir novamente', conflito: 'Conflito — revisar', nao_localizado_na_captura: 'Não localizado nesta captura — ainda não incluir'};
     $('servicos-comparados').replaceChildren(...comparacao.servicos.map(s => {
       const li = document.createElement('li'); li.textContent = `${s.codigo} · ${s.aliquota}% · ${rotulos[s.situacao]}`; return li;
     }));

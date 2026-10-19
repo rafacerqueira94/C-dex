@@ -1,4 +1,4 @@
-Ponte Centi 0.10.3 — cartão CNPJ, conferência, comparação e seleção na Centi
+Ponte Centi 0.11.0 — cartão CNPJ, conferência, comparação e seleção na Centi
 
 1. No Chrome/Edge, carregue a pasta da extensão em Carregar sem compactação.
 2. Clique no ícone Ponte Centi — consulta e conferência para abrir o aplicativo.
@@ -59,3 +59,8 @@ após a pré-seleção Wijmo e o primeiro clique; a lupa fechou, o formulário
 recebeu o código e a descrição corretos e as datas foram preservadas. Nada
 foi salvo. A versão 0.10.3 apenas corrige a mensagem e registra se a
 ativação ocorreu por clique ou duplo clique. Não requer repetir esse teste.
+
+Versão 0.11.0: na comparação, linhas renderizadas com Id 0 e Serviço
+preenchido são tratadas como vínculos pendentes. Quando identificados no
+catálogo, não são oferecidos para outra inclusão. O salvamento permanece
+manual; nenhuma versão aciona Salvar automaticamente.

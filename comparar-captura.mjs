@@ -19,27 +19,37 @@ export function compararCaptura(plano, captura, catalogo, cnpjConfirmado) {
     const candidatos = catalogo.filter(r => String(r.Id) === String(s.id) && r.CodigoCompleto === s.codigo && r.Aliquota === s.aliquota && r.Situacao === 'Ativo');
     if (candidatos.length !== 1) throw Error('Um serviço da lista não corresponde ao catálogo atual.');
   }
+  const resolver = (v, pendente) => {
+    const candidatos = catalogo.filter(r => normal(r.Nome) === normal(v.nome) && r.Situacao === 'Ativo');
+    return {...v, pendente, registroMunicipal: candidatos.length === 1 ? candidatos[0] : null,
+      identificacao: candidatos.length === 1 ? 'resolvida' : candidatos.length ? 'ambigua' : 'fora_do_catalogo'};
+  };
   const vistos = new Set();
   const vinculos = captura.registros.map(v => {
     if (!idValido(v?.idVinculo) || typeof v.nome !== 'string' || !v.nome.trim() || vistos.has(String(v.idVinculo))) {
       throw Error('A captura possui vínculo inválido ou ID repetido.');
     }
     vistos.add(String(v.idVinculo));
-    const candidatos = catalogo.filter(r => normal(r.Nome) === normal(v.nome) && r.Situacao === 'Ativo');
-    return {...v, registroMunicipal: candidatos.length === 1 ? candidatos[0] : null,
-      identificacao: candidatos.length === 1 ? 'resolvida' : candidatos.length ? 'ambigua' : 'fora_do_catalogo'};
+    return resolver(v, false);
   });
+  if (captura.vinculosPendentes != null && !Array.isArray(captura.vinculosPendentes)) throw Error('Lista de vínculos pendentes inválida.');
+  const pendentes = (captura.vinculosPendentes ?? []).map(v => {
+    if (!v || String(v.idVinculo) !== '0' || typeof v.nome !== 'string' || !v.nome.trim()) throw Error('Vínculo pendente inválido.');
+    return resolver(v, true);
+  });
+  const todos = [...vinculos, ...pendentes];
   const servicos = plano.servicos.map(s => {
-    const mesmoCodigo = vinculos.filter(v => v.registroMunicipal?.CodigoCompleto === s.codigo);
+    const mesmoCodigo = todos.filter(v => v.registroMunicipal?.CodigoCompleto === s.codigo);
     const exatos = mesmoCodigo.filter(v => String(v.registroMunicipal.Id) === String(s.id) && v.registroMunicipal.Aliquota === s.aliquota);
-    const situacao = mesmoCodigo.length === 1 && exatos.length === 1 ? 'localizado'
+    const situacao = mesmoCodigo.length === 1 && exatos.length === 1 ? (exatos[0].pendente ? 'preenchido_sem_salvar' : 'localizado')
       : mesmoCodigo.length ? 'conflito' : 'nao_localizado_na_captura';
     return {...s, situacao, idsVinculos: mesmoCodigo.map(v => v.idVinculo)};
   });
   return {
     tipo: 'comparacao_parcial_centi', versao: 1,
     empresa: {cnpj: normalizarCnpj(plano.empresa.cnpj), confirmacao: 'informada_pelo_operador'},
-    servicos, vinculosSemIdentificacao: vinculos.filter(v => !v.registroMunicipal),
+    servicos, vinculosSemIdentificacao: todos.filter(v => !v.registroMunicipal),
+    vinculosPendentes: pendentes, totalVinculosPendentes: pendentes.length,
     totalVinculosVisiveis: vinculos.length, podePreencher: false, salvo: false,
     observacao: 'Não localizado nesta captura não significa ausente do cadastro. Datas, filtros, paginação e serviços herdados precisam de revisão; não houve preenchimento.'
   };

@@ -25,6 +25,7 @@ export function lerVinculosCenti() {
       || cabecalhos.some((h, i) => h !== modelo[i % 5])) falhar('A ordem das colunas mudou; a leitura foi interrompida.');
   const linhas = [...grade.querySelectorAll('.wj-cells > .wj-row')].filter(visivel);
   const registros = new Map();
+  const vinculosPendentes = [];
   const detalhesLinhasNaoInterpretadas = [];
   let repeticoesDeRenderizacao = 0, linhasNaoInterpretadas = 0, cabecalhosRepetidosIgnorados = 0;
   for (const linha of linhas) {
@@ -40,6 +41,11 @@ export function lerVinculosCenti() {
       continue;
     }
     const [, idVinculo, nome, dataInicio, dataFim] = valores;
+    if (idVinculo === '0' && nome) {
+      // Não juntar ID 0: podem existir dois novos vínculos iguais pendentes.
+      vinculosPendentes.push({idVinculo, nome, dataInicio, dataFim});
+      continue;
+    }
     // Linhas vazias de inserção/medição não demonstram ausência de registros.
     if (!/^[1-9]\d*$/.test(idVinculo) || !nome) {
       linhasNaoInterpretadas++;
@@ -56,7 +62,7 @@ export function lerVinculosCenti() {
   }
   return {
     tipo: 'captura_vinculos_centi', versao: 1, lidoEm: new Date().toISOString(),
-    registros: [...registros.values()], linhasNaoInterpretadas, detalhesLinhasNaoInterpretadas, repeticoesDeRenderizacao, cabecalhosRepetidosIgnorados,
+    registros: [...registros.values()], vinculosPendentes, linhasNaoInterpretadas, detalhesLinhasNaoInterpretadas, repeticoesDeRenderizacao, cabecalhosRepetidosIgnorados,
     leituraCompleta: false, empresaVerificadaAutomaticamente: false,
     observacao: 'Somente linhas renderizadas. Paginação, filtros, serviços herdados e empresa não foram verificados automaticamente.'
   };

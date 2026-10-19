@@ -56,7 +56,7 @@ class LeituraVinculos(unittest.TestCase):
             self.read()
 
     def test_unknown_extra_row_is_reported_and_does_not_imply_complete_read(self):
-        self.page.set_content(self.grid(self.row()+self.row(id='0')))
+        self.page.set_content(self.grid(self.row()+self.row(id='desconhecido')))
         r = self.read()
         self.assertEqual(len(r['registros']), 1)
         self.assertEqual(r['linhasNaoInterpretadas'], 1)
@@ -89,6 +89,15 @@ class LeituraVinculos(unittest.TestCase):
         r = self.read()
         self.assertEqual(r['cabecalhosRepetidosIgnorados'], 0)
         self.assertEqual(r['linhasNaoInterpretadas'], 1)
+
+    def test_unsaved_link_zero_is_captured_separately_without_merging(self):
+        self.page.set_content(self.grid(self.row('1000')+self.row('0')+self.row('0')))
+        r = self.read()
+        self.assertEqual(len(r['registros']), 1)
+        self.assertEqual(len(r['vinculosPendentes']), 2)
+        self.assertEqual(r['vinculosPendentes'][0]['idVinculo'], '0')
+        self.assertEqual(r['linhasNaoInterpretadas'], 0)
+        self.assertFalse(r['leituraCompleta'])
 
 
 if __name__ == '__main__': unittest.main()

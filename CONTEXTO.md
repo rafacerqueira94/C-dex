@@ -1,6 +1,6 @@
 # Ponte Centi — contexto recuperado
 
-As seções abaixo preservam o histórico. A versão vigente e a próxima validação estão na seção Seleção automática confirmada, ao final deste documento.
+As seções abaixo preservam o histórico. A versão vigente e a próxima validação estão na seção Proteção de pendências 0.11.0, ao final deste documento.
 
 Este documento foi reconstruído a partir dos arquivos recuperados e desta conversa. Não é o CONTEXTO.md original nem o palácio de memória mencionado pelo usuário; ambos continuam ausentes.
 
@@ -122,3 +122,11 @@ O JSON real comparacao-centi-1792419986717.json confirmou ok true, etapa servico
 A versão 0.10.3 corrige somente a mensagem de sucesso e adiciona metodoAtivacao, inferido dos eventos efetivamente enviados. Passaram os 17 testes DOM de pesquisa/seleção/conferência, incluindo o fechamento no primeiro clique e ausência de eventos adicionais. O usuário não precisa repetir a seleção ou atualizar para validar o mesmo caso já concluído.
 
 O objetivo de ativação automática do serviço foi validado para 09.02.000/238 na Centi real. O vínculo segue sem salvar, como solicitado para os testes. Ainda falta conferir Especificar CNAE e os demais dados do formulário antes de discutir salvamento. Próxima entrada: captura do formulário preenchido (não da lupa), para conferir o campo Especificar CNAE. Não repetir pesquisa no vínculo preenchido, não criar outro vínculo 09.02.000 e não iniciar o segundo serviço antes de resolver o primeiro pendente. Não afirmar que a seleção 10.03.000 foi testada; ela não foi.
+
+## Proteção de pendências 0.11.0
+
+A captura final enviada pelo usuário confirmou o formulário preenchido com 09.02.000, início 19/10/2026, fim vazio e Especificar CNAE = Não. Id 0 e Salvar(1) confirmam que o vínculo ainda está pendente. A confirmação de Especificar CNAE é visual e específica dessa captura, não automática pelo programa. O preenchimento assistido desse serviço foi validado sem persistência.
+
+Foi acrescentado reconhecimento de linhas renderizadas com Id 0 e descrição em `vinculosPendentes`. A comparação resolve as descrições pelo catálogo e classifica um serviço único assim encontrado como preenchido_sem_salvar, excluindo-o das opções de nova inclusão. Vínculo existente mais novo ou dois novos para o mesmo código geram conflito. Não unificar ID 0 por conteúdo igual, pois pode haver duplicidade real. Pendência sem correspondência permanece destacada; leitura sempre parcial, podePreencher false. Não prometer detecção de pendências fora da grade ou sem dados reconhecíveis.
+
+Passaram 11 testes Node da comparação, nove DOM do leitor e 11 UI simulados nesta etapa (31). Falta observar a leitura real de pendências 0.11.0 e a confirmação de persistência de qualquer vínculo. O programa não salva. Para efetivar um cadastro, o operador decide e usa Salvar na Centi; só considerar salvo após ID definitivo ou confirmação e releitura da lista. Próximo teste de deduplicação após eventual salvamento manual: reler Serviços com o mesmo JSON, confirmar 09.02.000 localizado e não oferecido novamente; 10.03.000 continua não testado. Não pedir para repetir a seleção 09.02.000 nem iniciar o segundo enquanto o primeiro estiver pendente.
