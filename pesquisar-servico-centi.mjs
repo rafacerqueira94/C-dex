@@ -2,7 +2,7 @@
 // Abre a lupa e ajusta filtros. Seleção opcional por duplo clique, sem salvar.
 export async function pesquisarServicoCenti(pedido) {
   let etapa = 'conferir_formulario', interacaoIniciada = false, pesquisaAcionada = false,
-    selecaoAcionada = false, selecionado = false, observador;
+    selecaoAcionada = false, selecionado = false, observador, detalhesSelecao = null;
   const falhar = m => { throw Error(m); };
   const normal = s => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toUpperCase();
   const cnpj = s => String(s ?? '').replace(/\D/g, '');
@@ -105,16 +105,38 @@ export async function pesquisarServicoCenti(pedido) {
           if (pedido.selecionar !== true) return {ok: true, salvo: false, selecionado: false, etapa: 'pesquisa_conferida', interacaoIniciada, pesquisaAcionada, pesquisaAtualizada: true,
               mensagem: 'Pesquisa atualizada com uma linha exata. Nenhum serviço foi selecionado e nenhum botão Salvar foi acionado.'};
           etapa = 'selecionar_servico'; conferir();
-          const celula = habilitado(resultados[0][0]), rect = celula.getBoundingClientRect();
-          const evento = (tipo, detail, buttons = 0) => new MouseEvent(tipo, {bubbles: true, cancelable: true, view: window,
-            button: 0, buttons, detail, clientX: rect.x + rect.width / 2, clientY: rect.y + rect.height / 2});
-          selecaoAcionada = true;
-          for (const n of [1, 2]) {
-            celula.dispatchEvent(evento('mousedown', n, 1));
-            celula.dispatchEvent(evento('mouseup', n));
-            celula.dispatchEvent(evento('click', n));
+          // A grade real manteve a primeira linha (5%) destacada apesar dos
+          // eventos sintéticos. Usar a API pública e conferir a seleção antes
+          // do duplo clique; não acessar propriedades privadas do Wijmo.
+          const controle = globalThis.wijmo?.Control?.getControl?.(atual.grade);
+          detalhesSelecao = {apiWijmoDisponivel: Boolean(controle), linhaConferida: false};
+          if (!controle || typeof controle.select !== 'function' || typeof controle.getCellData !== 'function') {
+            falhar('A API pública da grade Wijmo não está disponível nesta tela. Nenhum duplo clique foi acionado.');
           }
-          celula.dispatchEvent(evento('dblclick', 2));
+          const colunas = Array.from(controle.columns || []);
+          const coluna = aliases => unico(colunas.map((c, i) => ({c, i}))
+            .filter(({c}) => aliases.includes(normal(c.header)) || aliases.includes(normal(c.binding))), 'As colunas da API Wijmo não correspondem à pesquisa.').i;
+          const indices = [coluna(['ID']), coluna(['CODIGO', 'CODIGO COMPLETO', 'CODIGOCOMPLETO']), coluna(['NOME']), coluna(['ALIQUOTA', 'ALIQUOTA (%)'])];
+          const coincide = i => {
+            const valores = indices.map(col => normal(controle.getCellData(i, col, true)));
+            return valores[0] === String(s.id) && valores[1] === s.codigo && valores[2] === normal(s.nome) && valores[3].replace('.', ',') === s.aliquota;
+          };
+          const indicesLinhas = Array.from(controle.rows || [], (_, i) => i).filter(coincide);
+          const indiceLinha = unico(indicesLinhas, 'A API da grade não confirmou um único registro exato.');
+          controle.select(indiceLinha, indices[0]);
+          if (typeof controle.scrollIntoView === 'function') controle.scrollIntoView(indiceLinha, indices[0]);
+          if (typeof controle.focus === 'function') controle.focus();
+          await esperar(100); conferir();
+          if (controle.selection?.row !== indiceLinha || !coincide(indiceLinha)) falhar('A grade não manteve a seleção do registro esperado. Nenhum duplo clique foi acionado.');
+          detalhesSelecao = {apiWijmoDisponivel: true, linhaConferida: true, indiceLinha, idMunicipal: String(s.id), aliquota: s.aliquota};
+          const atuais = [...atual.grade.querySelectorAll('.wj-cells > .wj-row')].filter(visivel)
+            .map(l => [...l.children].filter(c => c.matches('.wj-cell')))
+            .filter(c => c.length >= 4 && normal(c[0].textContent) === String(s.id) && normal(c[1].textContent) === s.codigo
+              && normal(c[2].textContent) === normal(s.nome) && normal(c[3].textContent).replace('.', ',') === s.aliquota);
+          const celula = habilitado(unico(atuais, 'A linha mudou após a seleção na grade.')[0]), rect = celula.getBoundingClientRect();
+          selecaoAcionada = true;
+          celula.dispatchEvent(new MouseEvent('dblclick', {bubbles: true, cancelable: true, view: window, button: 0, detail: 2,
+            clientX: rect.x + rect.width / 2, clientY: rect.y + rect.height / 2}));
           etapa = 'conferir_servico';
           const fimSelecao = Date.now() + 8000;
           while (true) {
@@ -125,11 +147,15 @@ export async function pesquisarServicoCenti(pedido) {
               if (dataInicio !== datasAntes.inicio || dataFim !== datasAntes.fim) falhar('As datas mudaram durante a seleção. Confira o formulário antes de continuar.');
               selecionado = true;
               return {ok: true, salvo: false, selecionado, selecaoAcionada, etapa: 'servico_conferido', interacaoIniciada, pesquisaAcionada,
-                pesquisaAtualizada: true, datasPreservadas: true, conferenciaParcial: true,
+                pesquisaAtualizada: true, datasPreservadas: true, conferenciaParcial: true, detalhesSelecao,
                 campos: {idVinculo: '0', idServico, nome, dataInicio, dataFim},
                 mensagem: 'Serviço selecionado por duplo clique, ID e descrição conferidos. Datas preservadas. Confira os demais campos; nenhum botão Salvar foi acionado.'};
             }
-            if (Date.now() >= fimSelecao) falhar('Não foi possível confirmar o serviço no formulário após o duplo clique.');
+            if (Date.now() >= fimSelecao) {
+              detalhesSelecao.formularioAoFinal = {lupasVisiveis: grades().length, idServico, nome,
+                dataInicio: campo('DataInicio' + sufixo).value, dataFim: campo('DataFim' + sufixo).value};
+              falhar('Não foi possível confirmar o serviço no formulário após o duplo clique.');
+            }
             await esperar(100);
           }
         }
@@ -138,7 +164,7 @@ export async function pesquisarServicoCenti(pedido) {
       await esperar(100);
     }
   } catch (e) {
-    return {ok: false, salvo: false, selecionado, selecaoAcionada, etapa, interacaoIniciada, pesquisaAcionada,
+    return {ok: false, salvo: false, selecionado, selecaoAcionada, etapa, interacaoIniciada, pesquisaAcionada, detalhesSelecao,
       mensagem: e.message + (selecaoAcionada ? ' O campo Serviço pode ter sido alterado; confira o formulário. Nenhum botão Salvar foi acionado.'
         : interacaoIniciada ? ' A lupa ou os filtros podem ter sido alterados. Nenhum botão Salvar foi acionado.' : ' Nenhuma ação foi iniciada.')};
   } finally { observador?.disconnect(); }

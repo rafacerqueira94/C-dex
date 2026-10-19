@@ -86,7 +86,7 @@ async function executarPesquisa(selecionar) {
     selecionado: null, etapa: 'execucao_em_andamento', selecaoSolicitada: selecionar};
   $('status-pesquisa').textContent = selecionar ? 'Pesquisando e selecionando o serviço na Centi, sem salvar…' : 'Abrindo a lupa e pesquisando o serviço na Centi…';
   try {
-    const respostas = await chrome.scripting.executeScript({target: {tabId: aba}, func: pesquisarServicoCenti, args: [pedido]});
+    const respostas = await chrome.scripting.executeScript({target: {tabId: aba}, world: selecionar ? 'MAIN' : 'ISOLATED', func: pesquisarServicoCenti, args: [pedido]});
     const preparacao = respostas[0]?.result;
     if (!preparacao || typeof preparacao.ok !== 'boolean') throw Error('Não foi possível obter o resultado da pesquisa. Verifique a aba Centi.');
     resultado.ultimaPesquisa = {codigo: servico.codigo, idMunicipal: servico.id, ...preparacao};

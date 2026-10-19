@@ -1,6 +1,6 @@
 # Ponte Centi — contexto recuperado
 
-As seções abaixo preservam o histórico. A versão vigente e a próxima validação estão na seção Progresso 0.10.0, ao final deste documento.
+As seções abaixo preservam o histórico. A versão vigente e a próxima validação estão na seção Correção 0.10.1, ao final deste documento.
 
 Este documento foi reconstruído a partir dos arquivos recuperados e desta conversa. Não é o CONTEXTO.md original nem o palácio de memória mencionado pelo usuário; ambos continuam ausentes.
 
@@ -96,3 +96,11 @@ O JSON real `comparacao-centi-1792416949140.json` confirmou pesquisa do serviço
 O usuário confirmou que a seleção manual é feita com dois cliques na linha. A opção Pesquisar e selecionar — sem salvar foi implementada: reaproveita a pesquisa exata com atualização observada, reproduz os eventos de duplo clique e aguarda o retorno ao mesmo vínculo novo Id 0. Confere ID/código e descrição e verifica se as datas permaneceram iguais às lidas antes da seleção. Não altera datas, não verifica Especificar CNAE e não aciona Salvar. Se houver falha após acionar a seleção, o Serviço pode estar alterado; não há reversão. O resultado exportado distingue seleção acionada de seleção conferida e registra execução incerta em vez de reutilizar sucesso anterior.
 
 Passaram oito testes DOM do leitor, nove testes DOM da pesquisa/seleção e nove testes UI com API Chrome simulada. A pesquisa 0.9.0 está validada na Centi real; a seleção 0.10.0 ainda depende do operador. Próximo teste: atualizar a pasta raiz, refazer comparação com o JSON existente, fechar a lupa anterior mantendo vínculo novo vazio, escolher o serviço, confirmar a ausência e usar Pesquisar e selecionar. Conferir a tela e exportar comparação sem salvar o vínculo. Instruções em docs/COMPARACAO-CENTI.md.
+
+## Correção 0.10.1
+
+O primeiro teste 0.10.0 parou sem interação por ausência de um único formulário novo visível. O teste seguinte chegou a conferir_servico, mas expirou após duplo clique sem confirmar o Serviço. Os JSONs seguintes repetiam o mesmo resultado. A captura posterior mostrou lupa aberta com três alíquotas: primeira linha ID 740 / 5% destacada, segunda 494 / 2%, terceira e esperada 238 / 4%. Não concluir que o serviço errado foi preenchido/salvo: nada foi confirmado e Salvar não foi acionado.
+
+A versão 0.10.1 trata a hipótese de que os eventos sintéticos não alteraram a seleção interna do Wijmo. A opção de seleção agora é injetada em MAIN para usar a API pública wijmo.Control.getControl; encontra uma única linha por colunas ID/código/nome/alíquota, usa select e verifica a seleção antes do duplo clique. Não usa propriedades privadas. Sem API ou seleção confirmada, não dá duplo clique. A conferência do formulário, Id 0 e datas preservadas continua obrigatória. Em timeout, exporta os campos observados e quantas lupas permanecem abertas; não reutiliza sucesso anterior.
+
+Passaram 12 testes DOM da pesquisa/seleção e nove UI simulados, incluindo o cenário de três alíquotas com a correta na terceira linha. A API Wijmo nesses testes é simulada; a disponibilidade dela na Centi e o fechamento real da lupa ainda não foram verificados. Próximo teste do operador: atualizar raiz para 0.10.1, fechar lupa anterior, refazer comparação na pasta Serviços, reabrir o vínculo novo vazio, confirmar ausência e usar Pesquisar e selecionar. Exportar comparação sem salvar.

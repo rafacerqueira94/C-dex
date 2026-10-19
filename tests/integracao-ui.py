@@ -133,7 +133,7 @@ class IntegracaoUI(unittest.TestCase):
     def test_selection_request_exports_verified_result_and_removes_service_from_options(self):
         self.page.evaluate('''() => { chrome.scripting.executeScript=async p=>{
           if(p.func.name==='lerVinculosCenti')return [{result:{tipo:'captura_vinculos_centi',registros:[],linhasNaoInterpretadas:0}}];
-          window.ultimoPedido=p.args[0];
+          window.ultimoPedido=p.args[0];window.ultimoMundo=p.world;
           return [{result:{ok:true,salvo:false,selecionado:true,etapa:'servico_conferido',mensagem:'Serviço selecionado sem salvar.'}}];
         }; }''')
         self.page.locator('#comparar').click()
@@ -143,6 +143,7 @@ class IntegracaoUI(unittest.TestCase):
         self.page.locator('#pesquisar-selecionar').click()
         self.page.wait_for_function('document.querySelector("#status-pesquisa").textContent.includes("Serviço selecionado")')
         self.assertTrue(self.page.evaluate('window.ultimoPedido.selecionar'))
+        self.assertEqual(self.page.evaluate('window.ultimoMundo'), 'MAIN')
         self.assertEqual(self.page.locator('#servico-pesquisa option').count(), 0)
         self.assertTrue(self.page.locator('#pesquisar-selecionar').is_disabled())
         with self.page.expect_download() as event:

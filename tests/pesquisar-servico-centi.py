@@ -40,19 +40,24 @@ class PesquisaCenti(unittest.TestCase):
         <script>
         window.salvos=0;window.selecionados=0;window.pesquisas=0;window.lupas=0;window.modo='atualizar';
         const row=()=>'<div class="wj-row"><div class="wj-cell">238</div><div class="wj-cell">09.02.000</div><div class="wj-cell">SERVIÇO DE TESTE - 4%</div><div class="wj-cell">4,00</div></div>';
+        const controle={columns:[{header:'ID',binding:'Id'},{header:'Código',binding:'CodigoCompleto'},{header:'Nome',binding:'Nome'},{header:'Alíquota',binding:'Aliquota'}],
+          get rows(){return [...document.querySelectorAll('#resultados .wj-row')]},selection:{row:0},
+          getCellData(i,c){return this.rows[i].children[c].textContent},
+          select(i,c){if(!window.ignorarSelecao)this.selection={row:i,col:c}},focus(){},scrollIntoView(){}};
+        window.wijmo={Control:{getControl:()=>controle}};
         document.querySelector('#resultados').innerHTML=row();
         document.querySelector('#salvar').onclick=()=>window.salvos++;
         document.querySelector('#resultados').onclick=()=>window.selecionados++;
         document.querySelector('#resultados').ondblclick=()=>{
-          document.querySelector('#IdServicoTESTE').value=window.modo==='codigo'?'09.02.000':window.modo==='selecaoErrada'?'999':'238';
-          document.querySelector('#IdServicoTESTE-second').value='SERVIÇO DE TESTE - 4%';
+          document.querySelector('#IdServicoTESTE').value=window.modo==='codigo'?'09.02.000':window.modo==='selecaoErrada'?'999':controle.getCellData(controle.selection.row,0);
+          document.querySelector('#IdServicoTESTE-second').value=controle.getCellData(controle.selection.row,2);
           if(window.modo==='alterarDatas')document.querySelector('#DataInicioTESTE').value='01/01/2020';
           document.querySelector('#modal').style.display='none';
         };
         document.querySelector('.iconSearchReference').onclick=()=>{window.lupas++;document.querySelector('#modal').style.display='block'};
         document.querySelector('.btnPesquisar').onclick=()=>{window.pesquisas++;
           if(window.modo==='antigo')return;
-          const html=window.modo==='duplicado'?row()+row():window.modo==='errado'?row().replace('238','999'):row();
+          const html=window.modo==='tresAliquotas'?row().replace('238','740').replace('4%','5%').replace('4,00','5,00')+row().replace('238','494').replace('4%','2%').replace('4,00','2,00')+row():window.modo==='duplicado'?row()+row():window.modo==='errado'?row().replace('238','999'):row();
           setTimeout(()=>document.querySelector('#resultados').innerHTML=html,20);
         };
         </script>''')
@@ -146,6 +151,34 @@ class PesquisaCenti(unittest.TestCase):
         self.assertFalse(r['selecionado'])
         self.assertTrue(r['selecaoAcionada'])
         self.assertEqual(self.page.evaluate('salvos'), 0)
+
+    def test_three_rates_selects_third_row_238_instead_of_initial_740(self):
+        self.pedido['selecionar'] = True
+        self.page.evaluate("window.modo='tresAliquotas'")
+        r = self.run_search()
+        self.assertTrue(r['ok'], r)
+        self.assertEqual(r['campos']['idServico'], '238')
+        self.assertEqual(r['detalhesSelecao']['indiceLinha'], 2)
+        self.assertTrue(r['detalhesSelecao']['linhaConferida'])
+        self.assertEqual(self.page.evaluate('salvos'), 0)
+
+    def test_unavailable_public_api_does_not_trigger_double_click(self):
+        self.pedido['selecionar'] = True
+        self.page.evaluate('window.wijmo=undefined')
+        r = self.run_search()
+        self.assertFalse(r['ok'])
+        self.assertFalse(r['selecaoAcionada'])
+        self.assertFalse(r['detalhesSelecao']['apiWijmoDisponivel'])
+        self.assertEqual(self.page.locator('#IdServicoTESTE').input_value(), '')
+
+    def test_selection_not_retained_by_grid_prevents_double_click(self):
+        self.pedido['selecionar'] = True
+        self.page.evaluate("window.modo='tresAliquotas';window.ignorarSelecao=true")
+        r = self.run_search()
+        self.assertFalse(r['ok'])
+        self.assertFalse(r['selecaoAcionada'])
+        self.assertIn('não manteve a seleção',r['mensagem'])
+        self.assertEqual(self.page.locator('#IdServicoTESTE').input_value(), '')
 
 
 if __name__ == '__main__': unittest.main()
