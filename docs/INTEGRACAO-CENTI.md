@@ -96,3 +96,8 @@ As cópias extraídas estão fora do checkout, em `/workspace/recuperacao-ponte-
 ## Comparação 0.11.1 validada pelo operador
 
 O relatório comparacao-centi-1792421644811.json confirmou reconhecimento real do serviço 09.02.000 no vínculo 16192 pela referência municipal numérica. Quatro serviços da lista estão localizados; apenas 10.03.000/51/4% não foi localizado na captura. A tentativa de pesquisar esse segundo serviço parou antes de interação porque o formulário novo não estava aberto. Não recomendar nova inclusão do primeiro serviço nem atualização para repetir essa comparação; preparar o formulário do segundo conforme o procedimento existente.
+
+
+## Seleção real do segundo serviço confirmada
+
+O relatório comparacao-centi-1792426021171.json confirmou seleção automática 10.03.000/51/4%, ID e descrição conferidos, datas preservadas (19/10/2026 e fim vazio), vínculo novo Id 0 e nenhum salvamento. A captura de comparação no relatório precede a seleção; não confundir seu nao_localizado com falha da etapa posterior bem-sucedida. Falta conferir Especificar CNAE no formulário, eventual salvamento manual e releitura final da lista para confirmar os cinco serviços localizados. Não repetir a seleção do segundo vínculo.
