@@ -26,7 +26,7 @@ export function lerVinculosCenti() {
   const linhas = [...grade.querySelectorAll('.wj-cells > .wj-row')].filter(visivel);
   const registros = new Map();
   const detalhesLinhasNaoInterpretadas = [];
-  let repeticoesDeRenderizacao = 0, linhasNaoInterpretadas = 0;
+  let repeticoesDeRenderizacao = 0, linhasNaoInterpretadas = 0, cabecalhosRepetidosIgnorados = 0;
   for (const linha of linhas) {
     const celulas = [...linha.children].filter(e => e.matches('.wj-cell'));
     if (celulas.length !== 5) {
@@ -35,6 +35,10 @@ export function lerVinculosCenti() {
       continue;
     }
     const valores = celulas.map(e => (e.textContent ?? '').replace(/\s+/g, ' ').trim());
+    if (valores.every((v, i) => normal(v) === modelo[i])) {
+      cabecalhosRepetidosIgnorados++;
+      continue;
+    }
     const [, idVinculo, nome, dataInicio, dataFim] = valores;
     // Linhas vazias de inserção/medição não demonstram ausência de registros.
     if (!/^[1-9]\d*$/.test(idVinculo) || !nome) {
@@ -52,7 +56,7 @@ export function lerVinculosCenti() {
   }
   return {
     tipo: 'captura_vinculos_centi', versao: 1, lidoEm: new Date().toISOString(),
-    registros: [...registros.values()], linhasNaoInterpretadas, detalhesLinhasNaoInterpretadas, repeticoesDeRenderizacao,
+    registros: [...registros.values()], linhasNaoInterpretadas, detalhesLinhasNaoInterpretadas, repeticoesDeRenderizacao, cabecalhosRepetidosIgnorados,
     leituraCompleta: false, empresaVerificadaAutomaticamente: false,
     observacao: 'Somente linhas renderizadas. Paginação, filtros, serviços herdados e empresa não foram verificados automaticamente.'
   };

@@ -1,6 +1,6 @@
 # Ponte Centi — contexto recuperado
 
-As seções abaixo preservam o histórico. A versão vigente e a próxima validação estão na seção Progresso 0.9.0, ao final deste documento.
+As seções abaixo preservam o histórico. A versão vigente e a próxima validação estão na seção Progresso 0.10.0, ao final deste documento.
 
 Este documento foi reconstruído a partir dos arquivos recuperados e desta conversa. Não é o CONTEXTO.md original nem o palácio de memória mencionado pelo usuário; ambos continuam ausentes.
 
@@ -88,3 +88,11 @@ O JSON real `comparacao-centi-1792415283471.json` confirmou seis vínculos, todo
 A versão 0.9.0 acrescenta pesquisa opcional em `pesquisar-servico-centi.mjs`, reconstruída do trecho 0.5.0 fornecido. A interface só oferece serviços não localizados, exige confirmação manual da empresa e ausência inclusive em herança/páginas/filtros e requer que o operador abra um vínculo novo, Id 0, Serviço vazio e lupa fechada. O script abre a lupa, define filtros de código/situação e pesquisa; só aceita resultado observado após atualização, único e exato por ID, código, nome e alíquota. Não seleciona a linha, não preenche serviço/datas e não salva. Recusa vínculo existente ou já preenchido. `ultimaPesquisa` é incluída em Baixar comparação. Falhas podem deixar lupa/filtros alterados; não tentar novamente sem conferir a tela.
 
 Nesta etapa passaram sete testes UI com API Chrome simulada, seis testes DOM do leitor e cinco testes DOM da pesquisa, além dos testes anteriores de lógica/worker. A pesquisa 0.9.0 ainda não foi executada na Centi real. Próxima validação do operador: atualizar a extensão raiz, reutilizar a lista JSON existente, refazer comparação, escolher um dos dois códigos, conferir ausência, abrir vínculo novo e testar somente Abrir lupa e pesquisar. Instruções completas em docs/COMPARACAO-CENTI.md. O objetivo de preenchimento ainda não está concluído; seleção do serviço e conferência de campos serão as etapas seguintes após validar a pesquisa.
+
+## Progresso 0.10.0
+
+O JSON real `comparacao-centi-1792416949140.json` confirmou pesquisa do serviço 09.02.000, ID municipal 238, com resultado atualizado, único e exato: ok, pesquisa_conferida, selecionado false, salvo false. A linha descartada tem ID/descrição aparentando cabeçalho; o relatório não continha os demais títulos. O leitor agora ignora uma linha apenas quando todas as cinco células coincidem com o modelo dos cabeçalhos e conta esse caso separadamente. Correspondência parcial permanece sinalizada. Não presumir completude do cadastro.
+
+O usuário confirmou que a seleção manual é feita com dois cliques na linha. A opção Pesquisar e selecionar — sem salvar foi implementada: reaproveita a pesquisa exata com atualização observada, reproduz os eventos de duplo clique e aguarda o retorno ao mesmo vínculo novo Id 0. Confere ID/código e descrição e verifica se as datas permaneceram iguais às lidas antes da seleção. Não altera datas, não verifica Especificar CNAE e não aciona Salvar. Se houver falha após acionar a seleção, o Serviço pode estar alterado; não há reversão. O resultado exportado distingue seleção acionada de seleção conferida e registra execução incerta em vez de reutilizar sucesso anterior.
+
+Passaram oito testes DOM do leitor, nove testes DOM da pesquisa/seleção e nove testes UI com API Chrome simulada. A pesquisa 0.9.0 está validada na Centi real; a seleção 0.10.0 ainda depende do operador. Próximo teste: atualizar a pasta raiz, refazer comparação com o JSON existente, fechar a lupa anterior mantendo vínculo novo vazio, escolher o serviço, confirmar a ausência e usar Pesquisar e selecionar. Conferir a tela e exportar comparação sem salvar o vínculo. Instruções em docs/COMPARACAO-CENTI.md.

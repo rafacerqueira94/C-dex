@@ -130,5 +130,47 @@ class IntegracaoUI(unittest.TestCase):
         self.assertFalse(r['ultimaPesquisa']['selecionado'])
         self.assertFalse(r['podePreencher'])
 
+    def test_selection_request_exports_verified_result_and_removes_service_from_options(self):
+        self.page.evaluate('''() => { chrome.scripting.executeScript=async p=>{
+          if(p.func.name==='lerVinculosCenti')return [{result:{tipo:'captura_vinculos_centi',registros:[],linhasNaoInterpretadas:0}}];
+          window.ultimoPedido=p.args[0];
+          return [{result:{ok:true,salvo:false,selecionado:true,etapa:'servico_conferido',mensagem:'Serviço selecionado sem salvar.'}}];
+        }; }''')
+        self.page.locator('#comparar').click()
+        self.page.locator('#pesquisa').wait_for(state='visible')
+        self.assertTrue(self.page.locator('#pesquisar-selecionar').is_disabled())
+        self.page.locator('#ausencia-conferida').check()
+        self.page.locator('#pesquisar-selecionar').click()
+        self.page.wait_for_function('document.querySelector("#status-pesquisa").textContent.includes("Serviço selecionado")')
+        self.assertTrue(self.page.evaluate('window.ultimoPedido.selecionar'))
+        self.assertEqual(self.page.locator('#servico-pesquisa option').count(), 0)
+        self.assertTrue(self.page.locator('#pesquisar-selecionar').is_disabled())
+        with self.page.expect_download() as event:
+            self.page.locator('#exportar-comparacao').click()
+        r = json.loads(Path(event.value.path()).read_text())
+        self.assertTrue(r['ultimaPesquisa']['selecionado'])
+        self.assertFalse(r['salvo'])
+
+    def test_failed_retry_does_not_export_a_previous_success(self):
+        self.page.evaluate('''() => { window.tentativas=0; chrome.scripting.executeScript=async p=>{
+          if(p.func.name==='lerVinculosCenti')return [{result:{tipo:'captura_vinculos_centi',registros:[],linhasNaoInterpretadas:0}}];
+          if(window.tentativas++)throw Error('Falha de execução');
+          return [{result:{ok:true,salvo:false,selecionado:false,etapa:'pesquisa_conferida',mensagem:'Pesquisa atualizada.'}}];
+        }; }''')
+        self.page.locator('#comparar').click()
+        self.page.locator('#pesquisa').wait_for(state='visible')
+        self.page.locator('#ausencia-conferida').check()
+        self.page.locator('#pesquisar-catalogo').click()
+        self.page.wait_for_function('document.querySelector("#status-pesquisa").textContent.includes("Pesquisa atualizada")')
+        self.page.locator('#ausencia-conferida').check()
+        self.page.locator('#pesquisar-catalogo').click()
+        self.page.wait_for_function('document.querySelector("#status-pesquisa").textContent.includes("Falha de execução")')
+        with self.page.expect_download() as event:
+            self.page.locator('#exportar-comparacao').click()
+        r = json.loads(Path(event.value.path()).read_text())
+        self.assertFalse(r['ultimaPesquisa']['ok'])
+        self.assertEqual(r['ultimaPesquisa']['etapa'], 'erro_de_execucao')
+        self.assertIsNone(r['ultimaPesquisa']['selecionado'])
+
 
 if __name__ == '__main__': unittest.main()

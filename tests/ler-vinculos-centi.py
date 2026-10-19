@@ -75,5 +75,20 @@ class LeituraVinculos(unittest.TestCase):
         self.page.set_content(self.grid(self.row()))
         with self.assertRaisesRegex(Exception, 'Caetité'): self.read()
 
+    def test_repeated_header_in_data_panel_is_reported_separately(self):
+        header = '<div class="wj-row">'+''.join('<div class="wj-cell">'+text+'</div>' for text in ['', 'ID', 'Serviço', 'Data início', 'Data fim'])+'</div>'
+        self.page.set_content(self.grid(header+self.row()))
+        r = self.read()
+        self.assertEqual(len(r['registros']), 1)
+        self.assertEqual(r['cabecalhosRepetidosIgnorados'], 1)
+        self.assertEqual(r['linhasNaoInterpretadas'], 0)
+        self.assertFalse(r['leituraCompleta'])
+
+    def test_partial_header_match_is_still_uninterpreted(self):
+        self.page.set_content(self.grid(self.row(id='ID', name='Serviço')))
+        r = self.read()
+        self.assertEqual(r['cabecalhosRepetidosIgnorados'], 0)
+        self.assertEqual(r['linhasNaoInterpretadas'], 1)
+
 
 if __name__ == '__main__': unittest.main()

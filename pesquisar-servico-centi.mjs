@@ -1,7 +1,8 @@
 // Fluxo de pesquisa reconstruído do trecho 0.5.0 fornecido pelo usuário.
-// Abre a lupa e ajusta filtros; não seleciona serviço nem salva o vínculo.
+// Abre a lupa e ajusta filtros. Seleção opcional por duplo clique, sem salvar.
 export async function pesquisarServicoCenti(pedido) {
-  let etapa = 'conferir_formulario', interacaoIniciada = false, pesquisaAcionada = false, observador;
+  let etapa = 'conferir_formulario', interacaoIniciada = false, pesquisaAcionada = false,
+    selecaoAcionada = false, selecionado = false, observador;
   const falhar = m => { throw Error(m); };
   const normal = s => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toUpperCase();
   const cnpj = s => String(s ?? '').replace(/\D/g, '');
@@ -27,11 +28,17 @@ export async function pesquisarServicoCenti(pedido) {
     const primario = unico([...document.querySelectorAll('input[id^="IdServico"]')].filter(e => !e.id.endsWith('-second') && visivel(e)), 'Abra somente um formulário novo de Serviço.');
     const sufixo = primario.id.slice('IdServico'.length);
     const campo = id => unico([...document.querySelectorAll('[id]')].filter(e => e.id === id && visivel(e)), 'Os campos do formulário mudaram ou não são únicos.');
-    const conferir = () => {
+    const conferirVinculo = () => {
       if (campo('IdServico' + sufixo) !== primario || !campo('Id' + sufixo).readOnly || campo('Id' + sufixo).value.trim() !== '0') falhar('A pesquisa exige o mesmo vínculo novo, com Id 0.');
+    };
+    const conferir = () => {
+      conferirVinculo();
       if (!['', '0'].includes(primario.value.trim()) || campo('IdServico' + sufixo + '-second').value.trim()) falhar('O vínculo já contém um serviço.');
     };
     conferir();
+    const datasAntes = pedido.selecionar === true ? {
+      inicio: campo('DataInicio' + sufixo).value, fim: campo('DataFim' + sufixo).value
+    } : null;
     const secundario = campo('IdServico' + sufixo + '-second');
     const grades = () => [...document.querySelectorAll('.wj-flexgrid.tableFilterSearch--modal')].filter(visivel);
     if (grades().length) falhar('Feche a lupa antes de iniciar a pesquisa.');
@@ -95,15 +102,44 @@ export async function pesquisarServicoCenti(pedido) {
         const botaoAtual = unico([...atual.panel.querySelectorAll('button.btnPesquisar')].filter(visivel), 'Botão Pesquisar mudou.');
         if (atualizado && Date.now() - ultimaMudanca >= 350 && resultados.length === 1 && !botaoAtual.disabled) {
           habilitado(resultados[0][0]);
-          return {ok: true, salvo: false, selecionado: false, etapa: 'pesquisa_conferida', interacaoIniciada, pesquisaAcionada, pesquisaAtualizada: true,
-            mensagem: 'Pesquisa atualizada com uma linha exata. Nenhum serviço foi selecionado e nenhum botão Salvar foi acionado.'};
+          if (pedido.selecionar !== true) return {ok: true, salvo: false, selecionado: false, etapa: 'pesquisa_conferida', interacaoIniciada, pesquisaAcionada, pesquisaAtualizada: true,
+              mensagem: 'Pesquisa atualizada com uma linha exata. Nenhum serviço foi selecionado e nenhum botão Salvar foi acionado.'};
+          etapa = 'selecionar_servico'; conferir();
+          const celula = habilitado(resultados[0][0]), rect = celula.getBoundingClientRect();
+          const evento = (tipo, detail, buttons = 0) => new MouseEvent(tipo, {bubbles: true, cancelable: true, view: window,
+            button: 0, buttons, detail, clientX: rect.x + rect.width / 2, clientY: rect.y + rect.height / 2});
+          selecaoAcionada = true;
+          for (const n of [1, 2]) {
+            celula.dispatchEvent(evento('mousedown', n, 1));
+            celula.dispatchEvent(evento('mouseup', n));
+            celula.dispatchEvent(evento('click', n));
+          }
+          celula.dispatchEvent(evento('dblclick', 2));
+          etapa = 'conferir_servico';
+          const fimSelecao = Date.now() + 8000;
+          while (true) {
+            conferirVinculo();
+            const idServico = primario.value.trim(), nome = campo('IdServico' + sufixo + '-second').value;
+            if (!grades().length && [String(s.id), s.codigo].includes(idServico) && normal(nome) === normal(s.nome)) {
+              const dataInicio = campo('DataInicio' + sufixo).value, dataFim = campo('DataFim' + sufixo).value;
+              if (dataInicio !== datasAntes.inicio || dataFim !== datasAntes.fim) falhar('As datas mudaram durante a seleção. Confira o formulário antes de continuar.');
+              selecionado = true;
+              return {ok: true, salvo: false, selecionado, selecaoAcionada, etapa: 'servico_conferido', interacaoIniciada, pesquisaAcionada,
+                pesquisaAtualizada: true, datasPreservadas: true, conferenciaParcial: true,
+                campos: {idVinculo: '0', idServico, nome, dataInicio, dataFim},
+                mensagem: 'Serviço selecionado por duplo clique, ID e descrição conferidos. Datas preservadas. Confira os demais campos; nenhum botão Salvar foi acionado.'};
+            }
+            if (Date.now() >= fimSelecao) falhar('Não foi possível confirmar o serviço no formulário após o duplo clique.');
+            await esperar(100);
+          }
         }
       }
       if (Date.now() >= limite) falhar(atualizado ? 'Não houve uma linha única com ID, código, nome e alíquota esperados.' : 'Não foi observada atualização da grade; resultados antigos não foram aceitos.');
       await esperar(100);
     }
   } catch (e) {
-    return {ok: false, salvo: false, selecionado: false, etapa, interacaoIniciada, pesquisaAcionada,
-      mensagem: e.message + (interacaoIniciada ? ' A lupa ou os filtros podem ter sido alterados. Nenhum botão Salvar foi acionado.' : ' Nenhuma ação foi iniciada.')};
+    return {ok: false, salvo: false, selecionado, selecaoAcionada, etapa, interacaoIniciada, pesquisaAcionada,
+      mensagem: e.message + (selecaoAcionada ? ' O campo Serviço pode ter sido alterado; confira o formulário. Nenhum botão Salvar foi acionado.'
+        : interacaoIniciada ? ' A lupa ou os filtros podem ter sido alterados. Nenhum botão Salvar foi acionado.' : ' Nenhuma ação foi iniciada.')};
   } finally { observador?.disconnect(); }
 }

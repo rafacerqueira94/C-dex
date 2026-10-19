@@ -43,6 +43,12 @@ class PesquisaCenti(unittest.TestCase):
         document.querySelector('#resultados').innerHTML=row();
         document.querySelector('#salvar').onclick=()=>window.salvos++;
         document.querySelector('#resultados').onclick=()=>window.selecionados++;
+        document.querySelector('#resultados').ondblclick=()=>{
+          document.querySelector('#IdServicoTESTE').value=window.modo==='codigo'?'09.02.000':window.modo==='selecaoErrada'?'999':'238';
+          document.querySelector('#IdServicoTESTE-second').value='SERVIÇO DE TESTE - 4%';
+          if(window.modo==='alterarDatas')document.querySelector('#DataInicioTESTE').value='01/01/2020';
+          document.querySelector('#modal').style.display='none';
+        };
         document.querySelector('.iconSearchReference').onclick=()=>{window.lupas++;document.querySelector('#modal').style.display='block'};
         document.querySelector('.btnPesquisar').onclick=()=>{window.pesquisas++;
           if(window.modo==='antigo')return;
@@ -99,6 +105,47 @@ class PesquisaCenti(unittest.TestCase):
             self.assertTrue(r['pesquisaAcionada'])
             self.assertFalse(r['selecionado'])
             self.assertEqual(self.page.evaluate('salvos+selecionados'), 0)
+
+    def test_double_click_selects_and_verifies_service_without_saving(self):
+        self.pedido['selecionar'] = True
+        r = self.run_search()
+        self.assertTrue(r['ok'], r)
+        self.assertTrue(r['selecionado'])
+        self.assertTrue(r['datasPreservadas'])
+        self.assertEqual(r['etapa'], 'servico_conferido')
+        self.assertEqual(r['campos']['idServico'], '238')
+        self.assertEqual(r['campos']['dataInicio'], '19/10/2026')
+        self.assertEqual(self.page.evaluate('salvos'), 0)
+
+    def test_selection_accepts_full_code_returned_by_lookup(self):
+        self.pedido['selecionar'] = True
+        self.page.evaluate("window.modo='codigo'")
+        r = self.run_search()
+        self.assertTrue(r['ok'], r)
+        self.assertEqual(r['campos']['idServico'], '09.02.000')
+
+    def test_dates_changed_by_page_fail_verification_without_rollback_or_save(self):
+        self.pedido['selecionar'] = True
+        self.page.evaluate("window.modo='alterarDatas'")
+        r = self.run_search()
+        self.assertFalse(r['ok'])
+        self.assertTrue(r['selecaoAcionada'])
+        self.assertIn('datas mudaram', r['mensagem'])
+        self.assertEqual(self.page.evaluate('salvos'), 0)
+
+    def test_wrong_service_after_double_click_is_not_confirmed(self):
+        self.pedido['selecionar'] = True
+        self.page.evaluate("window.modo='selecaoErrada';window.resposta=null")
+        self.page.clock.install()
+        self.page.evaluate('pedido => {'+self.source+';pesquisarServicoCenti(pedido).then(r=>window.resposta=r);}', self.pedido)
+        self.page.clock.run_for(1000)
+        self.page.clock.run_for(8500)
+        self.page.wait_for_function('window.resposta !== null')
+        r = self.page.evaluate('window.resposta')
+        self.assertFalse(r['ok'])
+        self.assertFalse(r['selecionado'])
+        self.assertTrue(r['selecaoAcionada'])
+        self.assertEqual(self.page.evaluate('salvos'), 0)
 
 
 if __name__ == '__main__': unittest.main()

@@ -1,14 +1,14 @@
-# Comparação com a Centi — versão 0.9.0
+# Comparação com a Centi — versão 0.10.0
 
 ## Instalação
 
-Baixe o ZIP do repositório e extraia. No Chrome/Edge, abra Extensões, ative o modo do desenvolvedor e carregue sem compactação a pasta **C-dex-main**, que contém o manifesto principal 0.9.0. Esta é a aplicação completa; não selecionar `tools/diagnostico-centi`, que continua sendo a ferramenta separada 0.2.0. Ao atualizar uma pasta já carregada, recarregue a extensão e confira a versão exibida. A versão 0.9.0 requer activeTab e scripting para ler a aba Centi após o clique no ícone.
+Baixe o ZIP do repositório e extraia. No Chrome/Edge, abra Extensões, ative o modo do desenvolvedor e carregue sem compactação a pasta **C-dex-main**, que contém o manifesto principal 0.10.0. Esta é a aplicação completa; não selecionar `tools/diagnostico-centi`, que continua sendo a ferramenta separada 0.2.0. Ao atualizar uma pasta já carregada, recarregue a extensão e confira a versão exibida. A versão 0.10.0 requer activeTab e scripting para ler a aba Centi após o clique no ícone.
 
 ## Usar
 
 1. Gere e baixe a lista conferida da empresa pelo fluxo PDF do Ponte Centi. Para abrir esse fluxo, clique no ícone da extensão a partir de uma aba que não seja a Centi.
 2. Na Centi de Caetité, abra a mesma empresa e selecione a pasta Serviços, exibindo a tabela com ID, Serviço, Data início e Data fim. Deixe o formulário de vínculo e a lupa fechados.
-3. Nessa aba Centi, clique no ícone do **Ponte Centi** (aplicativo completo, versão 0.9.0). Será aberta uma nova aba de comparação; mantenha a aba Centi aberta. Se ainda tiver apenas o PDF, use o link **Gerar lista conferida a partir do PDF**; ele abre a consulta em outra aba, preservando a comparação.
+3. Nessa aba Centi, clique no ícone do **Ponte Centi** (aplicativo completo, versão 0.10.0). Será aberta uma nova aba de comparação; mantenha a aba Centi aberta. Se ainda tiver apenas o PDF, use o link **Gerar lista conferida a partir do PDF**; ele abre a consulta em outra aba, preservando a comparação.
 4. Selecione o JSON da lista conferida. Informe o CNPJ que você verificou no cadastro da Centi e marque a confirmação da empresa.
 5. Clique em Ler vínculos visíveis e comparar. A aplicação lê os vínculos renderizados na aba indicada e compara as descrições exatas normalizadas com o catálogo municipal. ID do vínculo e ID do catálogo são tratados separadamente.
 6. Revise os resultados e, se necessário, clique em Baixar comparação. O JSON contém CNPJ confirmado pelo operador, dados dos serviços da lista e ID/descrição/datas dos vínculos lidos; compartilhe-o apenas se desejar que esses dados sejam analisados.
@@ -20,7 +20,7 @@ Baixe o ZIP do repositório e extraia. No Chrome/Edge, abra Extensões, ative o 
 - **Não localizado nesta captura:** a leitura atual não encontrou correspondência. Isso não comprova ausência no cadastro nem autoriza nova inclusão.
 - **Sem identificação:** descrição ausente ou ambígua no catálogo; inclui serviços históricos como o 13.01.000 (VETADO) da captura fornecida. Não excluir ou recadastrar automaticamente.
 
-O aplicativo não clica em Novo, não preenche o serviço ou as datas do vínculo e não aciona Salvar. A pesquisa opcional descrita abaixo altera apenas os filtros da lupa e aciona Pesquisar. Não percorre páginas, não rola a grade e não lê serviços herdados automaticamente. O CNPJ é confirmado pelo operador, não detectado na página. O relatório é sempre parcial e retorna `podePreencher: false`.
+O aplicativo não clica em Novo nem aciona Salvar. A pesquisa opcional altera os filtros da lupa; a opção de seleção também preenche o Serviço por duplo clique. As datas não são escritas e são comparadas antes/depois quando há seleção. Não percorre páginas, não rola a grade e não lê serviços herdados automaticamente. O CNPJ é confirmado pelo operador, não detectado na página. O relatório é sempre parcial e retorna `podePreencher: false`.
 
 ## Pesquisar pela lupa sem selecionar ou salvar
 
@@ -32,15 +32,28 @@ O aplicativo não clica em Novo, não preenche o serviço ou as datas do víncul
 6. A extensão abre a lupa, define Código / Contendo / código escolhido e Situação / Igual / Ativo e aciona Pesquisar. Exige atualização observada da grade e uma única linha com ID, código, descrição e alíquota exatos.
 7. Confira a mensagem e o resultado na Centi. Use Baixar comparação para exportar também `ultimaPesquisa`. Não selecione nem salve o serviço para este teste. Em caso de falha, confira a tela antes de repetir: a lupa ou os filtros podem ter mudado.
 
-A pesquisa não comprova ausência de duplicidades e não muda `podePreencher: false`. Não seleciona a linha, não preenche datas e não salva. Essa é a parte reconstruída do teste 0.5.0 conhecido; seleção, conferência final e salvamento continuam fora desta versão. Não é necessário gerar novamente a lista JSON para cada atualização.
+A pesquisa não comprova ausência de duplicidades e não muda `podePreencher: false`. O botão somente de pesquisa não seleciona a linha, não preenche datas e não salva. A opção adicional de seleção está descrita abaixo; salvamento continua fora desta versão. Não é necessário gerar novamente a lista JSON para cada atualização.
+
+## Selecionar o serviço por duplo clique — sem salvar
+
+A seleção manual por duplo clique foi confirmada pelo usuário. Para testar a opção automatizada:
+
+1. Faça a comparação com a lista JSON existente e escolha o serviço desejado entre os não localizados.
+2. Confirme a mesma empresa e a ausência do serviço nas páginas, filtros e serviços herdados.
+3. Na Centi, deixe o vínculo novo aberto (Id 0, Serviço vazio). Feche a lupa de um teste anterior se estiver aberta. Não descarte outras alterações pendentes.
+4. Na comparação, marque a confirmação específica e clique em **Pesquisar e selecionar — sem salvar**.
+5. A extensão refaz a busca, exige resultado atualizado e único e reproduz dois cliques seguidos do evento de duplo clique na célula do ID. Aguarda a lupa fechar e confere ID/código e descrição no mesmo formulário novo. Verifica se Data início e Data fim permaneceram iguais às anteriores; não escreve datas.
+6. Confira o Serviço e os demais campos na Centi sem clicar em Salvar para este teste. Baixe a comparação para registrar `ultimaPesquisa`, `selecionado`, `datasPreservadas` e os campos conferidos.
+
+A conferência é parcial: não valida Especificar CNAE, vigência, herança ou empresa automaticamente. Ao selecionar com sucesso, o código sai das opções dessa sessão, mas não passa a ser considerado salvo. Para outro vínculo, é necessária nova conferência. Se houver falha após o duplo clique, o campo Serviço pode já estar alterado; não há reversão automática nem novo salvamento. Erros de execução substituem o resultado exportado anterior e deixam a seleção como não confirmada.
 
 ## Validação
 
 - `node --test tests/conciliacao.test.mjs tests/comparar-captura.test.mjs`: 21 testes passaram.
 - `node --test tests/worker.test.mjs`: três testes da abertura do aplicativo passaram.
-- `python tests/ler-vinculos-centi.py`: seis testes DOM com Playwright/Chromium passaram.
-- `python tests/integracao-ui.py`: sete testes da interface em navegador com API Chrome simulada passaram, incluindo importação, comparação, exportação, invalidação após alterar o CNPJ, rejeição orientada de PDF/JSON inválido/diagnóstico abertura da consulta em outra aba e pesquisa condicionada à confirmação com exportação do resultado.
+- `python tests/ler-vinculos-centi.py`: oito testes DOM com Playwright/Chromium passaram.
+- `python tests/integracao-ui.py`: nove testes da interface em navegador com API Chrome simulada passaram, incluindo importação, comparação, exportação, invalidação após alterar o CNPJ, rejeição orientada de PDF/JSON inválido/diagnóstico abertura da consulta em outra aba e pesquisa condicionada à confirmação com exportação do resultado.
 
-- `python tests/pesquisar-servico-centi.py`: cinco testes DOM passaram, incluindo pesquisa atualizada, ausência de seleção/salvamento, recusas de formulário existente, falta de confirmação, domínio incorreto, resultados antigos, divergentes ou duplicados.
+- `python tests/pesquisar-servico-centi.py`: nove testes DOM passaram, incluindo seleção por duplo clique, preservação de datas, rejeição de retorno incorreto ao formulário e pesquisa atualizada, ausência de seleção/salvamento, recusas de formulário existente, falta de confirmação, domínio incorreto, resultados antigos, divergentes ou duplicados.
 
-Os testes locais usam páginas simuladas. A leitura e comparação foram observadas na Centi real na versão 0.8.1. A pesquisa nova 0.9.0 ainda precisa ser validada pelo operador. O diagnóstico 0.2.0 fornecido pelo usuário confirmou cabeçalhos duplicados, cinco células por linha e sete linhas renderizadas, mas não seus conteúdos; não é prova de que exista uma cópia de medição específica na tela real. O leitor só unifica repetições com o mesmo ID de vínculo e os mesmos dados; IDs diferentes nunca são unificados.
+Os testes locais usam páginas simuladas. A leitura e comparação foram observadas na Centi real na versão 0.8.1. A pesquisa 0.9.0 foi validada no relatório real comparacao-centi-1792416949140.json: serviço 09.02.000, ID 238, pesquisa_conferida, sem selecionar ou salvar. A seleção nova 0.10.0 ainda precisa ser validada pelo operador. O diagnóstico 0.2.0 fornecido pelo usuário confirmou cabeçalhos duplicados, cinco células por linha e sete linhas renderizadas, mas não seus conteúdos; não é prova de que exista uma cópia de medição específica na tela real. O leitor só unifica repetições com o mesmo ID de vínculo e os mesmos dados; IDs diferentes nunca são unificados.
