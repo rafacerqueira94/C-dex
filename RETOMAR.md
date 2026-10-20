@@ -1,6 +1,6 @@
 # Como retomar e recuperar o Ponte Centi
 
-Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.14.0** (entrada pelo PDF, passagem interna sem JSON e cadastro sequencial com salvamento/releitura; nova automação ainda sem validação real).
+Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.14.1** (entrada pelo PDF, passagem interna sem JSON e cadastro sequencial com salvamento/releitura; nova automação ainda sem validação real).
 
 ## Onde o projeto está salvo
 
@@ -97,3 +97,7 @@ O usuário definiu que pode iniciar com a Centi fechada; somente o login deve de
 O percurso fornecido pelo usuário é Arrecadação → Atividade econômica → Cadastros / Atividade econômica AR022 → filtro CPF/CNPJ / Contendo / CNPJ do PDF → Pesquisar → dois cliques na linha exata → Serviços → comparar → Novo para ausentes. pesquisar-empresa-centi.mjs e abrir-empresa-centi.mjs implementam isso por controles únicos, atualização observada e CNPJ/ID exatos. A identificação automática de empresa só é marcada após cruzar resultado da pesquisa e ID do cadastro. Em sucesso, compara e continua a fila autorizada pelo botão Iniciar cadastro automático, sem as preparações manuais anteriores.
 
 O percurso novo passou por testes simulados; ainda requer validação real de DOM e interação. Não afirmar automação completa validada nem ausência de duplicidades fora da captura. A leitura de páginas/herança permanece limitada. Não abandonar pendências; preservá-las e oferecer retomada. Permitir exportar mapa-conexao-centi.json se a navegação bloquear. Testes adicionais: node --test tests/conectar-centi.test.mjs; python tests/pesquisar-empresa-centi.py.
+
+## Diagnóstico da navegação 0.14.1
+
+O mapa v1 enviado tinha AR022 visível mas não registrava ancestrais do cartão nem falha da localização e podia ser anterior à tentativa. O cartão AR022 agora aceita div/li de texto exato e o mapa v2 é lido de novo ao baixar, com ancestrais estruturais e função/etapa da falha. Não afirmar correção real só pelo mapa antigo.

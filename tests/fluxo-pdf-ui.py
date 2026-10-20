@@ -101,6 +101,27 @@ class FluxoPdf(unittest.TestCase):
         self.assertEqual(estado['acoes'].count('salvarServicoCenti'),1)
         self.assertEqual(len(estado['salvos']),1)
 
+    def test_download_map_reads_current_screen_and_includes_failed_stage(self):
+        self.importar_cartao(conectado=False)
+        self.page.wait_for_function("document.querySelector('#status-conexao').textContent.includes('Entre na Centi')")
+        self.page.evaluate('''()=>{
+          const anterior=chrome.scripting.executeScript;window.mapaAtual=1;
+          chrome.scripting.executeScript=async p=>{
+            if(p.func.name==='inspecionarConexaoCenti')return [{result:{tipo:'diagnostico_conexao_centi',versao:2,estado:'tela_disponivel',marcador:window.mapaAtual}}];
+            if(p.func.name==='pesquisarEmpresaCenti')return [{result:{ok:false,etapa:'abrir_pesquisa',mensagem:'Cartão não identificado'}}];
+            return anterior(p);
+          }
+        }''')
+        self.page.locator('#abrir-centi').click()
+        self.page.wait_for_function("document.querySelector('#status-localizacao').textContent.includes('Cartão não identificado')")
+        self.page.evaluate('window.mapaAtual=2')
+        with self.page.expect_download() as event:self.page.locator('#baixar-conexao').click()
+        d=json.loads(Path(event.value.path()).read_text())
+        self.assertEqual(d['marcador'],2)
+        self.assertEqual(d['falhaLocalizacao']['funcao'],'pesquisarEmpresaCenti')
+        self.assertEqual(d['falhaLocalizacao']['etapa'],'abrir_pesquisa')
+        self.assertIn('lidoEm',d)
+
     def test_resume_existing_form_does_not_create_or_search_again(self):
         self.importar_cartao()
         self.page.evaluate('''() => {window.acoesRetomada=[];chrome.scripting.executeScript=async p=>{

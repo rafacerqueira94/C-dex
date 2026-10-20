@@ -41,6 +41,16 @@ class Empresa(unittest.TestCase):
         self.assertEqual(self.page.locator('#cpf').input_value(),'11.222.333/0001-81')
         self.assertEqual(self.page.evaluate('cliques'),['arrec','econ','ar022','pesquisar'])
         self.assertTrue(self.abrir(r)['empresaConferida'])
+    def test_ar022_card_can_be_div_with_delegated_listener(self):
+        self.page.evaluate("""()=>{
+          document.querySelector('#card').remove();
+          const card=document.createElement('div');card.id='card';card.hidden=true;
+          card.innerHTML='<span>Atividade econômica</span><span>AR022</span><span>VÍDEO</span>';
+          document.body.append(card);
+          document.body.addEventListener('click',e=>{if(card.contains(e.target)){cliques.push('ar022');document.querySelector('#pesquisa').hidden=false}});
+        }""")
+        r=self.pesquisar();self.assertTrue(r['ok'],r)
+        self.assertEqual(self.page.evaluate('cliques'),['arrec','econ','ar022','pesquisar'])
     def test_no_result_or_duplicates_do_not_open_company(self):
         for modo in ['vazio','duplicado']:
             self.page.evaluate('m=>window.modo=m',modo);r=self.pesquisar();self.assertFalse(r['ok'])

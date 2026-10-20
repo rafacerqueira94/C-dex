@@ -1,6 +1,10 @@
 # Integração Centi — evidências recuperadas
 
-## Desenvolvimento atual — 0.14.0
+## Desenvolvimento atual — 0.14.1
+
+O mapa v1 recebido mostra AR022 disponível mas nenhum filtro/formulário de serviço, sem registrar alvos clicáveis ou etapa da falha; podia ser uma leitura inicial reutilizada. O cartão AR022 agora admite div/li com listener delegado, exigindo texto exato e unicidade. O mapa v2 é coletado novamente ao baixar e inclui ancestrais estruturais e função/etapa da falha. A hipótese de bloqueio no cartão foi reproduzida em teste simulado; validação real ainda pendente.
+
+## Histórico 0.14.0
 
 O usuário definiu início com Centi fechada e somente login manual. O aplicativo agora abre/reutiliza a aba com permissão de host limitada a ba.centi.com.br, preserva o plano do PDF e aguarda login. O caminho informado é Arrecadação → Atividade econômica → AR022 → CPF/CNPJ/Contendo/Pesquisar → duplo clique na linha exata → Serviços → comparar → Novo para os ainda não localizados. A seleção da empresa cruza CNPJ exato e ID da grade com o ID do cadastro aberto. Em sucesso, a fila é iniciada pela autorização do botão Iniciar cadastro automático, sem exigir preparação manual da tabela. 110 testes locais/simulados passaram. Os controles reais novos ainda precisam de validação; leitura de páginas/filtros/herança permanece parcial e não houve operação real nesta etapa. Controles ambíguos, outros vínculos pendentes e ausência de resultado interrompem sem criar empresa ou descartar dados.
 

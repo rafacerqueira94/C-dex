@@ -15,6 +15,7 @@ let diagnosticoConexao = null;
 let verificandoConexao = false;
 let localizandoEmpresa = false;
 let empresaLocalizada = false;
+let falhaLocalizacao = null;
 let resultado = null;
 let planoDoPdf = null;
 let planoAtual = null;
@@ -333,11 +334,18 @@ async function abrirConexao() {
   finally { $('abrir-centi').disabled = false; }
 }
 $('abrir-centi').addEventListener('click', abrirConexao);
-$('baixar-conexao').addEventListener('click', () => {
-  if (!diagnosticoConexao) return;
-  const url = URL.createObjectURL(new Blob([JSON.stringify(diagnosticoConexao, null, 2)], {type: 'application/json'}));
-  const a = document.createElement('a'); a.href = url; a.download = 'mapa-conexao-centi.json'; a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+$('baixar-conexao').addEventListener('click', async () => {
+  $('baixar-conexao').disabled = true;
+  try {
+    const leituras = await chrome.scripting.executeScript({target:{tabId:aba},func:inspecionarConexaoCenti});
+    const atual = leituras[0]?.result;
+    if (!atual) throw Error('Não foi possível ler a tela atual da Centi.');
+    diagnosticoConexao = {...atual, lidoEm: new Date().toISOString(), falhaLocalizacao};
+    const url = URL.createObjectURL(new Blob([JSON.stringify(diagnosticoConexao, null, 2)], {type: 'application/json'}));
+    const a = document.createElement('a'); a.href = url; a.download = 'mapa-conexao-centi.json'; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch(e) { $('status-conexao').textContent = e.message; }
+  finally { $('baixar-conexao').disabled = false; }
 });
 if (planoDoPdf && !Number.isSafeInteger(aba)) {
   void abrirConexao();
@@ -346,13 +354,21 @@ setInterval(() => { if (!diagnosticoConexao && planoDoPdf && !cadastrando && !sa
 
 async function localizarEmpresa() {
   if (!planoDoPdf || localizandoEmpresa || cadastrando || salvando) return;
-  localizandoEmpresa = true; empresaLocalizada = false;
+  localizandoEmpresa = true; empresaLocalizada = false; falhaLocalizacao = null;
   const controles = [...document.querySelectorAll('input,button,select')];
   const anteriores = controles.map(e => e.disabled);controles.forEach(e => {e.disabled=true;});
   const executar = async (func,pedido,world='ISOLATED') => {
-    const respostas = await chrome.scripting.executeScript({target:{tabId:aba},func,args:[pedido],world});
+    let respostas;
+    try { respostas = await chrome.scripting.executeScript({target:{tabId:aba},func,args:[pedido],world}); }
+    catch(e) {
+      falhaLocalizacao = {funcao:func.name,etapa:'erro_execucao',mensagem:'O navegador não retornou a execução nesta etapa.'};
+      throw e;
+    }
     const retorno=respostas[0]?.result;
-    if (!retorno?.ok) throw Error(retorno?.mensagem || 'A ação na Centi não foi confirmada.');
+    if (!retorno?.ok) {
+      falhaLocalizacao = {funcao:func.name,etapa:retorno?.etapa || 'sem_retorno',mensagem:retorno?.mensagem || 'A ação na Centi não foi confirmada.'};
+      throw Error(falhaLocalizacao.mensagem);
+    }
     return retorno;
   };
   try {

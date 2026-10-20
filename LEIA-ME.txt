@@ -1,7 +1,7 @@
-Ponte Centi 0.14.0 — do cartão CNPJ ao cadastro na Centi
+Ponte Centi 0.14.1 — do cartão CNPJ ao cadastro na Centi
 
 1. Extraia o pacote e carregue/recarregue a extensão no Chrome/Edge. Confira
-   a versão 0.14.0. Autorize acesso a ba.centi.com.br quando o navegador pedir.
+   a versão 0.14.1. Autorize acesso a ba.centi.com.br quando o navegador pedir.
 2. Clique no ícone Ponte Centi em qualquer aba. A Centi pode estar fechada.
 3. Importe o cartão CNPJ em PDF, informe coworking, confira os dados e
    selecione os serviços. Confirme a lista.
@@ -91,3 +91,10 @@ mapa contém estrutura e rótulos conhecidos, sem senhas ou valores de campos.
 A leitura de Serviços continua limitada à captura: não garante cobertura
 de outros filtros, páginas ou serviços herdados. O fluxo não altera esses
 registros; a conclusão se refere aos serviços selecionados e localizados.
+
+Correção 0.14.1: o cartão Atividade econômica AR022 também pode ser um
+contêiner visual com clique delegado. A identificação exige título/código
+exatos e um único cartão. Baixar mapa da tela Centi agora relê a tela no
+momento do download e inclui a etapa da falha, sem valores dos campos.
+Se a localização parar, baixe esse novo mapa após o bloqueio e envie para
+análise; não é necessário executar o caminho manualmente para coletá-lo.

@@ -1,4 +1,4 @@
-# Cadastro com a Centi — versão 0.14.0
+# Cadastro com a Centi — versão 0.14.1
 
 ## Entrada atual — pode começar com a Centi fechada
 
@@ -168,3 +168,7 @@ O teste desse caso está concluído: comparação, seleção assistida, salvamen
 Se a mensagem confirma que nenhum Salvar foi acionado, preserve o formulário preenchido. Após atualizar, importe o mesmo cartão, confira a lista e continue para cadastro. Use **Conferir vínculo preenchido para salvar**, após confirmar a empresa e que esse é o único pendente. Não use Novo nem repita a pesquisa. A ação lê Serviço e datas e apresenta **Salvar vínculo na Centi** para revisão. Depois do salvamento, volte à tabela e compare. Não usar essa rota para repetir um resultado de salvamento incerto.
 
 O campo Especificar CNAE pode ser identificado pelo título no mesmo grupo visual, além de ID e associação explícita. Ambiguidade ou ausência continuam bloqueando; o relatório de falha inclui diagnosticoCnae para mapear a estrutura real. Essa correção ainda requer validação na Centi.
+
+## Cartão AR022 e mapa atualizado — 0.14.1
+
+O cartão de Cadastros pode usar div/li com clique delegado; agora é identificado pelo título e código exatos no menor grupo visível, com unicidade. O mapa v2 relê a tela no momento do download e inclui ancestrais estruturais e função/etapa da falha. O mapa v1 anterior podia registrar a tela inicial em vez do estado após o erro. Em bloqueio, envie o novo mapa sem navegar manualmente.

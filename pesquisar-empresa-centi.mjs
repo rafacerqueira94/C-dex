@@ -13,6 +13,13 @@ export async function pesquisarEmpresaCenti(pedido) {
     if (!(alvo === e || e.contains(alvo))) falhar('O controle de navegação está coberto.');
     e.click();
   };
+  const cartoesAr022 = () => {
+    const corresponde = e => /^(?:VIDEO\s*)?ATIVIDADE ECONOMICA\s*(?:VIDEO\s*)?AR022(?:\s*VIDEO)?$/.test(normal(e.textContent));
+    // Cartões podem usar div com listener delegado, sem href/onclick/role.
+    // Exigir título e código exatos no mesmo elemento e escolher o menor.
+    return [...document.querySelectorAll('a,button,div,li,[role=button]')].filter(visivel)
+      .filter(e => corresponde(e) && ![...e.children].some(c => corresponde(c)));
+  };
   const grade = () => {
     const grades = [...document.querySelectorAll('.wj-flexgrid')].filter(visivel).filter(g => {
       const titulos = [...g.querySelectorAll('.wj-colheaders .wj-cell')].map(e => normal(e.textContent));
@@ -27,7 +34,7 @@ export async function pesquisarEmpresaCenti(pedido) {
     if ([...document.querySelectorAll('input[type=password]')].some(visivel)) return {ok: false, etapa: 'aguardando_login', mensagem: 'Entre na Centi para continuar.'};
     if ([...document.querySelectorAll('button,[role=button]')].filter(visivel).some(e => /^SALVAR\s*\([1-9]\d*\)$/.test(normal(e.textContent)))) falhar('Há alterações pendentes. Não vou abandonar o cadastro aberto.');
     if (!grade()) {
-      const cartao = controles().filter(e => /\bAR022\b/.test(normal(e.textContent)) && normal(e.textContent).includes('ATIVIDADE ECONOMICA'));
+      const cartao = cartoesAr022();
       if (cartao.length === 1) clicar(cartao[0]);
       else {
         let atividade = controles().filter(e => normal(e.textContent) === 'ATIVIDADE ECONOMICA');
@@ -39,7 +46,7 @@ export async function pesquisarEmpresaCenti(pedido) {
         clicar(unico(atividade, 'O menu Atividade econômica não foi identificado de forma única.'));
         const limite = Date.now() + 8000;
         while (!grade()) {
-          const cards = controles().filter(e => /\bAR022\b/.test(normal(e.textContent)) && normal(e.textContent).includes('ATIVIDADE ECONOMICA'));
+          const cards = cartoesAr022();
           if (cards.length === 1) {clicar(cards[0]);break;}
           if (Date.now() > limite) falhar('O cadastro Atividade econômica AR022 não foi identificado.');
           await esperar(100);

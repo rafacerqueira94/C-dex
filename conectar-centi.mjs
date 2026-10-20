@@ -29,7 +29,18 @@ export function inspecionarConexaoCenti() {
     opcoesReconhecidas: e.tagName === 'SELECT' ? [...e.options].map(rotulo).filter(t => t !== 'outro') : []
   }));
   const rotulosVisiveis = [...new Set([...document.querySelectorAll('label,a,span,th,.wj-colheaders .wj-cell')].filter(visivel).map(rotulo).filter(t => t !== 'outro'))];
-  return {tipo: 'diagnostico_conexao_centi', versao: 1, estado: document.readyState === 'loading' || !rotulosVisiveis.length ? 'carregando' : 'tela_disponivel',
+  const alvosNavegacao = [...document.querySelectorAll('a,span,div,li,button')].filter(visivel)
+    .filter(e => conhecidos.has(normal(e.textContent)) && ![...e.children].some(c => normal(c.textContent) === normal(e.textContent)))
+    .filter(e => ['ARRECADACAO','ATIVIDADE ECONOMICA','AR022','SERVICOS'].includes(normal(e.textContent)))
+    .map(e => {
+      const ancestrais = []; let p = e;
+      for (let i=0;p && i<4;i++,p=p.parentElement) ancestrais.push({tag:p.tagName.toLowerCase(),
+        id:String(p.id).slice(0,120),classes:[...p.classList].slice(0,8),role:p.getAttribute('role'),
+        possuiOnclick:typeof p.onclick === 'function' || p.hasAttribute('onclick'),
+        possuiTituloECodigo:/ATIVIDADE ECONOMICA/.test(normal(p.textContent)) && /\bAR022\b/.test(normal(p.textContent))});
+      return {rotulo:normal(e.textContent),ancestrais};
+    });
+  return {tipo: 'diagnostico_conexao_centi', versao: 2, alvosNavegacao, estado: document.readyState === 'loading' || !rotulosVisiveis.length ? 'carregando' : 'tela_disponivel',
     somenteLeitura: true, controles,
     rotulosVisiveis,
     possuiFormularioServico: [...document.querySelectorAll('input[id^="IdServico"]')].some(visivel),
