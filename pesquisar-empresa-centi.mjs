@@ -6,9 +6,15 @@ export async function pesquisarEmpresaCenti(pedido) {
   const esperar = ms => new Promise(r => setTimeout(r, ms));
   const falhar = m => { throw Error(m); };
   const unico = (lista, m) => {if (lista.length !== 1) falhar(m);return lista[0];};
-  const controles = () => [...document.querySelectorAll('a,button,[role=button],[onclick],[ng-click],[data-action],div.sidebarSubItens')].filter(visivel);
+  // O menu usa também listeners delegados em div/span, sem onclick no DOM.
+  const menu = rotulo => {
+    const candidatos = [...document.querySelectorAll('a,button,div,span,li,[role=button]')]
+      .filter(visivel).filter(e => normal(e.textContent) === rotulo);
+    return candidatos.filter(e => !candidatos.some(outro => outro !== e && e.contains(outro)));
+  };
   const clicar = e => {
     if (e.disabled || e.getAttribute('aria-disabled') === 'true') falhar('Controle de navegação desabilitado.');
+    e.scrollIntoView({block:'nearest', inline:'nearest'});
     const r = e.getBoundingClientRect(), alvo = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
     if (!(alvo === e || e.contains(alvo))) falhar('O controle de navegação está coberto.');
     e.click();
@@ -37,12 +43,17 @@ export async function pesquisarEmpresaCenti(pedido) {
       const cartao = cartoesAr022();
       if (cartao.length === 1) clicar(cartao[0]);
       else {
-        let atividade = controles().filter(e => normal(e.textContent) === 'ATIVIDADE ECONOMICA');
+        let atividade = menu('ATIVIDADE ECONOMICA');
         if (!atividade.length) {
-          clicar(unico(controles().filter(e => normal(e.textContent) === 'ARRECADACAO'), 'O menu Arrecadação não foi identificado de forma única.'));
-          await esperar(200);
-          atividade = controles().filter(e => normal(e.textContent) === 'ATIVIDADE ECONOMICA');
+          etapa = 'abrir_arrecadacao';
+          clicar(unico(menu('ARRECADACAO'), 'O menu Arrecadação não foi identificado de forma única.'));
+          const limiteMenu = Date.now() + 8000;
+          while (!(atividade = menu('ATIVIDADE ECONOMICA')).length) {
+            if (Date.now() > limiteMenu) falhar('O menu Arrecadação não exibiu Atividade econômica.');
+            await esperar(100);
+          }
         }
+        etapa = 'abrir_atividade_economica';
         clicar(unico(atividade, 'O menu Atividade econômica não foi identificado de forma única.'));
         const limite = Date.now() + 8000;
         while (!grade()) {

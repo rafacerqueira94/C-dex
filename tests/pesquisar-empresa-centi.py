@@ -60,6 +60,19 @@ class Empresa(unittest.TestCase):
         }""")
         r=self.pesquisar();self.assertTrue(r['ok'],r)
         self.assertEqual(self.page.evaluate('cliques'),['econ','ar022','pesquisar'])
+    def test_closed_delegated_menu_waits_for_delayed_submenu(self):
+        self.page.evaluate("""()=>{
+          document.querySelector('#arrec').remove();
+          const root=document.createElement('div');root.innerHTML='<span>Arrecadação</span>';document.body.prepend(root);
+          document.body.addEventListener('click',e=>{if(root.contains(e.target)){cliques.push('arrec');setTimeout(()=>document.querySelector('#econ').hidden=false,500)}});
+        }""")
+        r=self.pesquisar();self.assertTrue(r['ok'],r)
+        self.assertEqual(self.page.evaluate('cliques'),['arrec','econ','ar022','pesquisar'])
+
+    def test_ambiguous_arrecadacao_does_not_click(self):
+        self.page.evaluate("()=>{const e=document.createElement('div');e.textContent='Arrecadação';document.body.append(e)}")
+        r=self.pesquisar();self.assertFalse(r['ok']);self.assertEqual(self.page.evaluate('cliques'),[])
+
     def test_no_result_or_duplicates_do_not_open_company(self):
         for modo in ['vazio','duplicado']:
             self.page.evaluate('m=>window.modo=m',modo);r=self.pesquisar();self.assertFalse(r['ok'])

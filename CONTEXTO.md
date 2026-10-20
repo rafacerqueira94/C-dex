@@ -315,3 +315,10 @@ O mapa enviado após instalar em outro computador registrou falha pesquisar_sele
 A pesquisa agora ignora modelos ocultos, identifica Situação pelo rótulo e prefere Código já configurado; se não existir, exige uma única linha compatível para configurá-lo. Tolera filtro adicional Nome vazio, mas recusa filtros extras preenchidos ou desconhecidos e ambiguidades. Não remove filtros nem altera valores adicionais. Continua exigindo resultado atualizado único com ID, código, nome e alíquota exatos. Falhas incluem diagnóstico limitado aos tipos e contagens dos filtros no mapa, sem valores digitados.
 
 Verificação: 20 testes simulados da pesquisa, 14 da interface de integração e nove da fila passaram (43). Não houve salvamento na Centi real nesta correção; o teste no outro computador continua necessário. Preservar/conferir qualquer vínculo pendente antes de iniciar novamente para não duplicar inclusões.
+
+
+## Entrada com Arrecadação fechada — 0.14.9
+
+O usuário relatou erro ao iniciar sem Arrecadação expandida. O mapa enviado foi capturado já no formulário Serviço, sem falhaLocalizacao/falhaCadastro, e não confirma a estrutura do menu fechado. A inspeção do código mostrou seletor restrito a controles com atributos de clique e espera fixa de 200 ms pelo submenu.
+
+A navegação identifica rótulos exatos mínimos inclusive div/span com clique delegado; mantém recusa em caso de ambiguidade. Abre Arrecadação somente se Atividade econômica ainda não está visível e espera até oito segundos pelo submenu. Rola o alvo para a área visível antes de conferir cobertura/clique. Preserva bloqueio por alterações pendentes. Nove testes simulados da navegação/pesquisa passaram, incluindo menu fechado com listener delegado e abertura atrasada, menu já aberto e ambiguidade. Validação real com menu fechado ainda pendente.
