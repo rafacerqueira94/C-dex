@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ponte Centi — conferir serviços</title><link rel="stylesheet" href="consulta.css"><script type="module" src="consulta.mjs"></script></head>
 <body>
-<header><div class="marca">Ponte <strong>Centi</strong></div><span>Consulta e conferência · 0.13.1</span></header>
+<header><div class="marca">Ponte <strong>Centi</strong></div><span>Consulta e conferência · 0.14.0</span></header>
 <main>
   <section class="introducao"><p class="passo">1. IMPORTAR PDF → 2. CONFERIR SERVIÇOS → 3. CADASTRAR NA CENTI</p><h1>Do cartão CNPJ ao cadastro na Centi</h1><p>Anexe o cartão CNPJ da Receita e confira os serviços sugeridos antes do cadastro na Centi.</p></section>
   <section class="cartao" aria-labelledby="titulo-consulta"><h2 id="titulo-consulta">Identificar empresa</h2>
@@ -29,8 +29,8 @@
     <p id="contagem" role="status"></p>
     <form id="form-confirmacao"><label class="aceite"><input id="aceite" type="checkbox" required> Conferi os dados da empresa, a alíquota e os serviços selecionados, incluindo os avisos de correspondências ausentes.</label><button id="confirmar" disabled type="submit">Confirmar lista</button></form>
   </section>
-  <section id="resultado" class="cartao confirmado" hidden aria-labelledby="titulo-resultado"><p class="passo">LISTA CONFERIDA</p><h2 id="titulo-resultado"></h2><p id="resumo"></p><ul id="lista-final"></ul><p id="aviso-final"></p><button id="continuar-centi" type="button">Continuar para cadastrar na Centi</button><p id="conectar-centi" class="aviso" hidden>Para conectar o cadastro, abra a empresa na Centi, selecione a pasta Serviços e clique no ícone do Ponte Centi nessa aba. Importe o cartão no aplicativo que será aberto.</p><button id="exportar" type="button">Baixar cópia da lista (opcional)</button><p class="ajuda">Esta etapa prepara a lista. Nenhum dado foi preenchido ou salvo na Centi.</p></section>
-  <section class="cartao"><h2>Cadastro na Centi</h2><p>Abra este aplicativo pelo ícone na aba da Centi, com a empresa e a pasta Serviços abertas. Após importar o cartão e conferir os serviços, continue diretamente para o cadastro. A lista é transferida pelo aplicativo; não é necessário baixar e importar um JSON.</p></section>
+  <section id="resultado" class="cartao confirmado" hidden aria-labelledby="titulo-resultado"><p class="passo">LISTA CONFERIDA</p><h2 id="titulo-resultado"></h2><p id="resumo"></p><ul id="lista-final"></ul><p id="aviso-final"></p><button id="continuar-centi" type="button">Iniciar cadastro automático na Centi</button><p id="conectar-centi" class="aviso" hidden>Para conectar o cadastro, abra a empresa na Centi, selecione a pasta Serviços e clique no ícone do Ponte Centi nessa aba. Importe o cartão no aplicativo que será aberto.</p><button id="exportar" type="button">Baixar cópia da lista (opcional)</button><p class="ajuda">Ao iniciar o cadastro automático, você autoriza pesquisar esta empresa e adicionar e salvar os serviços selecionados ainda não localizados na Centi. Será solicitado login se necessário.</p></section>
+  <section class="cartao"><h2>Cadastro na Centi</h2><p>Você pode iniciar com a Centi fechada. Após importar o cartão e conferir os serviços, inicie o cadastro automático. O aplicativo abre a Centi e pesquisa a empresa pelo CNPJ. Faça o login se solicitado; não é necessário transportar JSON.</p></section>
   <footer>Correspondências CNAE/ISS e catálogo municipal fornecidos pelo usuário. A lista pode ser parcial quando faltam correspondências.</footer>
 </main>
 </body></html>

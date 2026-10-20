@@ -2,9 +2,16 @@
 <html lang="pt-BR">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ponte Centi — comparar serviços</title><link rel="stylesheet" href="consulta.css"><script type="module" src="integracao.mjs"></script></head>
 <body>
-<header><div class="marca">Ponte <strong>Centi</strong></div><span>Comparação e seleção · 0.13.1</span></header>
+<header><div class="marca">Ponte <strong>Centi</strong></div><span>Comparação e seleção · 0.14.0</span></header>
 <main>
-  <section class="introducao"><h1>Cadastrar serviços na Centi</h1><p>Selecione a pasta Serviços na aba da Centi e mantenha essa aba aberta. Esta etapa lê os vínculos visíveis para comparar com sua lista conferida.</p></section>
+  <section class="cartao"><h2>Conexão com a Centi</h2>
+    <p>Se a Centi estiver fechada, o aplicativo pode abri-la. Faça o login quando solicitado. O cartão e os serviços permanecem nesta aba.</p>
+    <button id="abrir-centi" type="button">Abrir ou reconectar Centi</button>
+    <p id="status-conexao" role="status" aria-live="polite"></p>
+    <button id="localizar-empresa" type="button">Localizar empresa do cartão na Centi</button><p id="status-localizacao" role="status" aria-live="polite"></p>
+    <button id="baixar-conexao" type="button" hidden>Baixar mapa da tela Centi</button>
+  </section>
+  <section class="introducao"><h1>Cadastrar serviços na Centi</h1><p>O aplicativo conecta à Centi, pesquisa a empresa do cartão e abre Serviços para comparar e cadastrar. Entre na Centi se solicitado.</p></section>
   <section class="cartao"><h2>Empresa e serviços do cartão CNPJ</h2><p id="origem-cartao" hidden></p>
     <p>Comece importando o cartão CNPJ da empresa atual. O aplicativo leva os serviços conferidos diretamente para esta etapa.</p>
     <p><a id="gerar-lista" href="consulta.html">Importar cartão CNPJ e iniciar cadastro</a></p>
@@ -18,12 +25,14 @@
     </form>
     <p id="status" role="status" aria-live="polite"></p><p id="erro" role="alert" hidden></p>
   </section>
+  <details id="opcoes-retomada"><summary>Retomar uma tentativa interrompida</summary>
   <section id="retomada" class="cartao" hidden><h2>Continuar um vínculo já preenchido</h2>
     <p>Se a tentativa anterior parou antes de salvar, mantenha o formulário preenchido na Centi. Esta opção apenas confere o serviço atual com a lista do cartão; não abre Novo nem refaz a pesquisa.</p>
     <label class="aceite"><input id="empresa-retomada" type="checkbox"> Conferi que o formulário preenchido está na empresa deste cartão e é a única alteração pendente.</label>
     <button id="retomar-preenchido" type="button" disabled>Conferir vínculo preenchido para salvar</button>
     <p id="status-retomada" role="status" aria-live="polite"></p>
   </section>
+  </details>
   <section id="resultado" class="cartao" hidden><h2>Comparação da captura</h2>
     <p id="resumo"></p><ul id="servicos-comparados"></ul>
     <h3>Vínculos que precisam de identificação</h3><ul id="nao-identificados"></ul>
@@ -31,7 +40,7 @@
   </section>
   <section id="automatico" class="cartao" hidden><h2>Adicionar e salvar os serviços ausentes</h2>
     <p>O aplicativo abrirá cada vínculo novo, pesquisará o registro exato, selecionará, salvará e voltará à lista para confirmar antes do próximo serviço. Os já localizados serão ignorados.</p>
-    <label class="aceite"><input id="autorizar-cadastro" type="checkbox"> Conferi a empresa do cartão na Centi, os serviços e alíquotas selecionados, a ausência dos serviços também nas páginas, filtros e serviços herdados, e que não há outras alterações pendentes. Autorizo adicionar e salvar os serviços ausentes.</label>
+    <label class="aceite"><input id="autorizar-cadastro" type="checkbox"> Autorizo adicionar e salvar os serviços selecionados ainda não localizados nesta leitura, preservando os registros existentes. A leitura atual não percorre filtros, páginas e serviços herdados automaticamente.</label>
     <button id="cadastrar-servicos" type="button" disabled>Adicionar e salvar na Centi</button>
     <p id="status-cadastro" role="status" aria-live="polite"></p>
   </section>

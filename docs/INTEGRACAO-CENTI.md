@@ -1,6 +1,10 @@
 # Integração Centi — evidências recuperadas
 
-## Desenvolvimento atual — 0.13.0
+## Desenvolvimento atual — 0.14.0
+
+O usuário definiu início com Centi fechada e somente login manual. O aplicativo agora abre/reutiliza a aba com permissão de host limitada a ba.centi.com.br, preserva o plano do PDF e aguarda login. O caminho informado é Arrecadação → Atividade econômica → AR022 → CPF/CNPJ/Contendo/Pesquisar → duplo clique na linha exata → Serviços → comparar → Novo para os ainda não localizados. A seleção da empresa cruza CNPJ exato e ID da grade com o ID do cadastro aberto. Em sucesso, a fila é iniciada pela autorização do botão Iniciar cadastro automático, sem exigir preparação manual da tabela. 110 testes locais/simulados passaram. Os controles reais novos ainda precisam de validação; leitura de páginas/filtros/herança permanece parcial e não houve operação real nesta etapa. Controles ambíguos, outros vínculos pendentes e ausência de resultado interrompem sem criar empresa ou descartar dados.
+
+## Histórico 0.13.0
 
 O usuário corrigiu o objetivo: PDF da empresa atual → serviços filtrados → adicionar e salvar na Centi. A entrada padrão agora é consulta.html vinculada à aba Centi, com passagem interna do plano por sessão, sem exportação/importação de JSON. A integração preenche e protege o CNPJ vindo do PDF. cadastrar-servicos.mjs coordena a fila e exige releitura pelo ID salvo antes do próximo vínculo; navegar-servicos-centi.mjs automatiza Novo e retorno a Serviços por controles únicos. Em falha, interrompe sem repetir ações. Há teste completo com PDF real sintético e ações Chrome simuladas. A nova navegação e persistência ainda dependem de validação na Centi real; não repetir o caso já concluído. Veja LEIA-ME.txt para o fluxo atual.
 

@@ -1,6 +1,6 @@
 # Como retomar e recuperar o Ponte Centi
 
-Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.13.1** (entrada pelo PDF, passagem interna sem JSON e cadastro sequencial com salvamento/releitura; nova automação ainda sem validação real).
+Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.14.0** (entrada pelo PDF, passagem interna sem JSON e cadastro sequencial com salvamento/releitura; nova automação ainda sem validação real).
 
 ## Onde o projeto está salvo
 
@@ -89,3 +89,11 @@ As novas navegações e salvamento ainda dependem de validação na Centi real; 
 ## Bloqueio mais recente e retomada
 
 A tentativa real 0.13.0 chegou ao salvamento, mas bloqueou por Especificar CNAE não identificado; nenhum Salvar foi acionado. Não recriar o vínculo pendente 07.02.000. A 0.13.1 amplia a associação por título/grupo do campo e inclui Continuar um vínculo já preenchido no fluxo PDF. Essa rota confere o formulário e permite salvar sem Novo ou pesquisa. Se persistir o bloqueio, solicitar Baixar comparação com diagnosticoCnae; o DOM real desse campo ainda não foi recebido.
+
+## Entrada independente da aba Centi — 0.14.0
+
+O usuário definiu que pode iniciar com a Centi fechada; somente o login deve depender dele. conectar-centi.mjs abre/reutiliza aba, preserva a lista importada e detecta a tela de login por leitura estrutural, sem manipular senhas. O manifest passa a solicitar host_permissions apenas para https://ba.centi.com.br/caetite/*, necessário para operar sem o clique ativo nessa aba.
+
+O percurso fornecido pelo usuário é Arrecadação → Atividade econômica → Cadastros / Atividade econômica AR022 → filtro CPF/CNPJ / Contendo / CNPJ do PDF → Pesquisar → dois cliques na linha exata → Serviços → comparar → Novo para ausentes. pesquisar-empresa-centi.mjs e abrir-empresa-centi.mjs implementam isso por controles únicos, atualização observada e CNPJ/ID exatos. A identificação automática de empresa só é marcada após cruzar resultado da pesquisa e ID do cadastro. Em sucesso, compara e continua a fila autorizada pelo botão Iniciar cadastro automático, sem as preparações manuais anteriores.
+
+O percurso novo passou por testes simulados; ainda requer validação real de DOM e interação. Não afirmar automação completa validada nem ausência de duplicidades fora da captura. A leitura de páginas/herança permanece limitada. Não abandonar pendências; preservá-las e oferecer retomada. Permitir exportar mapa-conexao-centi.json se a navegação bloquear. Testes adicionais: node --test tests/conectar-centi.test.mjs; python tests/pesquisar-empresa-centi.py.

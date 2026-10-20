@@ -30,12 +30,16 @@ class FluxoPdf(unittest.TestCase):
             r.fulfill(status=200,content_type='text/javascript' if path.suffix=='.mjs' else mimetypes.guess_type(path.name)[0] or 'application/octet-stream',body=path.read_bytes())
         self.ctx.route('https://ponte.test/**',route)
         self.page=self.ctx.new_page()
-        self.page.add_init_script('''const dataTeste=new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date());window.chrome={scripting:{executeScript:async p=>{
+        self.page.add_init_script('''const dataTeste=new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date());window.chrome={tabs:{query:async()=>[],create:async()=>({id:123})},scripting:{executeScript:async p=>{
           const estado=JSON.parse(sessionStorage.getItem('teste-centi')||'{"salvos":[],"acoes":[]}');
           estado.acoes.push(p.func.name);
           const salvar=()=>sessionStorage.setItem('teste-centi',JSON.stringify(estado));
           if(p.func.name==='lerVinculosCenti'){salvar();return [{result:{tipo:'captura_vinculos_centi',registros:estado.salvos,linhasNaoInterpretadas:0}}]}
+          if(p.func.name==='inspecionarConexaoCenti'){salvar();return [{result:window.loginConcluido?{estado:'tela_disponivel',possuiFormularioServico:false}:{estado:'aguardando_login'}}]}
           const pedido=p.args[0];
+          if(p.func.name==='pesquisarEmpresaCenti'){salvar();return [{result:{ok:true,cnpj:pedido.cnpj,idEmpresa:'82242'}}]}
+          if(p.func.name==='abrirEmpresaCenti'){salvar();return [{result:{ok:true,empresaConferida:true,cnpj:pedido.cnpj,idEmpresa:pedido.idEmpresa}}]}
+
           if(p.func.name==='navegarServicosCenti'){estado.acoes.push(pedido.acao);salvar();return [{result:{ok:true}}]}
           if(p.func.name==='pesquisarServicoCenti'){
             salvar();return [{result:{ok:true,selecionado:true,datasPreservadas:true,campos:{idVinculo:'0',nome:pedido.servico.nome,dataInicio:dataTeste,dataFim:''}}}]
@@ -47,8 +51,8 @@ class FluxoPdf(unittest.TestCase):
           throw Error('Ação inesperada');
         }}}''')
     def tearDown(self): self.ctx.close()
-    def importar_cartao(self):
-        self.page.goto('https://ponte.test/consulta.html?aba=123')
+    def importar_cartao(self, conectado=True):
+        self.page.goto('https://ponte.test/consulta.html'+('?aba=123' if conectado else ''))
         self.page.locator('#arquivo-pdf').set_input_files({'name':'cartao-teste.pdf','mimeType':'application/pdf','buffer':self.pdf})
         self.page.locator('input[name=coworking][value=nao]').check()
         self.page.locator('#consultar').click()
@@ -58,16 +62,15 @@ class FluxoPdf(unittest.TestCase):
         checks.first.check()
         self.page.locator('#aceite').check();self.page.locator('#confirmar').click()
         self.page.locator('#continuar-centi').click()
-        self.page.wait_for_url('**/integracao.html?aba=123&origem=pdf')
+        self.page.wait_for_url('**/integracao.html?aba=123&origem=pdf' if conectado else '**/integracao.html?origem=pdf')
         self.assertTrue(self.page.locator('#lista').is_hidden())
         self.assertEqual(self.page.locator('#cnpj').input_value(),'11222333000181')
         self.assertTrue(self.page.locator('#cnpj').get_attribute('readonly') is not None)
     def test_pdf_to_confirmed_persistence_without_json_import(self):
         self.importar_cartao()
-        self.page.locator('#conferido').check();self.page.locator('#comparar').click()
-        self.page.locator('#automatico').wait_for(state='visible')
-        self.assertTrue(self.page.locator('#cadastrar-servicos').is_disabled())
-        self.page.locator('#autorizar-cadastro').check();self.page.locator('#cadastrar-servicos').click()
+        self.assertTrue(self.page.locator('#form-comparar').is_hidden())
+        self.page.evaluate('window.loginConcluido=true')
+        self.page.locator('#abrir-centi').click()
         self.page.wait_for_function("document.querySelector('#status').textContent.includes('concluído e conferido')")
         estado=json.loads(self.page.evaluate("sessionStorage.getItem('teste-centi')"))
         self.assertEqual(len(estado['salvos']),1)
@@ -78,6 +81,25 @@ class FluxoPdf(unittest.TestCase):
         resultado=json.loads(Path(event.value.path()).read_text())
         self.assertTrue(resultado['ultimoCadastro']['concluido'])
         self.assertEqual(resultado['servicos'][0]['situacao'],'localizado')
+
+    def test_start_with_centi_closed_keeps_pdf_plan_and_opens_login(self):
+        self.importar_cartao(conectado=False)
+        self.page.wait_for_function("document.querySelector('#status-conexao').textContent.includes('Entre na Centi')")
+        self.assertEqual(self.page.locator('#cnpj').input_value(),'11222333000181')
+        self.assertTrue(self.page.locator('#lista').is_hidden())
+        self.assertEqual(self.page.locator('#arquivo-pdf').count(),0)
+
+    def test_login_then_company_search_and_registration_continue_automatically(self):
+        self.importar_cartao(conectado=False)
+        self.page.wait_for_function("document.querySelector('#status-conexao').textContent.includes('Entre na Centi')")
+        self.page.evaluate('window.loginConcluido=true')
+        self.page.locator('#abrir-centi').click()
+        self.page.wait_for_function("document.querySelector('#status').textContent.includes('concluído e conferido')")
+        estado=json.loads(self.page.evaluate("sessionStorage.getItem('teste-centi')"))
+        self.assertEqual(estado['acoes'].count('pesquisarEmpresaCenti'),1)
+        self.assertEqual(estado['acoes'].count('abrirEmpresaCenti'),1)
+        self.assertEqual(estado['acoes'].count('salvarServicoCenti'),1)
+        self.assertEqual(len(estado['salvos']),1)
 
     def test_resume_existing_form_does_not_create_or_search_again(self):
         self.importar_cartao()
@@ -93,6 +115,7 @@ class FluxoPdf(unittest.TestCase):
           }
           throw Error('Não deve navegar nem criar vínculo');
         }}''')
+        self.page.locator('#opcoes-retomada summary').click()
         self.page.locator('#empresa-retomada').check()
         self.page.locator('#retomar-preenchido').click()
         self.page.locator('#salvamento').wait_for(state='visible')

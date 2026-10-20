@@ -130,11 +130,11 @@ try {
 
 $('continuar-centi').addEventListener('click', () => {
   try {
-    guardarPlanoDaAba(sessionStorage, estado.plano, abaCenti);
-    location.href = `integracao.html?aba=${abaCenti}&origem=pdf`;
+    guardarPlanoDaAba(sessionStorage, {...estado.plano, autorizarCadastroAutomatico: true}, Number.isSafeInteger(abaCenti) && abaCenti > 0 ? abaCenti : null);
+    location.href = Number.isSafeInteger(abaCenti) && abaCenti > 0 ? `integracao.html?aba=${abaCenti}&origem=pdf` : 'integracao.html?origem=pdf';
   } catch (e) { erro(e.message); }
 });
 if (!Number.isSafeInteger(abaCenti) || abaCenti <= 0) {
   $('conectar-centi').hidden = false;
-  $('continuar-centi').disabled = true;
+  $('conectar-centi').textContent = 'Você pode continuar com a Centi fechada. O aplicativo a abrirá; entre no sistema se solicitado.';
 }

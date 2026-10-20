@@ -1,31 +1,28 @@
-Ponte Centi 0.13.1 — do cartão CNPJ ao cadastro na Centi
+Ponte Centi 0.14.0 — do cartão CNPJ ao cadastro na Centi
 
-1. Extraia o pacote. Em chrome://extensions ou edge://extensions, carregue
-   sem compactação a pasta raiz que contém manifest.json. Se já instalada,
-   recarregue a extensão e feche as abas antigas do Ponte Centi.
-2. Abra a empresa na Centi de Caetité e selecione a pasta Serviços, deixando
-   a tabela visível, fora do formulário e da lupa. Confira que não há outras
-   alterações pendentes no cadastro.
-3. Nessa aba Centi, clique no ícone Ponte Centi. A primeira tela agora pede
-   o cartão CNPJ em PDF da empresa atual, e não uma lista JSON antiga.
-4. Importe o cartão completo da Receita Federal e informe o enquadramento
-   em coworking. Clique em Ler cartão e sugerir serviços.
-5. Confira a empresa, os CNAEs, a alíquota, as sugestões e eventuais lacunas.
-   Marque os serviços aplicáveis, confirme a revisão e clique em Confirmar
-   lista. Use Continuar para cadastrar na Centi.
-6. A empresa e a lista passam diretamente para a etapa de cadastro. O CNPJ
-   vem do PDF e fica protegido contra edição. Não precisa baixar/importar
-   JSON. Confirme que o cadastro aberto na Centi é o da empresa do cartão
-   e clique em Ler vínculos visíveis e comparar.
-7. Confira a ausência dos serviços também nas páginas, filtros e serviços
-   herdados e confirme que não há outras alterações pendentes. Marque a
-   autorização e clique em Adicionar e salvar na Centi.
-8. O aplicativo ignora os serviços localizados. Para cada ausente, abre Novo,
-   pesquisa e seleciona o registro exato, confere os dados, aciona Salvar uma
-   vez, aguarda ID definitivo, volta a Serviços e relê a lista. Só avança
-   para o próximo quando o vínculo salvo foi localizado com o mesmo ID.
-9. Ao concluir, confira o resumo. Baixar comparação é opcional e inclui
-   as etapas do cadastro. Ele serve também para investigar um bloqueio.
+1. Extraia o pacote e carregue/recarregue a extensão no Chrome/Edge. Confira
+   a versão 0.14.0. Autorize acesso a ba.centi.com.br quando o navegador pedir.
+2. Clique no ícone Ponte Centi em qualquer aba. A Centi pode estar fechada.
+3. Importe o cartão CNPJ em PDF, informe coworking, confira os dados e
+   selecione os serviços. Confirme a lista.
+4. Clique em Iniciar cadastro automático na Centi. O aplicativo abre ou
+   reutiliza a Centi. Entre no sistema se solicitado; o PDF não precisa ser
+   importado novamente depois do login.
+5. O aplicativo navega por Arrecadação → Atividade econômica → Cadastros /
+   Atividade econômica (AR022), preenche CPF/CNPJ e pesquisa.
+6. Confere um resultado único pelo CNPJ exato, seleciona e abre a empresa
+   pela grade Wijmo e verifica o ID no cadastro. Depois abre Serviços.
+7. Compara e ignora os serviços localizados. Para os ainda não localizados,
+   abre Novo, pesquisa/seleciona o registro exato, confere os campos, salva,
+   volta à lista e exige a confirmação do vínculo antes do próximo.
+8. Ao concluir, confira o resumo. Baixar comparação registra o cadastro.
+
+Não há criação de empresa se o CNPJ não for encontrado. Múltiplos cadastros
+para o mesmo CNPJ, controles ambíguos, outras alterações pendentes ou falhas
+interrompem o fluxo. O aplicativo não descarta formulários preenchidos.
+A Centi precisa permanecer aberta durante as operações; o aplicativo faz
+sua abertura inicial automaticamente. Se for fechada durante um salvamento,
+o resultado pode ficar incerto e exige conferência antes de repetir.
 
 Se houver falha ou resultado incerto, o fluxo para sem repetir ações.
 Confira o formulário e a lista na Centi antes de tentar novamente. Os
@@ -58,7 +55,9 @@ uma vez; recarregar a tela de cadastro exige importar novamente o cartão.
 Baixar cópia da lista é opcional, para arquivo ou fluxo avançado.
 
 As correspondências CNAE/ISS são parciais; avisos de lacunas exigem revisão.
-O CNPJ aberto na Centi ainda é confirmado pelo operador. A comparação lê
+No percurso automático, o CNPJ é conferido na linha da pesquisa e o ID é
+verificado no cadastro aberto. O modo avançado ainda admite confirmação
+manual. A comparação lê
 linhas renderizadas, sem percorrer todas as páginas, filtros ou heranças.
 Resultados não localizados não provam ausência fora da captura.
 
@@ -81,3 +80,14 @@ A 0.13.1 identifica Especificar CNAE também pelo título no mesmo grupo
 visual do select, mesmo sem label/for. Exige controle único e opção Não.
 Se ainda bloquear, Baixar comparação inclui diagnosticoCnae com a estrutura
 dos selects para corrigir o mapa sem tentar clicar em outro controle.
+
+Validação 0.14.0
+
+A nova navegação foi testada com PDF real sintético, ações Chrome simuladas
+e DOM simulado do percurso informado pelo operador. Ainda falta validar
+menus/filtros/abertura de cadastro na Centi real. Se algum controle não for
+identificado, o fluxo interrompe e oferece Baixar mapa da tela Centi. Esse
+mapa contém estrutura e rótulos conhecidos, sem senhas ou valores de campos.
+A leitura de Serviços continua limitada à captura: não garante cobertura
+de outros filtros, páginas ou serviços herdados. O fluxo não altera esses
+registros; a conclusão se refere aos serviços selecionados e localizados.

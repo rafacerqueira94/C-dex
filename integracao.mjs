@@ -1,3 +1,6 @@
+import {pesquisarEmpresaCenti} from './pesquisar-empresa-centi.mjs';
+import {abrirEmpresaCenti} from './abrir-empresa-centi.mjs';
+import {conectarCenti, inspecionarConexaoCenti} from './conectar-centi.mjs';
 import {cadastrarServicos} from './cadastrar-servicos.mjs';
 import {navegarServicosCenti} from './navegar-servicos-centi.mjs';
 import {receberPlanoDaAba} from './fluxo-pdf.mjs';
@@ -7,7 +10,11 @@ import {compararCaptura} from './comparar-captura.mjs';
 import {pesquisarServicoCenti} from './pesquisar-servico-centi.mjs';
 
 const $ = id => document.getElementById(id);
-const aba = Number(new URLSearchParams(location.search).get('aba'));
+let aba = new URLSearchParams(location.search).has('aba') ? Number(new URLSearchParams(location.search).get('aba')) : null;
+let diagnosticoConexao = null;
+let verificandoConexao = false;
+let localizandoEmpresa = false;
+let empresaLocalizada = false;
 let resultado = null;
 let planoDoPdf = null;
 let planoAtual = null;
@@ -65,6 +72,11 @@ $('form-comparar').addEventListener('submit', async e => {
     resultado = {...comparacao, captura};
     planoAtual = plano; catalogoAtual = catalogo;
     apresentarComparacao(comparacao, captura);
+    if (empresaLocalizada && planoDoPdf?.autorizarCadastroAutomatico === true && !$('automatico').hidden) {
+      $('autorizar-cadastro').checked = true;
+      $('cadastrar-servicos').disabled = false;
+      setTimeout(() => $('cadastrar-servicos').click(), 0);
+    }
   } catch (erro) {
     $('erro').textContent = erro.message; $('erro').hidden = false; $('status').textContent = '';
   } finally { $('comparar').disabled = false; }
@@ -195,6 +207,7 @@ if (new URLSearchParams(location.search).get('origem') === 'pdf') {
     $('origem-cartao').textContent = `${planoDoPdf.empresa.razaoSocial || 'Empresa do cartão'} · CNPJ ${planoDoPdf.empresa.cnpj} · ${planoDoPdf.servicos.length} serviço(s) conferido(s).`;
     $('origem-cartao').hidden = false;
     $('retomada').hidden = false;
+    $('form-comparar').hidden = true;
   } catch (e) {
     $('erro').textContent = e.message; $('erro').hidden = false; $('comparar').disabled = true;
   }
@@ -286,3 +299,78 @@ $('retomar-preenchido').addEventListener('click', async () => {
     $('salvar-vinculo').disabled = true;
   }
 });
+
+async function verificarConexao() {
+  if (verificandoConexao || !Number.isSafeInteger(aba)) return;
+  verificandoConexao = true;
+  try {
+    const respostas = await chrome.scripting.executeScript({target: {tabId: aba}, func: inspecionarConexaoCenti});
+    const leitura = respostas[0]?.result;
+    if (!leitura || ['aguardando_login', 'fora_da_centi', 'carregando'].includes(leitura.estado)) {
+      $('status-conexao').textContent = 'Entre na Centi na aba aberta. O aplicativo verificará a conexão novamente.';
+      return;
+    }
+    diagnosticoConexao = leitura;
+    $('status-conexao').textContent = leitura.possuiFormularioServico
+      ? 'Centi acessível. Há um formulário de Serviço aberto; suas alterações foram preservadas.'
+      : 'Centi acessível. Você pode localizar a empresa do cartão automaticamente.';
+    if (planoDoPdf && !localizandoEmpresa && !empresaLocalizada && !leitura.possuiFormularioServico) void localizarEmpresa();
+    $('baixar-conexao').hidden = false;
+  } catch {
+    $('status-conexao').textContent = 'Aguardando a Centi carregar ou o acesso ser concluído. Se a aba foi fechada, use Abrir ou reconectar Centi.';
+  } finally { verificandoConexao = false; }
+}
+async function abrirConexao() {
+  if (localizandoEmpresa || cadastrando || salvando) return;
+  diagnosticoConexao = null;
+  $('abrir-centi').disabled = true;
+  try {
+    const conexao = await conectarCenti(chrome, aba);
+    aba = conexao.aba;
+    $('status-conexao').textContent = conexao.criada ? 'Centi aberta. Entre no sistema se necessário; o cartão e os serviços continuam neste aplicativo.' : 'Aba Centi conectada.';
+    await verificarConexao();
+  } catch (e) { $('status-conexao').textContent = `${e.message} Confira se a extensão está habilitada para acessar ba.centi.com.br.`; }
+  finally { $('abrir-centi').disabled = false; }
+}
+$('abrir-centi').addEventListener('click', abrirConexao);
+$('baixar-conexao').addEventListener('click', () => {
+  if (!diagnosticoConexao) return;
+  const url = URL.createObjectURL(new Blob([JSON.stringify(diagnosticoConexao, null, 2)], {type: 'application/json'}));
+  const a = document.createElement('a'); a.href = url; a.download = 'mapa-conexao-centi.json'; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+if (planoDoPdf && !Number.isSafeInteger(aba)) {
+  void abrirConexao();
+}
+setInterval(() => { if (!diagnosticoConexao && planoDoPdf && !cadastrando && !salvando) void verificarConexao(); }, 2500);
+
+async function localizarEmpresa() {
+  if (!planoDoPdf || localizandoEmpresa || cadastrando || salvando) return;
+  localizandoEmpresa = true; empresaLocalizada = false;
+  const controles = [...document.querySelectorAll('input,button,select')];
+  const anteriores = controles.map(e => e.disabled);controles.forEach(e => {e.disabled=true;});
+  const executar = async (func,pedido,world='ISOLATED') => {
+    const respostas = await chrome.scripting.executeScript({target:{tabId:aba},func,args:[pedido],world});
+    const retorno=respostas[0]?.result;
+    if (!retorno?.ok) throw Error(retorno?.mensagem || 'A ação na Centi não foi confirmada.');
+    return retorno;
+  };
+  try {
+    if (!Number.isSafeInteger(aba)) {const conexao=await conectarCenti(chrome);aba=conexao.aba;}
+    $('status-localizacao').textContent='Abrindo AR022 e pesquisando o CNPJ do cartão…';
+    const encontrado=await executar(pesquisarEmpresaCenti,{cnpj:planoDoPdf.empresa.cnpj});
+    $('status-localizacao').textContent='Empresa localizada. Abrindo o cadastro pelo resultado exato…';
+    const aberto=await executar(abrirEmpresaCenti,encontrado,'MAIN');
+    if (aberto.empresaConferida !== true) throw Error('A identidade da empresa não foi confirmada.');
+    $('status-localizacao').textContent='Empresa conferida. Abrindo a pasta Serviços…';
+    await executar(navegarServicosCenti,{acao:'lista'});
+    empresaLocalizada=true;
+    $('conferido').checked=true;
+    $('status-localizacao').textContent='Empresa e pasta Serviços abertas automaticamente. Lendo os vínculos…';
+  } catch(e) { $('status-localizacao').textContent=`${e.message} Nenhuma empresa nova foi criada. Use Baixar mapa da tela Centi se a navegação não foi identificada.`; }
+  finally {
+    controles.forEach((e,i)=>{e.disabled=anteriores[i];});localizandoEmpresa=false;
+    if(empresaLocalizada) $('form-comparar').requestSubmit();
+  }
+}
+$('localizar-empresa').addEventListener('click',localizarEmpresa);

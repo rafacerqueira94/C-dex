@@ -1,6 +1,12 @@
-# Cadastro com a Centi — versão 0.13.1
+# Cadastro com a Centi — versão 0.14.0
 
-## Roteiro atual — PDF para cadastro
+## Entrada atual — pode começar com a Centi fechada
+
+Clique no ícone em qualquer aba, importe o PDF, confira os serviços e use **Iniciar cadastro automático na Centi**. O aplicativo abre/reutiliza a Centi e aguarda login. Localiza a empresa por Arrecadação → Atividade econômica → AR022 → CPF/CNPJ → Pesquisar. Confere CNPJ exato/ID e abre o resultado; entra em Serviços e continua a comparação/cadastro. O navegador pode pedir habilitação do acesso da extensão a ba.centi.com.br. O acesso é restrito à origem Centi; não há manipulação de senhas.
+
+As novas navegações ainda precisam de validação real. Não escolher cadastro ambíguo ou empresa sem CNPJ exato. Em erro, exporte **Baixar mapa da tela Centi** e a comparação, se disponível. Pendências são preservadas. A leitura de Serviços permanece parcial quanto a filtros, páginas e heranças.
+
+## Histórico do roteiro 0.13 — PDF para cadastro
 
 1. Abra a empresa na Centi, deixe a tabela da pasta Serviços visível e clique no ícone da extensão.
 2. Importe o cartão CNPJ atual em PDF, informe coworking, confira os dados e selecione os serviços.

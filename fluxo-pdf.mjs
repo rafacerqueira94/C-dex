@@ -1,6 +1,6 @@
 // Passagem temporária na mesma aba da extensão; não guarda o PDF.
 export function guardarPlanoDaAba(storage, plano, aba, agora = Date.now()) {
-  if (!Number.isSafeInteger(aba) || aba <= 0) throw Error('Abra a extensão pelo ícone na aba da Centi para continuar o cadastro.');
+  if (aba !== null && (!Number.isSafeInteger(aba) || aba <= 0)) throw Error('Aba Centi inválida.');
   if (plano?.tipo !== 'lista_servicos_conferida' || plano.conferidoPeloOperador !== true) throw Error('Confira os serviços do PDF antes de continuar.');
   storage.setItem('ponte-centi-fluxo-pdf', JSON.stringify({plano, aba, criadoEm: agora}));
 }
