@@ -52,6 +52,11 @@ export function inspecionarConexaoCenti() {
           return {disponivel:typeof controle?.getCellData==='function',
             cabecalhos:Array.from(controle?.columns || []).map(c=>cabecalhosConhecidos.has(normal(c.header))?normal(c.header):'outro'),
             bindingsReconhecidos:Array.from(controle?.columns || []).map(c=>['ID','IDSERVICO','DATAINICIO','DATAFIM'].includes(normal(c.binding))?normal(c.binding):'outro'),
+            estruturaColunas:Array.from(controle?.columns || []).map(c=>({
+              titulo:typeof c.header==='string'?c.header.slice(0,100):null,
+              binding:typeof c.binding==='string'&&/^[A-Za-z_$][A-Za-z0-9_.$\[\]]{0,119}$/.test(c.binding)?c.binding:null,
+              nome:typeof c.name==='string'&&/^[A-Za-z_$][A-Za-z0-9_.$\[\]]{0,119}$/.test(c.name)?c.name:null,
+              visivel:c.visible!==false})),
             quantidadeLinhas:Number.isSafeInteger(controle?.rows?.length)?controle.rows.length:null,
             fonteDisponivel:Array.isArray(controle?.collectionView?.sourceCollection),
             tamanhoFonte:Array.isArray(controle?.collectionView?.sourceCollection)?controle.collectionView.sourceCollection.length:null,

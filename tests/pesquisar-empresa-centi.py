@@ -83,6 +83,14 @@ class Empresa(unittest.TestCase):
     def test_pending_changes_prevent_navigation(self):
         self.page.evaluate("()=>{const b=document.createElement('button');b.textContent='Salvar(1)';document.body.append(b)}")
         self.assertFalse(self.pesquisar()['ok']);self.assertEqual(self.page.evaluate('cliques'),[])
+    def test_diagnostic_records_exact_column_metadata_without_cell_values(self):
+        self.pesquisar()
+        self.page.evaluate("()=>{const c=wijmo.Control.getControl();c.columns.push({header:'Fim do período',binding:'Periodo.DataTermino',name:'Termino'});c.getCellData=()=>{throw Error('Diagnóstico não deve ler células')}}")
+        d=self.page.evaluate('()=>{'+self.inspect+';return inspecionarConexaoCenti()}')
+        coluna=d['grades'][0]['apiPublica']['estruturaColunas'][-1]
+        self.assertEqual(coluna['binding'],'Periodo.DataTermino')
+        self.assertEqual(coluna['titulo'],'Fim do período')
+
     def test_connection_diagnostic_does_not_export_field_values(self):
         self.pesquisar()
         d=self.page.evaluate('()=>{'+self.inspect+';return inspecionarConexaoCenti()}')

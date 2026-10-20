@@ -359,3 +359,10 @@ O relatório comparacao-centi-1792510997474.json parou após preencher e conferi
 A navegação, a leitura e o salvamento do lote agora aceitam os bindings exatos DataInicio/DataFim quando o título não é reconhecido, exigindo colunas únicas e conservando todos os demais bloqueios. Não inferem a última coluna pela posição. O mapa passa a registrar apenas bindings reconhecidos, para diagnóstico se houver outra estrutura. Testes simulam DataFim com título vazio nas três etapas. Precisa de validação na Centi real.
 
 O serviço 07.02.000 pode continuar pendente: não repetir Novo para ele. Para recuperar esta tentativa da versão anterior, conferir e salvar o pendente na Centi; depois iniciar nova consulta para somente os ausentes. O lote automático recusa pendências preexistentes e não adota silenciosamente alterações de execuções anteriores. Não houve operação remota na Centi nesta correção.
+
+
+## Diagnóstico do esquema real da grade pendente — 0.15.2
+
+O mapa mapa-conexao-centi.json de 20/10/2026 15:53 UTC mostra a mesma API com cinco colunas: títulos outro/ID/SERVICO/DATA INICIO/outro e bindings outro/ID/outro/outro/outro. Assim o binding exato DataFim não está presente; o suporte 0.15.1 não resolve o esquema observado. Também registra falhaLocalizacao por alterações pendentes ao reiniciar pesquisa. Nenhum sucesso de salvamento do lote foi confirmado.
+
+A versão 0.15.2 amplia exclusivamente o diagnóstico, sem afirmar corrigir o lote: estruturaColunas registra título e identificadores binding/name, limitados em tamanho e formato, e visibilidade. Não lê valores de células nem itens da fonte. Precisa de novo mapa da lista pendente para conhecer a coluna real antes de implementar aliases. Manter o registro pendente, não repetir Novo e não remover a validação de datas. A hipótese anterior de execução isolada já foi descartada na 0.15.1.
