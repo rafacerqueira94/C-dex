@@ -339,3 +339,14 @@ Atenção à divergência ainda sem explicação: o relatório imediatamente ant
 ## Nova consulta ao final — 0.14.11
 
 Adicionado botão Nova consulta ao final da integração, após a apresentação da comparação. Volta à importação de PDF na mesma aba do aplicativo, preservando somente a referência à aba Centi e removendo eventual plano temporário. A nova página inicia sem empresa/PDF/seleções anteriores. O botão é desabilitado junto aos demais controles durante o cadastro em lote; o manipulador também impede saída durante cadastro, salvamento ou localização da empresa. Não altera registros da Centi.
+
+
+## Salvamento único ao final do lote — 0.15.0
+
+Solicitação: preencher todos os novos serviços e acionar Salvar somente ao final. O fluxo automático de integração agora usa cadastrar-lote.mjs; a implementação individual anterior permanece para compatibilidade e a retomada manual de um único vínculo continua disponível.
+
+O lote começa sem pendências/conflitos. Cada seleção tem serviço, datas e Especificar CNAE = Não conferidos sem salvar. Volta à lista com permissão limitada à quantidade/formulário conferidos, lê os Id 0 e exige correspondência exclusiva com os serviços já preenchidos pelo lote; registros positivos iniciais devem permanecer iguais. Só então abre o próximo Novo. A última lista é reconferida na API pública imediatamente antes de um único clique Salvar(N). Um identificador impede repetir o clique; a releitura deve localizar todos com IDs positivos e preservar os vínculos anteriores. Qualquer falha durante o preenchimento deixa pendências para revisão, sem salvamento parcial automático. Falhas após envio marcam incerteza, sem retry.
+
+A navegação com pendências e o salvamento pela lista são novos comportamentos ainda sem validação na Centi real. Leituras continuam parciais quanto a páginas, filtros e serviços herdados. A divergência 16220/16222 versus 16223/16224 do mesmo CNPJ continua sem explicação e não é resolvida por esta mudança. Não repetir esses registros como teste.
+
+Verificação 0.15.0: 70 testes afetados passaram (sete do lote Node, nove da fila individual/armazenamento, 12 de navegação, três do botão de lote em Chromium, 18 do salvamento individual/conferência, 14 da UI de integração e sete do fluxo PDF). Incluem espera por IDs definitivos sem novo clique, preservação dos vínculos existentes e recusa de pendências externas. Nenhuma operação foi realizada na Centi real durante esta implementação.

@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ponte Centi — comparar serviços</title><link rel="stylesheet" href="consulta.css"><script type="module" src="integracao.mjs"></script></head>
 <body>
-<header><div class="marca">Ponte <strong>Centi</strong></div><span>Comparação e seleção · 0.14.11</span></header>
+<header><div class="marca">Ponte <strong>Centi</strong></div><span>Comparação e seleção · 0.15.0</span></header>
 <main>
   <section class="cartao"><h2>Conexão com a Centi</h2>
     <p>Se a Centi estiver fechada, o aplicativo pode abri-la. Faça o login quando solicitado. O cartão e os serviços permanecem nesta aba.</p>
@@ -39,7 +39,7 @@
     <p id="aviso" class="aviso"></p><button id="exportar-comparacao" type="button">Baixar comparação</button>
   </section>
   <section id="automatico" class="cartao" hidden><h2>Adicionar e salvar os serviços ausentes</h2>
-    <p>O aplicativo abrirá cada vínculo novo, pesquisará o registro exato, selecionará, salvará e voltará à lista para confirmar antes do próximo serviço. Os já localizados serão ignorados.</p>
+    <p>O aplicativo abrirá cada vínculo novo, pesquisará o registro exato, selecionará e conferirá os serviços na lista. Ao final, salvará todos com um único clique e confirmará os vínculos cadastrados. Os já localizados serão ignorados.</p>
     <label class="aceite"><input id="autorizar-cadastro" type="checkbox"> Autorizo adicionar e salvar os serviços selecionados ainda não localizados nesta leitura, preservando os registros existentes. A leitura atual não percorre filtros, páginas e serviços herdados automaticamente.</label>
     <button id="cadastrar-servicos" type="button" disabled>Adicionar e salvar na Centi</button>
     <p id="status-cadastro" role="status" aria-live="polite"></p>

@@ -54,6 +54,7 @@ export async function salvarServicoCenti(pedido) {
         associadoAoRotulo: associados.includes(e)}))};
     const cnae = unico(candidatos, 'O campo Especificar CNAE não foi identificado de forma única. O relatório inclui a estrutura desse campo para diagnóstico.');
     if (normal(cnae.selectedOptions[0]?.textContent) !== 'NAO') falhar('Especificar CNAE deve estar como Não neste fluxo.');
+    if (pedido.conferirApenas === true) return {ok:true, salvo:false, salvamentoAcionado:false, etapa:'pendencia_conferida'};
     const botao = unico([...document.querySelectorAll('button, [role=button], input[type=submit]')].filter(e => visivel(e)
       && /^SALVAR\s*\(1\)$/.test(normal(e.tagName === 'INPUT' ? e.value : e.textContent))), 'Não foi identificado um único botão Salvar(1). Nenhum salvamento foi iniciado.');
     if (botao.disabled || botao.getAttribute('aria-disabled') === 'true') falhar('Salvar está desabilitado.');

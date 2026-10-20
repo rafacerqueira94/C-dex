@@ -1,3 +1,4 @@
+import {salvarLoteCenti} from './salvar-lote-centi.mjs';
 import {pesquisarEmpresaCenti} from './pesquisar-empresa-centi.mjs';
 import {abrirEmpresaCenti} from './abrir-empresa-centi.mjs';
 import {conectarCenti, inspecionarConexaoCenti} from './conectar-centi.mjs';
@@ -253,9 +254,12 @@ $('cadastrar-servicos').addEventListener('click', async () => {
     if (!retorno[0]?.result) throw Error('A Centi não retornou o resultado da ação.');
     return retorno[0].result;
   };
-  const fases = {reler_servicos: 'Relendo os serviços…', abrir_vinculo: 'Abrindo vínculo novo…', pesquisar_selecionar: 'Pesquisando e selecionando serviço…', salvar: 'Salvando vínculo…', voltar_servicos: 'Voltando à lista para confirmar…'};
+  const fases = {reler_servicos: 'Relendo os serviços…', abrir_vinculo: 'Abrindo vínculo novo…', pesquisar_selecionar: 'Pesquisando e selecionando serviço…', salvar: 'Salvando vínculo…', voltar_servicos: 'Voltando à lista para confirmar…', conferir_pendencia:'Conferindo o serviço antes de continuar…', voltar_servicos_pendentes:'Conferindo as pendências do lote…'};
   try {
     const cadastro = await cadastrarServicos({plano: planoAtual, catalogo: catalogoAtual, cnpj: resultado.empresa.cnpj, ausenciaConferida: true}, {
+      lote: true,
+      conferir: pedido => executar(salvarServicoCenti,pedido),
+      salvarLote: pedido => executar(salvarLoteCenti,pedido,'MAIN'),
       ler: () => executar(lerVinculosCenti, undefined, 'MAIN'),
       navegar: (acao, detalhes = {}) => executar(navegarServicosCenti, {acao, ...detalhes}, 'MAIN'),
       selecionar: pedido => executar(pesquisarServicoCenti, pedido, 'MAIN'),

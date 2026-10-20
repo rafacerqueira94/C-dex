@@ -34,7 +34,7 @@ class FluxoPdf(unittest.TestCase):
           const estado=JSON.parse(sessionStorage.getItem('teste-centi')||'{"salvos":[],"acoes":[]}');
           estado.acoes.push(p.func.name);
           const salvar=()=>sessionStorage.setItem('teste-centi',JSON.stringify(estado));
-          if(p.func.name==='lerVinculosCenti'){salvar();return [{result:{tipo:'captura_vinculos_centi',registros:estado.salvos,linhasNaoInterpretadas:0}}]}
+          if(p.func.name==='lerVinculosCenti'){salvar();return [{result:{tipo:'captura_vinculos_centi',registros:estado.salvos,vinculosPendentes:estado.pendentes||[],linhasNaoInterpretadas:0}}]}
           if(p.func.name==='inspecionarConexaoCenti'){salvar();return [{result:window.loginConcluido?{estado:'tela_disponivel',possuiFormularioServico:false}:{estado:'aguardando_login'}}]}
           const pedido=p.args[0];
           if(p.func.name==='pesquisarEmpresaCenti'){salvar();return [{result:{ok:true,cnpj:pedido.cnpj,idEmpresa:'82242'}}]}
@@ -44,7 +44,12 @@ class FluxoPdf(unittest.TestCase):
           if(p.func.name==='pesquisarServicoCenti'){
             salvar();return [{result:{ok:true,selecionado:true,datasPreservadas:true,campos:{idVinculo:'0',nome:pedido.servico.nome,dataInicio:dataTeste,dataFim:''}}}]
           }
+          if(p.func.name==='salvarLoteCenti'){
+            estado.salvos.push(...(estado.pendentes||[]).map((v,i)=>({...v,idVinculo:String(100+estado.salvos.length+i)})));estado.pendentes=[];salvar();
+            return [{result:{ok:true,salvo:true,salvamentoAcionado:true,requerReleitura:true}}]
+          }
           if(p.func.name==='salvarServicoCenti'){
+            if(pedido.conferirApenas){(estado.pendentes??=[]).push({idVinculo:'0',nome:String(pedido.servico.id),dataInicio:dataTeste,dataFim:''});salvar();return [{result:{ok:true,salvo:false}}]}
             estado.salvos.push({idVinculo:String(100+estado.salvos.length),nome:String(pedido.servico.id),dataInicio:dataTeste,dataFim:''});salvar();
             return [{result:{ok:true,salvo:true,idVinculo:estado.salvos.at(-1).idVinculo}}]
           }
@@ -101,26 +106,15 @@ class FluxoPdf(unittest.TestCase):
         self.assertEqual(estado['acoes'].count('salvarServicoCenti'),1)
         self.assertEqual(len(estado['salvos']),1)
 
-    def test_save_activates_centi_only_after_explicit_no_click_result(self):
+    def test_batch_saves_once_after_pending_list_is_checked(self):
         self.importar_cartao(conectado=False)
-        self.page.wait_for_function("document.querySelector('#status-conexao').textContent.includes('Entre na Centi')")
-        self.page.evaluate('''()=>{
-          window.loginConcluido=true;window.ativacoes=[];window.tentativasSalvar=0;
-          chrome.tabs.getCurrent=async()=>({id:900});
-          chrome.tabs.update=async(id,p)=>{ativacoes.push(id);return {id}};
-          const anterior=chrome.scripting.executeScript;
-          chrome.scripting.executeScript=async p=>{
-            if(p.func.name==='salvarServicoCenti'&&window.tentativasSalvar++===0)
-              return [{result:{ok:false,salvo:false,salvamentoAcionado:false,ativacaoNecessaria:true}}];
-            return anterior(p);
-          }
-        }''')
+        self.page.evaluate('window.loginConcluido=true')
         self.page.locator('#abrir-centi').click()
-        self.page.wait_for_function("document.querySelector('#status').textContent.includes('concluído e conferido') && window.ativacoes.includes(900)")
-        self.assertEqual(self.page.evaluate('ativacoes'),[123,900])
-        self.assertEqual(self.page.evaluate('tentativasSalvar'),2)
+        self.page.wait_for_function("document.querySelector('#status').textContent.includes('concluído e conferido')")
         estado=json.loads(self.page.evaluate("sessionStorage.getItem('teste-centi')"))
-        self.assertEqual(estado['acoes'].count('salvarServicoCenti'),1)
+        self.assertEqual(estado['acoes'].count('salvarLoteCenti'),1)
+        self.assertLess(estado['acoes'].index('salvarServicoCenti'),estado['acoes'].index('salvarLoteCenti'))
+        self.assertEqual(estado['pendentes'],[])
 
     def test_uncertain_save_never_retries_even_if_activation_requested(self):
         self.importar_cartao(conectado=False)
@@ -130,7 +124,7 @@ class FluxoPdf(unittest.TestCase):
           chrome.tabs.update=async id=>{ativacoes.push(id);return {id}};
           const anterior=chrome.scripting.executeScript;
           chrome.scripting.executeScript=async p=>{
-            if(p.func.name==='salvarServicoCenti'){
+            if(p.func.name==='salvarLoteCenti'){
               window.tentativasSalvar++;
               return [{result:{ok:false,salvo:null,salvamentoAcionado:true,ativacaoNecessaria:true,mensagem:'Resultado incerto'}}];
             }

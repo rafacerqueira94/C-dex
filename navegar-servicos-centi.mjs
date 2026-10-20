@@ -49,10 +49,25 @@ export async function navegarServicosCenti(pedido) {
     if (location.origin !== 'https://ba.centi.com.br' || !location.pathname.startsWith('/caetite/')) falhar('Abra a Centi de Caetité.');
     if ([...document.querySelectorAll('input[type=password], .tableFilterSearch--modal, [role=dialog]')].some(visivel)) falhar('Feche janelas e lupas antes de continuar.');
     const controles = [...document.querySelectorAll('button, [role=button], input[type=submit]')].filter(visivel);
-    if (controles.some(e => /^SALVAR\s*\([1-9]\d*\)$/.test(normal(e.textContent || e.value)))) falhar('Há alterações pendentes na Centi. Confira-as antes de iniciar outro vínculo.');
+    const pendencias = controles.filter(e => /^SALVAR\s*\([1-9]\d*\)$/.test(normal(e.textContent || e.value)));
+    const lote = pedido?.lote;
+    const quantidade = lote?.quantidade ?? pedido?.quantidadePendente;
+    if ((pendencias.length || quantidade > 0) && !(Number.isSafeInteger(quantidade) && quantidade > 0
+        && pendencias.length === 1 && normal(pendencias[0].textContent || pendencias[0].value).replace(/\s/g,'') === `SALVAR(${quantidade})`)) {
+      falhar('Há alterações pendentes na Centi. Confira-as antes de iniciar outro vínculo.');
+    }
+    if (lote) {
+      const p = inputs();
+      if (p.length !== 1 || !lote.campos || !lote.servico) falhar('O formulário pendente do lote não foi identificado.');
+      const sufixo = p[0].id.slice('IdServico'.length), campo = id => document.getElementById(id+sufixo);
+      if (campo('Id')?.value !== '0' || !campo('Id')?.readOnly
+          || ![String(lote.servico.id),lote.servico.codigo].includes(p[0].value)
+          || normal(document.getElementById(p[0].id+'-second')?.value) !== normal(lote.servico.nome)
+          || campo('DataInicio')?.value !== lote.campos.dataInicio || campo('DataFim')?.value !== lote.campos.dataFim) falhar('O vínculo pendente mudou antes da navegação.');
+    }
     let alvo;
     if (pedido?.acao === 'novo') {
-      if (inputs().length || grades().length !== 1) falhar('A tabela da pasta Serviços precisa estar visível antes de Novo.');
+      if (!lote && (inputs().length || grades().length !== 1)) falhar('A tabela da pasta Serviços precisa estar visível antes de Novo.');
       const novos = controles.filter(e => normal(e.textContent || e.value) === 'NOVO');
       if (novos.length !== 1) falhar('Não identifiquei um único botão Novo para a tabela Serviços.');
       alvo = novos[0];
@@ -60,7 +75,7 @@ export async function navegarServicosCenti(pedido) {
       if (listaPronta()) return {ok: true, interacaoIniciada: false};
       for (const e of inputs()) {
         const id = document.getElementById('Id' + e.id.slice('IdServico'.length));
-        if (!id?.readOnly || !/^[1-9]\d*$/.test(id.value.trim())) falhar('Existe vínculo sem ID definitivo; não vou sair do formulário.');
+        if (!lote && (!id?.readOnly || !/^[1-9]\d*$/.test(id.value.trim()))) falhar('Existe vínculo sem ID definitivo; não vou sair do formulário.');
       }
       const pastas = unicos([...document.querySelectorAll('a, span, [role=treeitem]')]
         .filter(e => visivel(e) && !e.children.length && normal(e.textContent) === 'SERVICOS')

@@ -1,7 +1,9 @@
+import {cadastrarLote} from './cadastrar-lote.mjs';
 import {compararCaptura} from './comparar-captura.mjs';
 
 // Uma fila por aba da interface. Cada persistência exige releitura antes de avançar.
 export async function cadastrarServicos({plano, catalogo, cnpj, ausenciaConferida}, io) {
+  if (io.lote === true) return cadastrarLote({plano,catalogo,cnpj,ausenciaConferida},io);
   const relatorio = {tipo: 'cadastro_servicos_centi', ok: false, concluido: false, etapas: [], etapa: 'comparar', resultadoIncerto: false};
   let acionandoSalvamento = false;
   const executar = async (nome, funcao) => {

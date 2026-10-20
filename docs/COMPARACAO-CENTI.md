@@ -194,3 +194,10 @@ Validação real 0.14.7: em outra empresa inicialmente sem serviços, o
 aplicativo salvou 07.02.000/4% no vínculo 16201 e 07.05.000/4% no vínculo
 16202, em sequência, e confirmou ambos na releitura. Zero pendentes.
 Caso concluído: não refazer essas inclusões para repetir o teste.
+
+
+## Fluxo automático 0.15.0: salvar ao final
+
+Após importar o PDF e conferir os serviços, o aplicativo preenche os ausentes e confere cada vínculo na lista como pendente, sem salvar a cada inclusão. Ao terminar, aciona Salvar(N) uma vez e relê a lista para confirmar todos os IDs definitivos. Os serviços já localizados são ignorados.
+
+Se houver falha antes do clique final, os serviços preenchidos podem continuar pendentes na Centi; confira-os antes de reiniciar. Não iniciar outra execução enquanto existirem pendências e não repetir inclusão após resultado incerto. A retomada individual existente exige somente um vínculo pendente; não usar para salvar um lote. Este novo percurso precisa de validação na plataforma real; a cobertura da leitura continua limitada à captura atual.

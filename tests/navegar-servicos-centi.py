@@ -16,7 +16,7 @@ class Navegacao(unittest.TestCase):
         <div id="lista" class="wj-flexgrid"><div class="wj-colheaders"><div class="wj-cell">ID</div><div class="wj-cell">Serviço</div><div class="wj-cell">Data início</div><div class="wj-cell">Data fim</div></div></div>
         <div id="form" hidden><input readonly id="IdT" value="0"><input id="IdServicoT"><input id="IdServicoT-second"></div>
         <script>window.cliques=0;
-        document.querySelector('#novo').onclick=()=>{window.cliques++;document.querySelector('#lista').hidden=true;document.querySelector('#form').hidden=false};
+        document.querySelector('#novo').onclick=()=>{document.querySelector('#IdServicoT').value='';document.querySelector('#IdServicoT-second').value='';window.cliques++;document.querySelector('#lista').hidden=true;document.querySelector('#form').hidden=false};
         document.querySelector('#pasta').onclick=()=>{window.cliques++;document.querySelector('#lista').hidden=false;document.querySelector('#form').hidden=true};
         </script>''')
     def tearDown(self):self.page.close()
@@ -34,6 +34,22 @@ class Navegacao(unittest.TestCase):
         self.page.locator('#salvar').evaluate("e=>e.textContent='Salvar'")
         self.page.locator('#novo').evaluate('e=>e.after(e.cloneNode(true))')
         self.assertFalse(self.run_action('novo')['ok']);self.assertEqual(self.page.evaluate('cliques'),0)
+    def test_batch_can_return_to_list_with_verified_pending_form(self):
+        self.run_action('novo')
+        self.page.evaluate("""()=>{
+          document.querySelector('#salvar').textContent='Salvar(1)';
+          document.querySelector('#IdServicoT').value='214';document.querySelector('#IdServicoT-second').value='EXECUCAO - 4%';
+          for(const [id,value] of [['DataInicioT','20/10/2026'],['DataFimT','']]){const e=document.createElement('input');e.id=id;e.value=value;document.querySelector('#form').append(e)}
+        }""")
+        lote={'quantidade':1,'servico':{'id':'214','codigo':'07.02.000','nome':'EXECUCAO - 4%'},'campos':{'dataInicio':'20/10/2026','dataFim':''}}
+        self.assertTrue(self.run_action('lista',{'lote':lote})['ok'])
+        self.assertTrue(self.run_action('novo',{'quantidadePendente':1})['ok'])
+
+    def test_batch_wrong_pending_count_blocks_new(self):
+        self.page.locator('#salvar').evaluate("e=>e.textContent='Salvar(2)'")
+        self.assertFalse(self.run_action('novo',{'quantidadePendente':1})['ok'])
+        self.assertEqual(self.page.evaluate('cliques'),0)
+
     def test_real_tree_click_targets_selected_div_instead_of_text_span(self):
         self.page.evaluate("""()=>{
           document.querySelector('#lista').hidden=true;
