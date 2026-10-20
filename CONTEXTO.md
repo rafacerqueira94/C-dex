@@ -334,3 +334,8 @@ O usuário confirmou funcionamento da correção anterior e pediu seleção em l
 O relatório comparacao-centi-1792509412677.json registra ultimoCadastro ok/concluido true, salvo true e resultadoIncerto false: 07.02.000/municipal 214/4% salvo no vínculo 16223, e 07.05.000/municipal 217/4% salvo no vínculo 16224, com início 20/10/2026 e fim vazio. Cada salvamento foi acionado uma vez e confirmado na releitura; sem pendências ou linhas não interpretadas na captura final.
 
 Atenção à divergência ainda sem explicação: o relatório imediatamente anterior comparacao-centi-1792509226653.json, do mesmo CNPJ 32.097.674/0001-42, já localizava esses serviços nos vínculos 16220 e 16222. A nova captura contém somente 16223 e 16224. Não há evidência suficiente para afirmar duplicidade, exclusão prévia, cadastro econômico distinto ou erro de identificação. Os relatórios não incluem a identificação independente do cadastro econômico nem a captura inicial da fila. Não repetir inclusões nem excluir vínculos automaticamente; conferir os vínculos anteriores com o operador. Esta evidência confirma o salvamento/releitura da tentativa, mas não comprova prevenção de duplicidade entre os dois testes.
+
+
+## Nova consulta ao final — 0.14.11
+
+Adicionado botão Nova consulta ao final da integração, após a apresentação da comparação. Volta à importação de PDF na mesma aba do aplicativo, preservando somente a referência à aba Centi e removendo eventual plano temporário. A nova página inicia sem empresa/PDF/seleções anteriores. O botão é desabilitado junto aos demais controles durante o cadastro em lote; o manipulador também impede saída durante cadastro, salvamento ou localização da empresa. Não altera registros da Centi.

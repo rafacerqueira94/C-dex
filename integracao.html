@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ponte Centi — comparar serviços</title><link rel="stylesheet" href="consulta.css"><script type="module" src="integracao.mjs"></script></head>
 <body>
-<header><div class="marca">Ponte <strong>Centi</strong></div><span>Comparação e seleção · 0.14.10</span></header>
+<header><div class="marca">Ponte <strong>Centi</strong></div><span>Comparação e seleção · 0.14.11</span></header>
 <main>
   <section class="cartao"><h2>Conexão com a Centi</h2>
     <p>Se a Centi estiver fechada, o aplicativo pode abri-la. Faça o login quando solicitado. O cartão e os serviços permanecem nesta aba.</p>
@@ -63,6 +63,7 @@
     <p id="status-salvamento" role="status" aria-live="polite"></p>
     <p class="ajuda">Uma tentativa por seleção. Após o salvamento, volte à pasta Serviços e compare novamente. Se o resultado for incerto, confira a lista antes de qualquer nova tentativa.</p>
   </section>
+  <section id="nova-consulta-area" class="cartao" hidden><h2>Consultar outra empresa</h2><p>Importe um novo cartão CNPJ para iniciar outra consulta.</p><button id="nova-consulta" type="button">Nova consulta</button></section>
   <p class="ajuda">A comparação lê ID do vínculo, descrição e datas da grade. A pesquisa altera os filtros da lupa; a opção de seleção também preenche o Serviço por clique ou duplo clique. No fluxo iniciado pelo PDF, o CNPJ vem do cartão. Confira a empresa aberta na Centi. As datas são conferidas após a seleção. O salvamento é uma ação separada, disponível após revisão.</p>
 </main>
 </body></html>

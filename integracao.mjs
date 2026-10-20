@@ -31,6 +31,7 @@ const habilitarPesquisa = () => botoesPesquisa.forEach(id => {
 });
 const habilitarConferenciaManual = () => { $('conferir-manual').disabled = !resultado || !$('servico-pesquisa').options.length; };
 const limpar = () => {
+  $('nova-consulta-area').hidden = true;
   sequencia++; resultado = null; selecaoParaSalvar = null; $('salvamento').hidden = true; $('revisao-salvamento').checked = false; $('salvar-vinculo').disabled = true; $('resultado').hidden = true; $('pesquisa').hidden = true;
   $('ausencia-conferida').checked = false; habilitarPesquisa(); habilitarConferenciaManual();
   $('automatico').hidden = true; $('autorizar-cadastro').disabled = false; $('autorizar-cadastro').checked = false; $('cadastrar-servicos').disabled = true;
@@ -84,6 +85,7 @@ $('form-comparar').addEventListener('submit', async e => {
   } finally { $('comparar').disabled = false; }
 });
 function apresentarComparacao(comparacao, captura) {
+  $('nova-consulta-area').hidden = false;
   const contar = situacao => comparacao.servicos.filter(s => s.situacao === situacao).length;
   const localizados = contar('localizado');
   const andamento = localizados === comparacao.servicos.length
@@ -424,3 +426,9 @@ async function localizarEmpresa() {
   }
 }
 $('localizar-empresa').addEventListener('click',localizarEmpresa);
+
+$('nova-consulta').addEventListener('click', () => {
+  if (cadastrando || salvando || localizandoEmpresa) return;
+  sessionStorage.removeItem('ponte-centi-fluxo-pdf');
+  location.assign(Number.isSafeInteger(aba) && aba > 0 ? `consulta.html?aba=${aba}` : 'consulta.html');
+});
