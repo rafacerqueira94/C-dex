@@ -327,3 +327,10 @@ A navegação identifica rótulos exatos mínimos inclusive div/span com clique 
 ## Selecionar todos — 0.14.10
 
 O usuário confirmou funcionamento da correção anterior e pediu seleção em lote na revisão. O cabeçalho da lista agora permite selecionar/desmarcar todos os serviços habilitados. Itens sem registro ativo ou com registro municipal ainda não escolhido continuam desabilitados. Seleções individuais atualizam o estado parcial do cabeçalho; mudanças invalidam a conferência anterior e exigem novamente o aceite antes de continuar.
+
+
+## Salvamento confirmado e divergência entre capturas — 20/10/2026
+
+O relatório comparacao-centi-1792509412677.json registra ultimoCadastro ok/concluido true, salvo true e resultadoIncerto false: 07.02.000/municipal 214/4% salvo no vínculo 16223, e 07.05.000/municipal 217/4% salvo no vínculo 16224, com início 20/10/2026 e fim vazio. Cada salvamento foi acionado uma vez e confirmado na releitura; sem pendências ou linhas não interpretadas na captura final.
+
+Atenção à divergência ainda sem explicação: o relatório imediatamente anterior comparacao-centi-1792509226653.json, do mesmo CNPJ 32.097.674/0001-42, já localizava esses serviços nos vínculos 16220 e 16222. A nova captura contém somente 16223 e 16224. Não há evidência suficiente para afirmar duplicidade, exclusão prévia, cadastro econômico distinto ou erro de identificação. Os relatórios não incluem a identificação independente do cadastro econômico nem a captura inicial da fila. Não repetir inclusões nem excluir vínculos automaticamente; conferir os vínculos anteriores com o operador. Esta evidência confirma o salvamento/releitura da tentativa, mas não comprova prevenção de duplicidade entre os dois testes.
