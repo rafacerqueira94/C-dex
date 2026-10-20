@@ -1,74 +1,71 @@
-Ponte Centi 0.11.2 — cartão CNPJ, conferência, comparação e seleção na Centi
+Ponte Centi 0.12.0 — guia de uso
 
-1. No Chrome/Edge, carregue a pasta da extensão em Carregar sem compactação.
-2. Clique no ícone Ponte Centi — consulta e conferência para abrir o aplicativo.
+1. No Chrome/Edge, abra Extensões, ative o modo do desenvolvedor e carregue
+   sem compactação a pasta raiz que contém manifest.json.
+2. Fora da Centi, clique no ícone Ponte Centi para abrir a leitura do PDF.
    Não abra consulta.html diretamente pela pasta no Windows.
-3. A única entrada é Anexar cartão CNPJ (PDF). Escolha o comprovante completo
-   da Receita Federal, com texto selecionável, até 10 MB e 20 páginas.
-4. Informe Sim ou Não para coworking e clique em Ler cartão e sugerir serviços.
-5. Confira CNPJ, razão social, porte, CNAEs e avisos com o cartão anexado.
-6. Selecione os serviços, confirme a conferência e baixe a lista em JSON.
+3. Anexe o cartão CNPJ completo da Receita Federal em PDF com texto
+   selecionável (até 10 MB e 20 páginas). Informe o enquadramento em coworking.
+4. Clique em Ler cartão e sugerir serviços. Confira empresa, porte, CNAEs,
+   serviços e avisos. Confirme a revisão e baixe servicos-conferidos-….json.
+5. Na Centi de Caetité, abra a empresa e selecione a pasta Serviços, deixando
+   a tabela visível, fora da lupa e do formulário de vínculo. Clique no ícone
+   da extensão nessa aba para abrir a comparação.
+6. Importe o JSON da lista conferida, informe e confira o mesmo CNPJ e use
+   Ler vínculos visíveis e comparar. PDF e JSON de diagnóstico/comparação
+   não são a lista a importar nessa tela.
+7. Revise os serviços localizados, pendentes, conflitos e não identificados.
+   Não localizado na captura não prova ausência: confira também filtros,
+   páginas, serviços herdados e vigência antes de decidir por uma inclusão.
+8. Para um serviço ausente, abra manualmente um vínculo novo na Centi:
+   Id 0, Serviço vazio, lupa fechada. Na comparação pronta, escolha o serviço
+   e confirme os requisitos. Pesquisar e selecionar pesquisa uma linha exata,
+   seleciona pela API pública Wijmo e ativa por clique ou duplo clique.
+9. Confira no formulário o código, descrição/alíquota, datas e Especificar
+   CNAE. O aplicativo verifica Serviço e preservação das datas, mas a revisão
+   dos demais campos é do operador. Pesquisa e seleção não acionam Salvar.
+10. Na seção Salvar o vínculo conferido, confirme a revisão e que este é o
+    único registro pendente. Clique em Salvar vínculo na Centi. O programa
+    confere os campos, exige Especificar CNAE = Não e um único Salvar(1),
+    aciona esse botão uma vez e aguarda um ID definitivo. Depois volte à
+    tabela da pasta Serviços e compare novamente antes de outro vínculo.
+    Se o resultado for incerto, não repita: releia a lista e confira a Centi.
+    Você também pode optar por salvar manualmente na Centi.
 
-O PDF é lido localmente, sem consulta por número, APIs ou envio do documento.
-Visualizar cartão anexado abre o original; o anexo fica disponível enquanto
-esta aba estiver aberta. Guarde o arquivo original para uso posterior.
-O JSON exportado inclui nome, tamanho, páginas e SHA-256 do documento; não
-inclui o conteúdo do PDF nem o armazena permanentemente.
-Não há OCR para arquivos digitalizados como imagem. PDFs protegidos por senha,
-com campos obrigatórios ilegíveis ou com vários CNPJs são recusados.
+NOVO NA 0.12.0: salvamento após revisão com testes simulados. Ainda falta
+validar essa nova ação na Centi real. Se Especificar CNAE ou Salvar não forem
+identificados, a extensão bloqueia sem clicar; será necessário mapear os
+controles reais. Não refazer os cadastros do caso concluído para testar.
 
-Porte não reconhecido exige classificação pelo operador.
-A extensão usa activeTab e scripting para ler a aba Centi após clique no ícone.
-Esta etapa não preenche nem salva na Centi. As correspondências são parciais:
-CNAEs sem vínculo conhecido são destacados, sem classificação por aproximação.
+Abrir lupa e pesquisar altera apenas filtros e resultados. Se a seleção não
+retornar ao formulário, confira a tela antes de tentar novamente; é possível
+escolher manualmente a linha exata e usar Conferir seleção manual. A extensão
+registra essa origem e não atribui a seleção manual à automação.
+Baixar comparação registra a captura e o resultado da última tentativa.
 
-O projeto recuperado não inclui package.json ou scripts de build originais.
-Os arquivos podem ser editados diretamente e a extensão recarregada no navegador.
-O pacote incorpora PDF.js 5.4.624 e sua licença.
-O computador do operador não precisa de Node.js para carregar o pacote pronto.
-O instalador PowerShell por texto baixa a biblioteca PDF.js pelo registro npm,
-confere seu SHA-512 e cria outra pasta, preservando a versão anterior.
+Dados e limites
 
-Para comparar: abra a empresa na Centi de Caetité, selecione a pasta Serviços
-e clique no ícone do Ponte Centi. Na nova aba, importe a lista JSON conferida
-e confirme o CNPJ. A comparação é parcial: usa somente vínculos renderizados,
-destaca conflitos e registros sem identificação e não autoriza inclusão.
-Instruções completas: docs/COMPARACAO-CENTI.md.
+O PDF é lido neste navegador, sem envio do documento nem consulta por API.
+Não há OCR. PDFs protegidos, ilegíveis ou com vários CNPJs são recusados.
+O PDF original fica acessível somente enquanto a aba está aberta: guarde-o.
+O JSON inclui metadados e SHA-256 do PDF, sem seu conteúdo.
+As correspondências CNAE/ISS são parciais; não há aproximação para dados
+ambíguos. O CNPJ na Centi é confirmado pelo operador. A comparação lê apenas
+linhas renderizadas, sem garantir cobertura completa de páginas ou herança.
+Na etapa de salvamento, salvo=null significa resultado incerto; true exige
+ID definitivo observado e ainda requer releitura. Nas etapas anteriores,
+salvo=false significa que a extensão não acionou Salvar, mesmo
+quando o operador já salvou manualmente. Id 0 significa vínculo pendente.
 
-Pesquisa opcional: após comparar, escolha um serviço não localizado. Confira
-sua ausência na Centi, inclusive páginas, filtros e serviços herdados, e abra
-um vínculo novo. Confirme na aba do Ponte Centi e use Abrir lupa e pesquisar.
-A ação altera os filtros da lupa e pesquisa, mas não seleciona nem salva.
-Baixar comparação inclui o resultado da última pesquisa.
+Estado validado e continuidade
 
-Na versão 0.10.0, Pesquisar e selecionar repete a busca e aplica duplo clique
-na linha exata. Confere o Serviço retornado e verifica a preservação das datas.
-Não salva o vínculo. Confira o formulário e exporte a comparação para o teste.
+O caso real dos cinco serviços selecionados foi concluído: todos localizados
+na releitura, incluindo os novos vínculos 16192 e 16198. Não os cadastre de
+novo. Essa validação não comprova cobertura de todos os CNAEs ou empresas.
+O vínculo histórico VETADO continua separado para revisão.
 
-Correção 0.10.1: antes do duplo clique, seleciona e confere a linha pela API
-pública do Wijmo. Se essa API não estiver exposta ou a seleção divergir,
-interrompe sem duplo clique. O relatório inclui detalhes dessa conferência.
-
-Versão 0.10.2: a ativação usa o elemento sob o clique dentro da célula. Se a
-Centi não ativar automaticamente, dê dois cliques manualmente na linha exata
-e use Conferir seleção manual na aba Ponte Centi. Essa conferência apenas lê
-o Serviço e as datas, registra origem operador e não salva o vínculo.
-
-Validação real 0.10.2: serviço 09.02.000/238 foi escolhido automaticamente
-após a pré-seleção Wijmo e o primeiro clique; a lupa fechou, o formulário
-recebeu o código e a descrição corretos e as datas foram preservadas. Nada
-foi salvo. A versão 0.10.3 apenas corrige a mensagem e registra se a
-ativação ocorreu por clique ou duplo clique. Não requer repetir esse teste.
-
-Versão 0.11.0: na comparação, linhas renderizadas com Id 0 e Serviço
-preenchido são tratadas como vínculos pendentes. Quando identificados no
-catálogo, não são oferecidos para outra inclusão. O salvamento permanece
-manual; nenhuma versão aciona Salvar automaticamente.
-
-Correção 0.11.1: a coluna Serviço pode exibir apenas o ID municipal (ex.:
-238), em vez da descrição. A comparação consulta esse ID exato no catálogo,
-separa-o do ID do vínculo e não oferece o mesmo serviço para nova inclusão.
-
-Correção 0.11.2: erros da leitura retornam o motivo em português, em vez de
-um resultado vazio. Para comparar, deixe a tabela Serviços visível. Abra
-um vínculo novo apenas depois da comparação, para pesquisar e selecionar.
+O operador não precisa de Node.js, servidor ou npm. PDF.js e bases já estão
+incorporados. O projeto não inclui package.json ou build npm original.
+Para continuar o desenvolvimento ou recuperar o código, leia RETOMAR.md.
+Instruções detalhadas: docs/COMPARACAO-CENTI.md.
+Histórico técnico: CONTEXTO.md e docs/INTEGRACAO-CENTI.md.

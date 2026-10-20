@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ponte Centi — comparar serviços</title><link rel="stylesheet" href="consulta.css"><script type="module" src="integracao.mjs"></script></head>
 <body>
-<header><div class="marca">Ponte <strong>Centi</strong></div><span>Comparação e seleção · 0.11.2</span></header>
+<header><div class="marca">Ponte <strong>Centi</strong></div><span>Comparação e seleção · 0.12.0</span></header>
 <main>
   <section class="introducao"><h1>Comparar com a Centi</h1><p>Selecione a pasta Serviços na aba da Centi e mantenha essa aba aberta. Esta etapa lê os vínculos visíveis para comparar com sua lista conferida.</p></section>
   <section class="cartao"><h2>Lista e empresa</h2>
@@ -32,8 +32,16 @@
     <p>Se a lupa permanecer aberta após a tentativa, selecione o registro correto com dois cliques na Centi. Quando voltar ao formulário, use a conferência abaixo.</p>
     <button id="conferir-manual" type="button" disabled>Conferir seleção manual — sem salvar</button>
     <p id="status-pesquisa" role="status" aria-live="polite"></p>
-    <p class="ajuda">Ambas as ações refazem a pesquisa e exigem uma linha exata e atualizada. A opção de seleção aplica duplo clique, confere ID e descrição no formulário e verifica se as datas foram preservadas. Nenhuma opção aciona Salvar. Você pode exportar o resultado em Baixar comparação.</p>
+    <p class="ajuda">Ambas as ações refazem a pesquisa e exigem uma linha exata e atualizada. A opção de seleção ativa a linha por clique ou duplo clique, confere ID e descrição no formulário e verifica se as datas foram preservadas. Nenhuma opção aciona Salvar. Você pode exportar o resultado em Baixar comparação.</p>
   </section>
-  <p class="ajuda">A comparação lê ID do vínculo, descrição e datas da grade. A pesquisa altera os filtros da lupa; a opção de seleção também preenche o Serviço por duplo clique. O CNPJ é informado por você. As datas são conferidas após a seleção e nenhum botão Salvar é acionado.</p>
+  <section id="salvamento" class="cartao" hidden><h2>Salvar o vínculo conferido</h2>
+    <p id="servico-salvamento"></p>
+    <p>Confira na Centi o serviço, a alíquota, as datas e Especificar CNAE = Não. O botão Salvar da Centi pode efetivar outras alterações do cadastro.</p>
+    <label class="aceite"><input id="revisao-salvamento" type="checkbox"> Revisei este vínculo na mesma empresa e confirmo que ele é a única alteração pendente. Quero salvá-lo na Centi.</label>
+    <button id="salvar-vinculo" type="button" disabled>Salvar vínculo na Centi</button>
+    <p id="status-salvamento" role="status" aria-live="polite"></p>
+    <p class="ajuda">Uma tentativa por seleção. Após o salvamento, volte à pasta Serviços e compare novamente. Se o resultado for incerto, confira a lista antes de qualquer nova tentativa.</p>
+  </section>
+  <p class="ajuda">A comparação lê ID do vínculo, descrição e datas da grade. A pesquisa altera os filtros da lupa; a opção de seleção também preenche o Serviço por clique ou duplo clique. O CNPJ é informado por você. As datas são conferidas após a seleção. O salvamento é uma ação separada, disponível após revisão.</p>
 </main>
 </body></html>

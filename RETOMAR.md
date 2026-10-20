@@ -1,6 +1,6 @@
 # Como retomar e recuperar o Ponte Centi
 
-Ponto de recuperação: **progresso-2026-10-19**. Código da extensão: **0.11.2**.
+Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.12.0** (resumo da comparação e salvamento após revisão, ainda sem validação real).
 
 ## Onde o projeto está salvo
 
@@ -23,7 +23,7 @@ Para ter uma cópia independente do GitHub e do ambiente, baixe o ZIP da branch 
 - O relatório final encontrou oito vínculos com ID, zero pendentes identificados e zero linhas não interpretadas. Nenhum dos cinco serviços da lista deve ser oferecido para nova inclusão nesse caso.
 - O vínculo histórico `(VETADO)` permanece separado para revisão, sem correspondência no catálogo atual.
 
-Não repetir essas inclusões para refazer o teste. O programa não aciona Salvar automaticamente. A leitura é parcial: não comprova cobertura de todos os CNAEs, paginação, filtros, herança ou vigência. O CNPJ é confirmado pelo operador. Especificar CNAE foi conferido visualmente no teste; não é lido automaticamente. O contexto e o palácio de memória originais não foram encontrados: `CONTEXTO.md` foi reconstruído e mantido durante esta recuperação.
+Não repetir essas inclusões para refazer o teste. A versão validada 0.11.2 não aciona Salvar. A 0.12.0 acrescenta salvamento após revisão, com testes simulados; ainda falta validação real dessa nova ação. A leitura é parcial: não comprova cobertura de todos os CNAEs, paginação, filtros, herança ou vigência. O CNPJ é confirmado pelo operador. Especificar CNAE foi conferido visualmente no caso concluído; a identificação automática desse campo na 0.12.0 ainda precisa de validação real. O contexto e o palácio de memória originais não foram encontrados: `CONTEXTO.md` foi reconstruído e mantido durante esta recuperação.
 
 ## Abrir o aplicativo
 

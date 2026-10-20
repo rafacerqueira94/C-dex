@@ -1,3 +1,4 @@
+import {salvarServicoCenti} from './salvar-servico-centi.mjs';
 import {lerVinculosCenti} from './ler-vinculos-centi.mjs';
 import {compararCaptura} from './comparar-captura.mjs';
 import {pesquisarServicoCenti} from './pesquisar-servico-centi.mjs';
@@ -5,6 +6,8 @@ import {pesquisarServicoCenti} from './pesquisar-servico-centi.mjs';
 const $ = id => document.getElementById(id);
 const aba = Number(new URLSearchParams(location.search).get('aba'));
 let resultado = null;
+let selecaoParaSalvar = null;
+let salvando = false;
 let sequencia = 0;
 const botoesPesquisa = ['pesquisar-catalogo', 'pesquisar-selecionar'];
 const habilitarPesquisa = () => botoesPesquisa.forEach(id => {
@@ -12,7 +15,7 @@ const habilitarPesquisa = () => botoesPesquisa.forEach(id => {
 });
 const habilitarConferenciaManual = () => { $('conferir-manual').disabled = !resultado || !$('servico-pesquisa').options.length; };
 const limpar = () => {
-  sequencia++; resultado = null; $('resultado').hidden = true; $('pesquisa').hidden = true;
+  sequencia++; resultado = null; selecaoParaSalvar = null; $('salvamento').hidden = true; $('revisao-salvamento').checked = false; $('salvar-vinculo').disabled = true; $('resultado').hidden = true; $('pesquisa').hidden = true;
   $('ausencia-conferida').checked = false; habilitarPesquisa(); habilitarConferenciaManual();
   $('status-pesquisa').textContent = ''; $('erro').hidden = true; $('status').textContent = '';
 };
@@ -50,7 +53,12 @@ $('form-comparar').addEventListener('submit', async e => {
     const comparacao = compararCaptura(plano, captura, catalogo, cnpj);
     if (atual !== sequencia) throw Error('Os dados foram alterados durante a leitura. Confira a empresa e compare novamente.');
     resultado = {...comparacao, captura};
-    $('resumo').textContent = `${comparacao.totalVinculosVisiveis} vínculo(s) com ID e ${comparacao.totalVinculosPendentes} novo(s) pendente(s) visíveis. Esta comparação é parcial e não autoriza inclusão automática.`;
+    const contar = situacao => comparacao.servicos.filter(s => s.situacao === situacao).length;
+    const localizados = contar('localizado');
+    const andamento = localizados === comparacao.servicos.length
+      ? 'Todos os serviços desta lista foram localizados na captura. Não os inclua novamente. Confira a vigência e os avisos abaixo.'
+      : `${localizados} de ${comparacao.servicos.length} serviço(s) localizado(s); ${contar('preenchido_sem_salvar')} preenchido(s) sem salvar; ${contar('conflito')} em conflito; ${contar('nao_localizado_na_captura')} não localizado(s) nesta captura.`;
+    $('resumo').textContent = `${andamento} ${comparacao.totalVinculosVisiveis} vínculo(s) com ID e ${comparacao.totalVinculosPendentes} novo(s) pendente(s) visíveis. Esta comparação é parcial e não autoriza inclusão automática.`;
     const rotulos = {localizado: 'Localizado na captura — confira a vigência', preenchido_sem_salvar: 'Já preenchido em vínculo pendente — não incluir novamente', conflito: 'Conflito — revisar', nao_localizado_na_captura: 'Não localizado nesta captura — ainda não incluir'};
     $('servicos-comparados').replaceChildren(...comparacao.servicos.map(s => {
       const li = document.createElement('li'); li.textContent = `${s.codigo} · ${s.aliquota}% · ${rotulos[s.situacao]}`; return li;
@@ -83,6 +91,7 @@ async function executarPesquisa(selecionar, conferirManual = false) {
   const pedido = {servico, cnpjEsperado: resultado.empresa.cnpj, cnpjConfirmado: $('cnpj').value,
     conferido: $('conferido').checked, ausenciaConferida: !conferirManual, selecionar, conferirManual,
     datasEsperadas: resultado.ultimaPesquisa?.codigo === servico.codigo ? resultado.ultimaPesquisa.detalhesSelecao?.datasAntes : null};
+  selecaoParaSalvar = null; $('salvamento').hidden = true;
   const controles = [...document.querySelectorAll('#form-comparar input, #form-comparar button, #servico-pesquisa, #ausencia-conferida, #pesquisar-catalogo, #pesquisar-selecionar, #conferir-manual')];
   const anteriores = controles.map(e => e.disabled);
   controles.forEach(e => { e.disabled = true; });
@@ -96,6 +105,12 @@ async function executarPesquisa(selecionar, conferirManual = false) {
     resultado.ultimaPesquisa = {codigo: servico.codigo, idMunicipal: servico.id, ...preparacao};
     $('status-pesquisa').textContent = preparacao.mensagem;
     if (preparacao.ok && preparacao.selecionado) {
+      if (preparacao.campos?.idVinculo === '0') {
+        selecaoParaSalvar = {servico: {...servico}, campos: {...preparacao.campos}, tentativa: Array.from(crypto.getRandomValues(new Uint8Array(16)), n => n.toString(16).padStart(2, '0')).join('')};
+        $('servico-salvamento').textContent = `${servico.codigo} · ${servico.aliquota}% · ${preparacao.campos.nome}`;
+        $('revisao-salvamento').checked = false; $('salvar-vinculo').disabled = true;
+        $('status-salvamento').textContent = ''; $('salvamento').hidden = false;
+      }
       [...$('servico-pesquisa').options].filter(o => o.value === servico.codigo).forEach(o => o.remove());
     }
   } catch (e) {
@@ -117,4 +132,37 @@ $('exportar-comparacao').addEventListener('click', () => {
   const url = URL.createObjectURL(new Blob([JSON.stringify(resultado, null, 2)], {type: 'application/json'}));
   const a = document.createElement('a'); a.href = url; a.download = `comparacao-centi-${Date.now()}.json`; a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+$('revisao-salvamento').addEventListener('change', () => {
+  $('salvar-vinculo').disabled = salvando || !selecaoParaSalvar || !$('revisao-salvamento').checked;
+});
+$('salvar-vinculo').addEventListener('click', async () => {
+  if (salvando || !resultado || !selecaoParaSalvar || !$('revisao-salvamento').checked) return;
+  salvando = true;
+  const atual = resultado;
+  const pedido = {...selecaoParaSalvar, cnpjEsperado: atual.empresa.cnpj, cnpjConfirmado: $('cnpj').value,
+    revisado: $('conferido').checked, somenteEstaPendencia: true};
+  const controles = [...document.querySelectorAll('input, button, select')];
+  const anteriores = controles.map(e => e.disabled);
+  controles.forEach(e => { e.disabled = true; });
+  atual.salvo = null;
+  atual.ultimoSalvamento = {ok: false, salvo: null, etapa: 'execucao_em_andamento', codigo: pedido.servico.codigo};
+  $('status-salvamento').textContent = 'Conferindo o formulário e acionando Salvar uma vez…';
+  try {
+    const respostas = await chrome.scripting.executeScript({target: {tabId: aba}, func: salvarServicoCenti, args: [pedido]});
+    const retorno = respostas[0]?.result;
+    if (!retorno || typeof retorno.ok !== 'boolean') throw Error('A aba não retornou o resultado.');
+    atual.ultimoSalvamento = {codigo: pedido.servico.codigo, ...retorno};
+    atual.salvo = retorno.salvo;
+    $('status-salvamento').textContent = retorno.mensagem;
+  } catch (e) {
+    atual.ultimoSalvamento = {ok: false, salvo: null, requerReleitura: true,
+      codigo: pedido.servico.codigo, etapa: 'resultado_incerto', mensagem: `${e.message} Não repita o salvamento. Releia a pasta Serviços para conferir a persistência.`};
+    $('status-salvamento').textContent = atual.ultimoSalvamento.mensagem;
+  } finally {
+    selecaoParaSalvar = null; salvando = false;
+    controles.forEach((e, i) => { e.disabled = anteriores[i]; });
+    $('revisao-salvamento').checked = false; $('salvar-vinculo').disabled = true;
+  }
 });

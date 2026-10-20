@@ -1,4 +1,22 @@
-# Comparação com a Centi — versão 0.11.2
+# Comparação com a Centi — versão 0.12.0
+
+## Roteiro atual
+
+Para o uso cotidiano, siga LEIA-ME.txt. A interface 0.12.0 resume os serviços localizados, pendentes, em conflito e não localizados. Quando todos estão localizados, informa que não devem ser incluídos novamente; a captura continua parcial e requer revisão de vigência e avisos.
+
+O caso real dos cinco serviços já está concluído, incluindo 09.02.000 no vínculo 16192 e 10.03.000 no vínculo 16198, após salvamento manual. Não repetir essas inclusões. Os exemplos e testes históricos abaixo mostram como o fluxo foi validado, não novas tarefas nesse cadastro.
+
+## Salvamento após revisão — novo na 0.12.0
+
+Após seleção ou conferência manual bem-sucedida, a seção **Salvar o vínculo conferido** apresenta o serviço. Revise o cadastro e confirme que este é o único registro pendente. A ação confere novamente Id 0, Serviço, descrição e datas; exige Especificar CNAE = Não e um único Salvar(1) visível e habilitado. Aciona uma vez e aguarda ID definitivo no mesmo formulário. Volte à tabela Serviços e refaça a comparação para confirmar a presença na lista.
+
+O relatório inclui `ultimoSalvamento`. Antes do clique, bloqueio retorna `salvo: false`; depois do clique sem confirmação ou sem retorno da aba, retorna `salvo: null`, exige releitura e não oferece repetir a mesma tentativa. `salvo: true` significa ID definitivo observado no formulário, ainda sujeito à releitura. A revisão da empresa e de outras alterações pendentes é manual. Não salva em lote.
+
+Essa ação passou por testes simulados, mas ainda não foi validada na Centi real. Os diagnósticos antigos não identificaram o ID DOM de Especificar CNAE. Se o seletor conservador não corresponder à tela real, a ação bloqueia antes de clicar; será necessário mapear o campo. Não repetir inclusões do caso concluído para validar a nova ação.
+
+## Histórico operacional até 0.11.2
+
+As instruções abaixo preservam a validação anterior sem salvamento pela extensão. Para a versão atual, use o roteiro acima e LEIA-ME.txt.
 
 ## Instalação
 

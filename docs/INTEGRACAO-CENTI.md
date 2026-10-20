@@ -1,6 +1,18 @@
 # Integração Centi — evidências recuperadas
 
-## Implementação atual
+## Desenvolvimento atual — 0.12.0
+
+O usuário priorizou automatizar o salvamento. A nova ação após revisão valida o formulário contra a seleção conferida, exige Especificar CNAE = Não e um único Salvar(1), aciona uma vez e observa ID definitivo. Falhas após o clique ou sem retorno são incertas e exigem releitura sem repetição. Testes simulados não validam a Centi real: o ID DOM de Especificar CNAE ainda não consta dos diagnósticos antigos. A identificação conservadora bloqueia se o campo não corresponder. Ainda falta validar o salvamento em um novo caso legítimo, preservando o caso concluído abaixo.
+
+## Último estado validado na Centi real — 0.11.2
+
+O caso real de cinco serviços selecionados foi concluído. A releitura final encontrou todos os cinco, incluindo os novos vínculos definitivos 16192 (09.02.000) e 16198 (10.03.000), após salvamento manual pelo operador. Nenhum desses serviços deve ser incluído novamente nesse cadastro. O relatório final encontrou oito vínculos com ID, zero pendentes identificados e zero linhas não interpretadas.
+
+A seleção automática e a identificação por ID municipal estão validadas nesses dois serviços. O aplicativo não aciona Salvar. A conferência de Especificar CNAE continua manual; a leitura de linhas visíveis não comprova completude de filtros, páginas, herança ou todos os CNAEs. O vínculo histórico VETADO permanece para revisão. Veja RETOMAR.md para recuperar o projeto e COMPARACAO-CENTI.md para operar.
+
+## Histórico de implementação
+
+Os relatos abaixo descrevem o estado em cada etapa passada. Pedidos antigos de repetir testes ou incluir serviços foram superados pela conclusão acima.
 
 Versão vigente 0.11.2: após comparação numérica validada, uma captura mostrou erro genérico de leitura, sem evidência da causa na aba Centi. O leitor agora serializa erros internos em erro_leitura_centi e a interface mostra o motivo. Nove testes DOM e 13 UI simulados passaram. Retomada: tabela Serviços visível, abrir a extensão pelo ícone nessa aba, comparar na nova aba e só então abrir o vínculo novo para 10.03.000. Não recadastrar 09.02.000. O histórico anterior permanece abaixo.
 

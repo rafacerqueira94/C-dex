@@ -62,6 +62,8 @@ class IntegracaoUI(unittest.TestCase):
         self.assertFalse(result['salvo'])
         self.assertEqual(result['totalVinculosVisiveis'], 2)
         self.assertTrue(self.page.locator('#pesquisa').is_hidden())
+        self.assertIn('Todos os serviços desta lista foram localizados', self.page.locator('#resumo').inner_text())
+        self.assertIn('parcial', self.page.locator('#resumo').inner_text())
         self.page.locator('#cnpj').fill('00000000000000')
         self.assertTrue(self.page.locator('#resultado').is_hidden())
 
@@ -151,6 +153,38 @@ class IntegracaoUI(unittest.TestCase):
         r = json.loads(Path(event.value.path()).read_text())
         self.assertTrue(r['ultimaPesquisa']['selecionado'])
         self.assertFalse(r['salvo'])
+
+    def test_save_requires_verified_selection_and_review_and_exports_result(self):
+        for incerto in [False, True]:
+            self.page.evaluate('''incerto => {window.salvamentos=0;chrome.scripting.executeScript=async p=>{
+              if(p.func.name==='lerVinculosCenti')return [{result:{tipo:'captura_vinculos_centi',registros:[]}}];
+              if(p.func.name==='salvarServicoCenti'){
+                window.salvamentos++;window.pedidoSalvar=p.args[0];
+                if(incerto)throw Error('Sem retorno');
+                return [{result:{ok:true,salvo:true,salvamentoAcionado:true,idVinculo:'16192',requerReleitura:true,mensagem:'ID definitivo observado'}}];
+              }
+              return [{result:{ok:true,salvo:false,selecionado:true,campos:{idVinculo:'0',nome:'SERVIÇO - 4%',dataInicio:'19/10/2026',dataFim:''},mensagem:'Serviço selecionado'}}];
+            }}''', incerto)
+            self.page.locator('#comparar').click()
+            self.page.locator('#ausencia-conferida').check()
+            self.page.locator('#pesquisar-selecionar').click()
+            self.page.locator('#salvamento').wait_for(state='visible')
+            self.assertTrue(self.page.locator('#salvar-vinculo').is_disabled())
+            self.assertEqual(self.page.evaluate('salvamentos'), 0)
+            self.page.locator('#revisao-salvamento').check()
+            self.page.locator('#salvar-vinculo').click()
+            self.page.wait_for_function("document.querySelector('#status-salvamento').textContent.includes("+json.dumps('Não repita' if incerto else 'ID definitivo')+")")
+            self.assertTrue(self.page.locator('#salvar-vinculo').is_disabled())
+            self.page.locator('#revisao-salvamento').check()
+            self.assertTrue(self.page.locator('#salvar-vinculo').is_disabled())
+            self.assertEqual(self.page.evaluate('salvamentos'), 1)
+            self.assertTrue(self.page.evaluate('pedidoSalvar.somenteEstaPendencia'))
+            with self.page.expect_download() as event:
+                self.page.locator('#exportar-comparacao').click()
+            r = json.loads(Path(event.value.path()).read_text())
+            self.assertTrue(r['ultimoSalvamento']['requerReleitura'])
+            if incerto: self.assertIsNone(r['salvo'])
+            else: self.assertTrue(r['salvo'])
 
     def test_failed_retry_does_not_export_a_previous_success(self):
         self.page.evaluate('''() => { window.tentativas=0; chrome.scripting.executeScript=async p=>{
