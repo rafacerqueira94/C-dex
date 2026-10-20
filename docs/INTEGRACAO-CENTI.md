@@ -1,5 +1,9 @@
 # Integração Centi — evidências recuperadas
 
+## Caso real mais recente — 0.14.7
+
+O relatório comparacao-centi-1792505829322.json confirmou cadastro sequencial automático na empresa que o operador havia confirmado sem serviços: 07.02.000/214/4% salvo no vínculo 16201 e 07.05.000/217/4% salvo no vínculo 16202. A fila observou os IDs definitivos, voltou à lista e confirmou ambos localizados. ok/concluido true, resultadoIncerto false, zero pendentes/linhas não interpretadas. Não refazer essas inclusões. A evidência é específica desse caso e não comprova páginas/herança ou abertura inicial com Centi fechada.
+
 ## Estado real validado — 0.14.6
 
 O relatório comparacao-centi-1792505151524.json confirmou a fila com ok/concluido true, salvo true e resultadoIncerto false. O programa abriu o vínculo, pesquisou/selecionou 07.02.000 (municipal 214, 4%), acionou Salvar uma vez pelo botão identificado, observou ID definitivo 16200, voltou a Serviços e confirmou o mesmo vínculo na releitura pela API pública. O 07.03.000 já existente foi localizado no vínculo 3675 e não foi incluído de novo. Dez vínculos lidos, zero pendentes/linhas não interpretadas/sem identificação. Não repetir esse caso.

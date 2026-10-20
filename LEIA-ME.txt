@@ -141,3 +141,8 @@ coleção, no contexto correto, e permite cadastrar o primeiro serviço.
 Não considera fonte ausente ou carregamento em andamento como lista vazia.
 A confirmação continua restrita à coleção atual; não cobre serviços herdados
 ou dados fora dos filtros/páginas disponíveis.
+
+Validação real 0.14.7: em outra empresa inicialmente sem serviços, o
+aplicativo salvou 07.02.000/4% no vínculo 16201 e 07.05.000/4% no vínculo
+16202, em sequência, e confirmou ambos na releitura. Zero pendentes.
+Caso concluído: não refazer essas inclusões para repetir o teste.

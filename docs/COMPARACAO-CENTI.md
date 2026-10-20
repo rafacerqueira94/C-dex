@@ -189,3 +189,8 @@ existente foi localizado no vínculo 3675 sem recadastro. Caso concluído;
 não repetir essas inclusões. Persistem os limites de cobertura documentados.
 
 0.14.7: outra empresa tinha Serviços vazio, confirmado pelo operador, e API sem linhas/colunas; a navegação antiga bloqueava por ausência de cabeçalhos. Agora reconhece contexto Serviços + grade de coleção conhecida + fonte/itens vazios estáveis, sem carregamento ativo/total positivo. Retorna captura vazia válida e permite o primeiro Novo. Não considera fonte ausente como prova de ausência, nem afirma cobertura de herança/páginas. Validação real desse novo caso ainda pendente.
+
+Validação real 0.14.7: em outra empresa inicialmente sem serviços, o
+aplicativo salvou 07.02.000/4% no vínculo 16201 e 07.05.000/4% no vínculo
+16202, em sequência, e confirmou ambos na releitura. Zero pendentes.
+Caso concluído: não refazer essas inclusões para repetir o teste.
