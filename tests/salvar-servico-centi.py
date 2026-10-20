@@ -65,6 +65,28 @@ class Salvamento(unittest.TestCase):
     def test_multiple_selects_near_label_remain_ambiguous(self):
         self.page.locator('select').evaluate("e=>{e.id='Outro';const row=document.createElement('div');e.before(row);row.innerHTML='<div>Especificar cnae?</div>';row.append(e,e.cloneNode(true))}")
         self.assertFalse(self.run_save()['ok']);self.assertEqual(self.page.evaluate('cliques'),0)
+    def cobrir_botao(self):
+        self.page.evaluate("""()=>{const e=document.createElement('div');e.id='cobertura';e.style='position:fixed;inset:0;background:white;z-index:9999';document.body.append(e)}""")
+    def test_waits_for_transient_overlay_and_clicks_once(self):
+        self.cobrir_botao()
+        self.page.evaluate("setTimeout(()=>document.querySelector('#cobertura').remove(),150)")
+        self.assertTrue(self.run_save()['salvo']);self.assertEqual(self.page.evaluate('cliques'),1)
+    def test_persistent_overlay_blocks_without_clicking(self):
+        self.cobrir_botao()
+        r=self.run_save();self.assertFalse(r['salvamentoAcionado']);self.assertFalse(r['salvo'])
+        self.assertEqual(r['diagnosticoSalvar']['alvo']['tag'],'div');self.assertEqual(self.page.evaluate('cliques'),0)
+    def test_hidden_tab_requests_activation_without_clicking(self):
+        self.cobrir_botao()
+        self.page.evaluate("Object.defineProperty(document,'visibilityState',{get:()=> 'hidden'})")
+        r=self.run_save();self.assertTrue(r['ativacaoNecessaria']);self.assertFalse(r['salvamentoAcionado'])
+        self.assertEqual(self.page.evaluate('cliques'),0)
+    def test_real_uppercase_cnae_and_form_scoped_footer_id(self):
+        self.page.locator('select').evaluate("e=>e.id='EspecificarCNAET'")
+        self.page.locator('button').evaluate("e=>e.id='btnFooterSalvarT'")
+        self.assertTrue(self.run_save()['salvo'])
+    def test_footer_for_another_form_blocks(self):
+        self.page.locator('button').evaluate("e=>e.id='btnFooterSalvarOUTRO'")
+        self.assertFalse(self.run_save()['salvamentoAcionado']);self.assertEqual(self.page.evaluate('cliques'),0)
     def test_company_and_review_required(self):
         for key,value in [('revisado',False),('somenteEstaPendencia',False),('cnpjConfirmado','99999999999999')]:
             before=self.pedido[key];self.pedido[key]=value;self.assertFalse(self.run_save()['ok']);self.pedido[key]=before

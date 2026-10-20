@@ -101,6 +101,51 @@ class FluxoPdf(unittest.TestCase):
         self.assertEqual(estado['acoes'].count('salvarServicoCenti'),1)
         self.assertEqual(len(estado['salvos']),1)
 
+    def test_save_activates_centi_only_after_explicit_no_click_result(self):
+        self.importar_cartao(conectado=False)
+        self.page.wait_for_function("document.querySelector('#status-conexao').textContent.includes('Entre na Centi')")
+        self.page.evaluate('''()=>{
+          window.loginConcluido=true;window.ativacoes=[];window.tentativasSalvar=0;
+          chrome.tabs.getCurrent=async()=>({id:900});
+          chrome.tabs.update=async(id,p)=>{ativacoes.push(id);return {id}};
+          const anterior=chrome.scripting.executeScript;
+          chrome.scripting.executeScript=async p=>{
+            if(p.func.name==='salvarServicoCenti'&&window.tentativasSalvar++===0)
+              return [{result:{ok:false,salvo:false,salvamentoAcionado:false,ativacaoNecessaria:true}}];
+            return anterior(p);
+          }
+        }''')
+        self.page.locator('#abrir-centi').click()
+        self.page.wait_for_function("document.querySelector('#status').textContent.includes('concluído e conferido') && window.ativacoes.includes(900)")
+        self.assertEqual(self.page.evaluate('ativacoes'),[123,900])
+        self.assertEqual(self.page.evaluate('tentativasSalvar'),2)
+        estado=json.loads(self.page.evaluate("sessionStorage.getItem('teste-centi')"))
+        self.assertEqual(estado['acoes'].count('salvarServicoCenti'),1)
+
+    def test_uncertain_save_never_retries_even_if_activation_requested(self):
+        self.importar_cartao(conectado=False)
+        self.page.wait_for_function("document.querySelector('#status-conexao').textContent.includes('Entre na Centi')")
+        self.page.evaluate('''()=>{
+          window.loginConcluido=true;window.ativacoes=[];window.tentativasSalvar=0;
+          chrome.tabs.update=async id=>{ativacoes.push(id);return {id}};
+          const anterior=chrome.scripting.executeScript;
+          chrome.scripting.executeScript=async p=>{
+            if(p.func.name==='salvarServicoCenti'){
+              window.tentativasSalvar++;
+              return [{result:{ok:false,salvo:null,salvamentoAcionado:true,ativacaoNecessaria:true,mensagem:'Resultado incerto'}}];
+            }
+            return anterior(p);
+          }
+        }''')
+        self.page.locator('#abrir-centi').click()
+        self.page.wait_for_function("document.querySelector('#status').textContent.includes('Cadastro interrompido')")
+        self.assertEqual(self.page.evaluate('ativacoes'),[])
+        self.assertEqual(self.page.evaluate('tentativasSalvar'),1)
+        with self.page.expect_download() as event:self.page.locator('#baixar-conexao').click()
+        d=json.loads(Path(event.value.path()).read_text())
+        self.assertEqual(d['falhaCadastro']['etapa'],'salvar')
+        self.assertTrue(d['falhaCadastro']['salvamentoAcionado'])
+
     def test_download_map_reads_current_screen_and_includes_failed_stage(self):
         self.importar_cartao(conectado=False)
         self.page.wait_for_function("document.querySelector('#status-conexao').textContent.includes('Entre na Centi')")

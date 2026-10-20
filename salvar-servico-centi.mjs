@@ -1,6 +1,6 @@
 // Autocontida para execução na aba Centi. Uma tentativa, sem repetição automática.
 export async function salvarServicoCenti(pedido) {
-  let salvamentoAcionado = false, diagnosticoCnae = null;
+  let salvamentoAcionado = false, diagnosticoCnae = null, diagnosticoSalvar = null;
   const normal = s => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toUpperCase();
   const visivel = e => e && e.getClientRects().length > 0 && getComputedStyle(e).visibility !== 'hidden';
   const falhar = m => { throw Error(m); };
@@ -27,7 +27,7 @@ export async function salvarServicoCenti(pedido) {
     conferir(true);
     // Não inferir o valor pelo índice ou por valores booleanos internos da Centi.
     const selects = [...document.querySelectorAll('select')].filter(visivel);
-    const peloId = selects.filter(e => e.id === 'EspecificarCnae' + sufixo);
+    const peloId = selects.filter(e => ['EspecificarCnae' + sufixo, 'EspecificarCNAE' + sufixo].includes(e.id));
     const rotulos = [...document.querySelectorAll('label, span, div, td, th')]
       .filter(e => visivel(e) && /^ESPECIFICAR CNAE\s*[?:*]*$/.test(normal(e.textContent))
         && ![...e.children].some(c => /^ESPECIFICAR CNAE\s*[?:*]*$/.test(normal(c.textContent))));
@@ -57,8 +57,27 @@ export async function salvarServicoCenti(pedido) {
     const botao = unico([...document.querySelectorAll('button, [role=button], input[type=submit]')].filter(e => visivel(e)
       && /^SALVAR\s*\(1\)$/.test(normal(e.tagName === 'INPUT' ? e.value : e.textContent))), 'Não foi identificado um único botão Salvar(1). Nenhum salvamento foi iniciado.');
     if (botao.disabled || botao.getAttribute('aria-disabled') === 'true') falhar('Salvar está desabilitado.');
-    const rect = botao.getBoundingClientRect(), alvo = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
-    if (!(alvo === botao || botao.contains(alvo))) falhar('O botão Salvar está coberto.');
+    if (botao.id.startsWith('btnFooterSalvar') && botao.id.slice('btnFooterSalvar'.length).replace(/-/g,'') !== sufixo.replace(/-/g,'')) falhar('O botão Salvar pertence a outro formulário.');
+    botao.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});
+    const limiteBotao = Date.now() + 3000;
+    let livre = false;
+    while (Date.now() < limiteBotao) {
+      conferir(true);
+      if (!botao.isConnected || botao.disabled || botao.getAttribute('aria-disabled') === 'true') falhar('O botão Salvar mudou ou foi desabilitado.');
+      const rect = botao.getBoundingClientRect(), x = rect.x + rect.width / 2, y = rect.y + rect.height / 2;
+      const alvo = document.elementFromPoint(x,y);
+      diagnosticoSalvar = {abaVisivel:document.visibilityState === 'visible',
+        botaoId:String(botao.id).slice(0,120),noViewport:rect.width>0 && rect.height>0 && x>=0 && y>=0 && x<innerWidth && y<innerHeight,
+        alvo:alvo ? {tag:alvo.tagName.toLowerCase(),classes:[...alvo.classList].slice(0,8)} : null};
+      if (diagnosticoSalvar.noViewport && (alvo === botao || botao.contains(alvo))) {livre=true;break;}
+      await new Promise(r=>setTimeout(r,100));
+    }
+    if (!livre) {
+      if (document.visibilityState !== 'visible') return {ok:false,salvo:false,salvamentoAcionado:false,ativacaoNecessaria:true,
+        etapa:'ativar_aba_para_conferir_salvar',diagnosticoSalvar,
+        mensagem:'A aba Centi precisa ficar visível para conferir o botão Salvar. Nenhum botão Salvar foi acionado.'};
+      falhar('O botão Salvar continua coberto ou fora da área visível após a espera.');
+    }
     if (typeof pedido.tentativa !== 'string' || !/^[a-zA-Z0-9-]{16,80}$/.test(pedido.tentativa)) falhar('Identificador da tentativa inválido.');
     const tentativas = globalThis.__ponteCentiSalvamentos ??= new Set();
     if (tentativas.has(pedido.tentativa)) falhar('Esta tentativa já foi acionada. Releia a lista antes de qualquer nova ação.');
@@ -76,7 +95,7 @@ export async function salvarServicoCenti(pedido) {
     falhar('Não foi observado um ID definitivo após o salvamento.');
   } catch (e) {
     return {ok: false, salvo: salvamentoAcionado ? null : false, salvamentoAcionado, requerReleitura: salvamentoAcionado,
-      diagnosticoCnae, etapa: salvamentoAcionado ? 'persistencia_nao_confirmada' : 'salvamento_bloqueado',
+      diagnosticoCnae, diagnosticoSalvar, etapa: salvamentoAcionado ? 'persistencia_nao_confirmada' : 'salvamento_bloqueado',
       mensagem: e.message + (salvamentoAcionado ? ' O resultado é incerto. Não repita o salvamento; releia Serviços e confira a Centi.' : ' Nenhum botão Salvar foi acionado.')};
   }
 }

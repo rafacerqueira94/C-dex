@@ -1,4 +1,4 @@
-# Cadastro com a Centi — versão 0.14.4
+# Cadastro com a Centi — versão 0.14.5
 
 ## Entrada atual — pode começar com a Centi fechada
 
@@ -178,3 +178,5 @@ Correção 0.14.2: o mapa real mostrou Atividade econômica em div.sidebarSubIte
 0.14.3: o novo mapa parou em navegarServicosCenti ao confirmar Serviços, já selecionado na árvore. A navegação usa o divTreeSelected observado e cabeçalhos visíveis como o leitor. Mapa v3/falhaLocalizacao incluem estrutura das grades, cabeçalhos conhecidos, contagem de linhas e etapa de espera; não copiam dados das células. A continuidade ainda depende de validação real.
 
 0.14.4: o mapa v3 confirmou que os cabeçalhos de data não estavam renderizados na espera, embora aparecessem depois. A identificação/leitura agora aceita metadados e getCellData da API pública Wijmo, sem depender da renderização de todas as colunas. Mantém bloqueio por coluna ausente/ambiguidade e fallback DOM completo. A captura indica origemLeitura e continua parcial quanto a paginação, filtros e herança. Mapa v4 registra metadados da API, sem valores de células.
+
+0.14.5: bloqueio real antes de qualquer clique por Salvar coberto. Agora espera transições/hit-test, rola o botão à vista e confere sufixo do btnFooterSalvar. Aba oculta pode solicitar ativação; a interface só ativa e reconfere se salvo=false e salvamentoAcionado=false explícitos. Não ignora cobertura persistente nem repete resultado incerto. Mapa inclui falhaCadastro/diagnosticoSalvar. Preservar e retomar o vínculo já preenchido, sem Novo. Persistência automática real ainda precisa ser observada.

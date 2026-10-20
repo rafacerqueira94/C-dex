@@ -16,6 +16,7 @@ let verificandoConexao = false;
 let localizandoEmpresa = false;
 let empresaLocalizada = false;
 let falhaLocalizacao = null;
+let abaAplicativoParaRestaurar = null;
 let resultado = null;
 let planoDoPdf = null;
 let planoAtual = null;
@@ -179,8 +180,7 @@ $('salvar-vinculo').addEventListener('click', async () => {
   atual.ultimoSalvamento = {ok: false, salvo: null, etapa: 'execucao_em_andamento', codigo: pedido.servico.codigo};
   $('status-salvamento').textContent = 'Conferindo o formulário e acionando Salvar uma vez…';
   try {
-    const respostas = await chrome.scripting.executeScript({target: {tabId: aba}, func: salvarServicoCenti, args: [pedido]});
-    const retorno = respostas[0]?.result;
+    const retorno = await salvarNaAbaCenti(pedido);
     if (!retorno || typeof retorno.ok !== 'boolean') throw Error('A aba não retornou o resultado.');
     atual.ultimoSalvamento = {codigo: pedido.servico.codigo, ...retorno};
     atual.salvo = retorno.salvo;
@@ -193,6 +193,7 @@ $('salvar-vinculo').addEventListener('click', async () => {
     selecaoParaSalvar = null; salvando = false;
     controles.forEach((e, i) => { e.disabled = anteriores[i]; });
     $('revisao-salvamento').checked = false; $('salvar-vinculo').disabled = true;
+    await restaurarAbaAplicativo();
   }
 });
 
@@ -214,6 +215,28 @@ if (new URLSearchParams(location.search).get('origem') === 'pdf') {
   }
 }
 
+async function salvarNaAbaCenti(pedido) {
+  const executar = async () => {
+    const respostas = await chrome.scripting.executeScript({target:{tabId:aba},func:salvarServicoCenti,args:[pedido]});
+    const retorno = respostas[0]?.result;
+    if (!retorno || typeof retorno.ok !== 'boolean') throw Error('A aba não retornou o resultado do salvamento.');
+    return retorno;
+  };
+  let retorno = await executar();
+  if (retorno.ativacaoNecessaria === true && retorno.salvamentoAcionado === false && retorno.salvo === false) {
+    const atual = await chrome.tabs.getCurrent();
+    abaAplicativoParaRestaurar = atual?.id ?? null;
+    await chrome.tabs.update(aba,{active:true});
+    await new Promise(r=>setTimeout(r,250));
+    retorno = await executar();
+  }
+  return retorno;
+}
+async function restaurarAbaAplicativo() {
+  if (abaAplicativoParaRestaurar == null) return;
+  const id = abaAplicativoParaRestaurar; abaAplicativoParaRestaurar=null;
+  try {await chrome.tabs.update(id,{active:true});} catch { /* o aplicativo pode ter sido fechado */ }
+}
 $('autorizar-cadastro').addEventListener('change', () => {
   $('cadastrar-servicos').disabled = cadastrando || !$('autorizar-cadastro').checked;
 });
@@ -234,7 +257,7 @@ $('cadastrar-servicos').addEventListener('click', async () => {
       ler: () => executar(lerVinculosCenti, undefined, 'MAIN'),
       navegar: acao => executar(navegarServicosCenti, {acao}, 'MAIN'),
       selecionar: pedido => executar(pesquisarServicoCenti, pedido, 'MAIN'),
-      salvar: pedido => executar(salvarServicoCenti, pedido),
+      salvar: pedido => salvarNaAbaCenti(pedido),
       identificador: () => Array.from(crypto.getRandomValues(new Uint8Array(16)), n => n.toString(16).padStart(2, '0')).join(''),
       progresso: etapa => { $('status-cadastro').textContent = fases[etapa] || etapa; }
     });
@@ -254,6 +277,7 @@ $('cadastrar-servicos').addEventListener('click', async () => {
     controles.forEach((e, i) => { e.disabled = anteriores[i]; });
     cadastrando = false; $('autorizar-cadastro').checked = false;
     $('autorizar-cadastro').disabled = true; $('cadastrar-servicos').disabled = true;
+    await restaurarAbaAplicativo();
   }
 });
 
@@ -340,7 +364,16 @@ $('baixar-conexao').addEventListener('click', async () => {
     const leituras = await chrome.scripting.executeScript({target:{tabId:aba},func:inspecionarConexaoCenti,world:'MAIN'});
     const atual = leituras[0]?.result;
     if (!atual) throw Error('Não foi possível ler a tela atual da Centi.');
-    diagnosticoConexao = {...atual, lidoEm: new Date().toISOString(), falhaLocalizacao};
+    const cadastro = resultado?.ultimoCadastro;
+    const ultima = cadastro?.etapas?.at(-1)?.resultado || resultado?.ultimoSalvamento;
+    const falhaCadastro = cadastro?.ok === false || ultima?.ok === false ? {
+      etapa:cadastro?.etapa || ultima?.etapa || null,
+      mensagem:ultima?.mensagem || cadastro?.mensagem || null,
+      salvamentoAcionado:ultima?.salvamentoAcionado ?? null,
+      diagnosticoSalvar:ultima?.diagnosticoSalvar || null,
+      diagnosticoNavegacao:ultima?.diagnosticoNavegacao || null
+    } : null;
+    diagnosticoConexao = {...atual, lidoEm: new Date().toISOString(), falhaLocalizacao, falhaCadastro};
     const url = URL.createObjectURL(new Blob([JSON.stringify(diagnosticoConexao, null, 2)], {type: 'application/json'}));
     const a = document.createElement('a'); a.href = url; a.download = 'mapa-conexao-centi.json'; a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
