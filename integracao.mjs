@@ -255,7 +255,7 @@ $('cadastrar-servicos').addEventListener('click', async () => {
   try {
     const cadastro = await cadastrarServicos({plano: planoAtual, catalogo: catalogoAtual, cnpj: resultado.empresa.cnpj, ausenciaConferida: true}, {
       ler: () => executar(lerVinculosCenti, undefined, 'MAIN'),
-      navegar: acao => executar(navegarServicosCenti, {acao}, 'MAIN'),
+      navegar: (acao, detalhes = {}) => executar(navegarServicosCenti, {acao, ...detalhes}, 'MAIN'),
       selecionar: pedido => executar(pesquisarServicoCenti, pedido, 'MAIN'),
       salvar: pedido => salvarNaAbaCenti(pedido),
       identificador: () => Array.from(crypto.getRandomValues(new Uint8Array(16)), n => n.toString(16).padStart(2, '0')).join(''),

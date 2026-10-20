@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Ponte Centi — consulta e conferência",
-  "version": "0.14.6",
+  "version": "0.14.7",
   "description": "Importa cartão CNPJ, identifica serviços e cadastra na Centi após conferência, com salvamento e releitura.",
   "permissions": ["activeTab", "scripting"],
   "host_permissions": ["https://ba.centi.com.br/caetite/*"],

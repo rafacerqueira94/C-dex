@@ -20,7 +20,7 @@ class Navegacao(unittest.TestCase):
         document.querySelector('#pasta').onclick=()=>{window.cliques++;document.querySelector('#lista').hidden=false;document.querySelector('#form').hidden=true};
         </script>''')
     def tearDown(self):self.page.close()
-    def run_action(self,acao):return self.page.evaluate('async p=>{'+self.source+';return navegarServicosCenti(p)}',{'acao':acao})
+    def run_action(self,acao,extra=None):return self.page.evaluate('async p=>{'+self.source+';return navegarServicosCenti(p)}',{'acao':acao,**(extra or {})})
     def test_new_waits_for_empty_id_zero_form(self):
         self.assertTrue(self.run_action('novo')['ok']);self.assertEqual(self.page.evaluate('cliques'),1)
         self.assertFalse(self.run_action('novo')['ok']);self.assertEqual(self.page.evaluate('cliques'),1)
@@ -55,6 +55,33 @@ class Navegacao(unittest.TestCase):
           window.wijmo={Control:{getControl:()=>({columns:['ID','Serviço','Data início','Data fim'].map(header=>({header})),getCellData(){throw Error('Somente metadados na navegação')}})}};
         }""")
         self.assertTrue(self.run_action('lista')['ok']);self.assertEqual(self.page.evaluate('cliques'),0)
+    def test_confirmed_empty_services_collection_allows_first_new_link(self):
+        self.page.evaluate("""()=>{
+          const g=document.querySelector('#lista');g.classList.add('wj-state-empty','tableSearch','gridCollectionTotal');g.innerHTML='<div class="wj-cells"><div class="wj-row"></div></div>';
+          const label=document.createElement('div');label.className='divTreeSelected';label.textContent='Serviços';document.body.append(label);
+          const controle={columns:[],rows:[],collectionView:{items:[],sourceCollection:[],isLoading:false,totalItemCount:0},getCellData(){}};
+          window.wijmo={Control:{getControl:()=>controle}};
+        }""")
+        self.assertTrue(self.run_action('lista')['ok'])
+        self.assertTrue(self.run_action('novo')['ok']);self.assertEqual(self.page.locator('#IdT').input_value(),'0')
+    def test_empty_looking_loading_grid_does_not_allow_new(self):
+        self.page.evaluate("""()=>{
+          const g=document.querySelector('#lista');g.classList.add('wj-state-empty','tableSearch','gridCollectionTotal');g.innerHTML='';
+          const label=document.createElement('div');label.className='divTreeSelected';label.textContent='Serviços';document.body.append(label);
+          const controle={columns:[],rows:[],collectionView:{items:[],sourceCollection:[],isLoading:true,totalItemCount:0},getCellData(){}};
+          window.wijmo={Control:{getControl:()=>controle}};
+        }""")
+        self.assertFalse(self.run_action('novo')['ok']);self.assertEqual(self.page.evaluate('cliques'),0)
+    def test_return_after_save_waits_for_expected_id_not_just_empty_list(self):
+        self.page.evaluate("""()=>{
+          setTimeout(()=>{
+            const dados=document.createElement('div');dados.className='wj-cells';
+            dados.innerHTML='<div class="wj-row"><div class="wj-cell">500</div><div class="wj-cell">238</div><div class="wj-cell">20/10/2026</div><div class="wj-cell"></div></div>';
+            document.querySelector('#lista').append(dados);
+          },150);
+        }""")
+        self.assertTrue(self.run_action('lista',{'idVinculoEsperado':'500'})['ok'])
+        self.assertEqual(self.page.locator('.wj-cells .wj-row').count(),1)
     def test_existing_list_does_not_click_navigation(self):
         self.assertTrue(self.run_action('lista')['ok']);self.assertEqual(self.page.evaluate('cliques'),0)
 

@@ -13,7 +13,7 @@ function cenario() {
   let atual;
   const io = {
     ler: async () => {eventos.push('ler');return {tipo: 'captura_vinculos_centi', registros: structuredClone(registros), linhasNaoInterpretadas: 0};},
-    navegar: async acao => {eventos.push(acao);return {ok: true};},
+    navegar: async (acao,detalhes) => {if(acao==='lista')assert.match(detalhes?.idVinculoEsperado || '',/^[1-9]\d*$/);eventos.push(acao);return {ok: true};},
     selecionar: async pedido => {atual = pedido.servico;eventos.push('selecionar:' + atual.id);return {ok: true, selecionado: true, datasPreservadas: true,
       campos: {idVinculo: '0', dataInicio: '20/10/2026', dataFim: '', nome: atual.nome}};},
     salvar: async () => {const id = String(100 + registros.length);eventos.push('salvar:' + atual.id);registros.push({idVinculo: id, nome: atual.id, dataInicio: '20/10/2026', dataFim: ''});return {ok: true, salvo: true, idVinculo: id};},

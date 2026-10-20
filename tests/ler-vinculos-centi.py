@@ -66,6 +66,22 @@ class LeituraVinculos(unittest.TestCase):
     def test_conflicting_rows_from_api_still_abort(self):
         self.api_virtualizada([['1000','238','20/10/2026',''],['1000','51','20/10/2026','']])
         self.assertIn('dados divergentes',self.read()['mensagem'])
+    def empty_collection(self):
+        self.page.set_content('<div class="divTreeSelected"><span>Serviços</span></div><div class="wj-flexgrid wj-state-empty tableSearch gridCollectionTotal"><div class="wj-cells"><div class="wj-row"></div></div></div>')
+        self.page.evaluate("""()=>{
+          window.view={items:[],sourceCollection:[],isLoading:false,totalItemCount:0};
+          const controle={columns:[],rows:[],collectionView:view,getCellData(){throw Error('Nenhuma célula para ler')}};
+          window.wijmo={Control:{getControl:()=>controle}};
+        }""")
+    def test_empty_collection_without_schema_requires_stable_source_and_services_context(self):
+        self.empty_collection();self.assertEqual(self.read()['tipo'],'erro_leitura_centi')
+        self.page.wait_for_timeout(750)
+        r=self.read();self.assertEqual(r['origemLeitura'],'api_publica_lista_vazia');self.assertEqual(r['registros'],[])
+        self.assertEqual(r['linhasNaoInterpretadas'],0);self.assertFalse(r['leituraCompleta'])
+    def test_zero_rows_do_not_prove_empty_when_loading_filtered_or_source_missing(self):
+        for alterar in ["view.isLoading=true","view.sourceCollection.push({id:1})","view.totalItemCount=10","view.sourceCollection=null"]:
+            self.empty_collection();self.page.evaluate(alterar)
+            self.assertEqual(self.read()['tipo'],'erro_leitura_centi')
     def test_distinct_binding_ids_are_never_merged_by_service_name(self):
         self.page.set_content(self.grid(self.row('1000')+self.row('1001')))
         self.assertEqual(len(self.read()['registros']), 2)

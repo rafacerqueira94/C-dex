@@ -1,4 +1,4 @@
-# Cadastro com a Centi — versão 0.14.6
+# Cadastro com a Centi — versão 0.14.7
 
 ## Entrada atual — pode começar com a Centi fechada
 
@@ -187,3 +187,5 @@ Validação real 0.14.6: confirmado salvamento automático de 07.02.000/4%
 no vínculo definitivo 16200 e releitura do mesmo registro. 07.03.000 já
 existente foi localizado no vínculo 3675 sem recadastro. Caso concluído;
 não repetir essas inclusões. Persistem os limites de cobertura documentados.
+
+0.14.7: outra empresa tinha Serviços vazio, confirmado pelo operador, e API sem linhas/colunas; a navegação antiga bloqueava por ausência de cabeçalhos. Agora reconhece contexto Serviços + grade de coleção conhecida + fonte/itens vazios estáveis, sem carregamento ativo/total positivo. Retorna captura vazia válida e permite o primeiro Novo. Não considera fonte ausente como prova de ausência, nem afirma cobertura de herança/páginas. Validação real desse novo caso ainda pendente.

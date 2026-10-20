@@ -1,7 +1,7 @@
-Ponte Centi 0.14.6 — do cartão CNPJ ao cadastro na Centi
+Ponte Centi 0.14.7 — do cartão CNPJ ao cadastro na Centi
 
 1. Extraia o pacote e carregue/recarregue a extensão no Chrome/Edge. Confira
-   a versão 0.14.6. Autorize acesso a ba.centi.com.br quando o navegador pedir.
+   a versão 0.14.7. Autorize acesso a ba.centi.com.br quando o navegador pedir.
 2. Clique no ícone Ponte Centi em qualquer aba. A Centi pode estar fechada.
 3. Importe o cartão CNPJ em PDF, informe coworking, confira os dados e
    selecione os serviços. Confirme a lista.
@@ -134,3 +134,10 @@ Validação real 0.14.6: confirmado salvamento automático de 07.02.000/4%
 no vínculo definitivo 16200 e releitura do mesmo registro. 07.03.000 já
 existente foi localizado no vínculo 3675 sem recadastro. Caso concluído;
 não repetir essas inclusões. Persistem os limites de cobertura documentados.
+
+Correção 0.14.7: empresas sem nenhum vínculo em Serviços podem apresentar
+grade sem colunas. O aplicativo agora reconhece a fonte vazia e estável da
+coleção, no contexto correto, e permite cadastrar o primeiro serviço.
+Não considera fonte ausente ou carregamento em andamento como lista vazia.
+A confirmação continua restrita à coleção atual; não cobre serviços herdados
+ou dados fora dos filtros/páginas disponíveis.

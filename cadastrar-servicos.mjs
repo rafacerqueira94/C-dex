@@ -48,7 +48,7 @@ export async function cadastrarServicos({plano, catalogo, cnpj, ausenciaConferid
         revisado: true, somenteEstaPendencia: true, tentativa: io.identificador()}));
       acionandoSalvamento = false;
       if (salvo.salvo !== true || !/^[1-9]\d*$/.test(String(salvo.idVinculo))) throw Error('O ID definitivo não foi confirmado.');
-      await executar('voltar_servicos', () => io.navegar('lista'));
+      await executar('voltar_servicos', () => io.navegar('lista', {idVinculoEsperado:String(salvo.idVinculo)}));
       comparacao = await ler();
       const conferido = comparacao.servicos.find(a => a.codigo === servico.codigo);
       if (conferido?.situacao !== 'localizado' || !conferido.idsVinculos.map(String).includes(String(salvo.idVinculo))) {

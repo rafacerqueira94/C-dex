@@ -51,7 +51,12 @@ export function inspecionarConexaoCenti() {
         try {const controle=globalThis.wijmo?.Control?.getControl?.(g);
           return {disponivel:typeof controle?.getCellData==='function',
             cabecalhos:Array.from(controle?.columns || []).map(c=>cabecalhosConhecidos.has(normal(c.header))?normal(c.header):'outro'),
-            quantidadeLinhas:Number.isSafeInteger(controle?.rows?.length)?controle.rows.length:null};
+            quantidadeLinhas:Number.isSafeInteger(controle?.rows?.length)?controle.rows.length:null,
+            fonteDisponivel:Array.isArray(controle?.collectionView?.sourceCollection),
+            tamanhoFonte:Array.isArray(controle?.collectionView?.sourceCollection)?controle.collectionView.sourceCollection.length:null,
+            tamanhoItens:Array.isArray(controle?.collectionView?.items)?controle.collectionView.items.length:null,
+            carregando:controle?.collectionView?.isLoading === true,
+            totalDeclarado:Number.isSafeInteger(controle?.collectionView?.totalItemCount)?controle.collectionView.totalItemCount:null};
         } catch {return {disponivel:false};}
       })()}));
   return {tipo: 'diagnostico_conexao_centi', versao: 4, alvosNavegacao, grades, estado: document.readyState === 'loading' || !rotulosVisiveis.length ? 'carregando' : 'tela_disponivel',

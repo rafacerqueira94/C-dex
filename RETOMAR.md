@@ -1,6 +1,6 @@
 # Como retomar e recuperar o Ponte Centi
 
-Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.14.6** (entrada pelo PDF, passagem interna sem JSON e cadastro sequencial com salvamento/releitura; salvamento automático e releitura confirmados em um caso real).
+Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.14.7** (entrada pelo PDF, passagem interna sem JSON e cadastro sequencial com salvamento/releitura; salvamento automático e releitura confirmados em um caso real).
 
 ## Onde o projeto está salvo
 
@@ -115,3 +115,5 @@ Mapa mais recente: hit-test do Salvar retornou Desfazer em aba oculta; nenhum cl
 ## Último caso concluído — 0.14.6
 
 O relatório comparacao-centi-1792505151524.json confirmou cadastro automático de 07.02.000/214/4%, Salvar acionado uma vez pelo botão identificado do formulário, ID definitivo 16200 e retorno/releitura da lista. 07.03.000 permaneceu no vínculo existente 3675, sem recadastro. Ambos localizados, dez vínculos lidos e zero pendentes/linhas não interpretadas. Não repetir esse caso. O arquivo comprova persistência automática e releitura; não contém evidência dos passos anteriores de abertura/login/localização da empresa ou de cobertura de páginas/heranças.
+
+Outra empresa confirmou lista Serviços vazia: API com zero linhas e colunas, que o código anterior recusava antes de Novo. A 0.14.7 aceita fonte/itens explicitamente vazios e estáveis no contexto Serviços, bloqueando carregamento, fonte ausente ou total positivo. O primeiro vínculo pode então ser preparado; persistência desse novo caso ainda precisa de validação real. O caso 07.02.000/16200 continua concluído e não deve ser repetido.
