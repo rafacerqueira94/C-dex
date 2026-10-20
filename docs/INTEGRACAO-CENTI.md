@@ -1,8 +1,10 @@
 # Integração Centi — evidências recuperadas
 
-## Desenvolvimento atual — 0.14.6
+## Estado real validado — 0.14.6
 
-O mapa v1 recebido mostra AR022 disponível mas nenhum filtro/formulário de serviço, sem registrar alvos clicáveis ou etapa da falha; podia ser uma leitura inicial reutilizada. O cartão AR022 agora admite div/li com listener delegado, exigindo texto exato e unicidade. O mapa v2 é coletado novamente ao baixar e inclui ancestrais estruturais e função/etapa da falha. A hipótese de bloqueio no cartão foi reproduzida em teste simulado; validação real ainda pendente.
+O relatório comparacao-centi-1792505151524.json confirmou a fila com ok/concluido true, salvo true e resultadoIncerto false. O programa abriu o vínculo, pesquisou/selecionou 07.02.000 (municipal 214, 4%), acionou Salvar uma vez pelo botão identificado, observou ID definitivo 16200, voltou a Serviços e confirmou o mesmo vínculo na releitura pela API pública. O 07.03.000 já existente foi localizado no vínculo 3675 e não foi incluído de novo. Dez vínculos lidos, zero pendentes/linhas não interpretadas/sem identificação. Não repetir esse caso.
+
+Essa é evidência real de salvamento automático e releitura, sem salvamento manual. Não comprova todas as empresas nem cobertura de páginas/filtros/herança. O relatório não contém as etapas anteriores de login/localização da empresa; não afirmar validação completa da entrada com Centi fechada somente a partir dele. O restante é histórico.
 
 ## Histórico 0.14.0
 

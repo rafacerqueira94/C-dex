@@ -129,3 +129,8 @@ de tela. Diálogos abertos ou formulário diferente mantêm o bloqueio. Para
 retomar a tentativa anterior, preserve o Serviço preenchido: atualize,
 importe o mesmo cartão e use Retomar uma tentativa interrompida. Não use
 Novo. Um resultado incerto após clique continua exigindo releitura.
+
+Validação real 0.14.6: confirmado salvamento automático de 07.02.000/4%
+no vínculo definitivo 16200 e releitura do mesmo registro. 07.03.000 já
+existente foi localizado no vínculo 3675 sem recadastro. Caso concluído;
+não repetir essas inclusões. Persistem os limites de cobertura documentados.

@@ -182,3 +182,8 @@ Correção 0.14.2: o mapa real mostrou Atividade econômica em div.sidebarSubIte
 0.14.5: bloqueio real antes de qualquer clique por Salvar coberto. Agora espera transições/hit-test, rola o botão à vista e confere sufixo do btnFooterSalvar. Aba oculta pode solicitar ativação; a interface só ativa e reconfere se salvo=false e salvamentoAcionado=false explícitos. Não ignora cobertura persistente nem repete resultado incerto. Mapa inclui falhaCadastro/diagnosticoSalvar. Preservar e retomar o vínculo já preenchido, sem Novo. Persistência automática real ainda precisa ser observada.
 
 0.14.6: o novo diagnóstico do hit-test apontou Desfazer em vez do botão Salvar identificado no formulário, antes de qualquer clique. Para btnFooterSalvar com sufixo exato do formulário validado, usa o acionamento DOM nativo do próprio botão. Não depende de coordenadas nem aciona Desfazer. Mantém bloqueios de diálogo, modal persistente, inert, desabilitação e tentativa já enviada. Botões genéricos conservam hit-test. Ainda requer observação real da persistência/ID/releitura.
+
+Validação real 0.14.6: confirmado salvamento automático de 07.02.000/4%
+no vínculo definitivo 16200 e releitura do mesmo registro. 07.03.000 já
+existente foi localizado no vínculo 3675 sem recadastro. Caso concluído;
+não repetir essas inclusões. Persistem os limites de cobertura documentados.

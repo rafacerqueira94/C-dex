@@ -1,6 +1,6 @@
 # Como retomar e recuperar o Ponte Centi
 
-Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.14.6** (entrada pelo PDF, passagem interna sem JSON e cadastro sequencial com salvamento/releitura; nova automação ainda sem validação real).
+Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.14.6** (entrada pelo PDF, passagem interna sem JSON e cadastro sequencial com salvamento/releitura; salvamento automático e releitura confirmados em um caso real).
 
 ## Onde o projeto está salvo
 
@@ -111,3 +111,7 @@ Mapa v3 confirmou datas não renderizadas na espera, mas presentes depois. A 0.1
 Último bloqueio: 0.14.4 chegou a Salvar, mas hit-test detectou cobertura antes de qualquer clique. Preservar o vínculo pendente. A 0.14.5 aguarda transições, coloca Salvar à vista e, só com comprovação de nenhum clique, pode ativar a aba Centi para refazer a conferência. Cobertura persistente/resultado incerto não são ignorados nem repetidos. Mapa inclui falhaCadastro/diagnosticoSalvar. Ainda falta confirmação real de persistência pela automação.
 
 Mapa mais recente: hit-test do Salvar retornou Desfazer em aba oculta; nenhum clique foi enviado. A 0.14.6 aciona diretamente o botão HTML nativo somente quando btnFooterSalvar corresponde exatamente ao sufixo do formulário validado, sem coordenadas. Mantém diálogos/inert/desabilitação e proteção de tentativa; botões genéricos continuam no caminho de hit-test. Ainda não há evidência de persistência real pela automação.
+
+## Último caso concluído — 0.14.6
+
+O relatório comparacao-centi-1792505151524.json confirmou cadastro automático de 07.02.000/214/4%, Salvar acionado uma vez pelo botão identificado do formulário, ID definitivo 16200 e retorno/releitura da lista. 07.03.000 permaneceu no vínculo existente 3675, sem recadastro. Ambos localizados, dez vínculos lidos e zero pendentes/linhas não interpretadas. Não repetir esse caso. O arquivo comprova persistência automática e releitura; não contém evidência dos passos anteriores de abertura/login/localização da empresa ou de cobertura de páginas/heranças.
