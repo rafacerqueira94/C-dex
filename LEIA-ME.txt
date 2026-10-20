@@ -1,4 +1,4 @@
-Ponte Centi 0.13.0 — do cartão CNPJ ao cadastro na Centi
+Ponte Centi 0.13.1 — do cartão CNPJ ao cadastro na Centi
 
 1. Extraia o pacote. Em chrome://extensions ou edge://extensions, carregue
    sem compactação a pasta raiz que contém manifest.json. Se já instalada,
@@ -65,3 +65,19 @@ Resultados não localizados não provam ausência fora da captura.
 Não é preciso Node.js, npm ou servidor no computador do operador. PDF.js e
 bases estão incorporados. A ferramenta tools/diagnostico-centi é separada.
 Recuperação e desenvolvimento: RETOMAR.md. Histórico: CONTEXTO.md.
+
+Retomar vínculo já preenchido após bloqueio de Especificar CNAE
+
+Se a mensagem informou que nenhum botão Salvar foi acionado, mantenha o
+formulário preenchido na Centi. Não use Novo nem crie outro vínculo. Após
+atualizar a extensão, importe o mesmo cartão e confirme os mesmos serviços.
+Na etapa de cadastro, use Continuar um vínculo já preenchido: confira a
+empresa e use Conferir vínculo preenchido para salvar. Essa conferência
+apenas lê o formulário. Revise e use Salvar vínculo na Centi. Depois volte
+a Serviços e compare novamente. Não usar essa retomada como repetição de
+um salvamento com resultado incerto.
+
+A 0.13.1 identifica Especificar CNAE também pelo título no mesmo grupo
+visual do select, mesmo sem label/for. Exige controle único e opção Não.
+Se ainda bloquear, Baixar comparação inclui diagnosticoCnae com a estrutura
+dos selects para corrigir o mapa sem tentar clicar em outro controle.

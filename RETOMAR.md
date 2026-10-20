@@ -1,6 +1,6 @@
 # Como retomar e recuperar o Ponte Centi
 
-Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.13.0** (entrada pelo PDF, passagem interna sem JSON e cadastro sequencial com salvamento/releitura; nova automação ainda sem validação real).
+Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.13.1** (entrada pelo PDF, passagem interna sem JSON e cadastro sequencial com salvamento/releitura; nova automação ainda sem validação real).
 
 ## Onde o projeto está salvo
 
@@ -85,3 +85,7 @@ Antes de encerrar uma etapa: verificar `git status`, revisar as mudanças, fazer
 A finalidade explicitada pelo usuário é importar o cartão CNPJ da empresa atual, filtrar serviços, adicionar e salvar na Centi. Não retornar ao roteiro de exigir exportar/importar JSON entre as etapas. O ícone na Centi abre consulta.html?aba=ID; a lista conferida passa na mesma aba por sessionStorage, vinculada à aba Centi, com prazo de 30 minutos e consumo único. A integração recebe o CNPJ do PDF, bloqueado para edição. Após comparar e autorizar a conferência de empresa/ausência fora da captura, Adicionar e salvar na Centi executa a fila em cadastrar-servicos.mjs. Novo/lista usam navegar-servicos-centi.mjs; pesquisa/seleção reaproveitam o módulo validado; persistência exige ID definitivo mais correspondência na releitura antes do próximo item. Falhas interrompem a fila, preservam relatório em ultimoCadastro e não repetem salvamento incerto.
 
 As novas navegações e salvamento ainda dependem de validação na Centi real; o teste completo usa um PDF real sintético e ações Chrome simuladas. A revisão da empresa, heranças/páginas/filtros e de outras alterações pendentes continua manual. O modo avançado por JSON em integracao.html permanece compatível, mas não é a entrada padrão.
+
+## Bloqueio mais recente e retomada
+
+A tentativa real 0.13.0 chegou ao salvamento, mas bloqueou por Especificar CNAE não identificado; nenhum Salvar foi acionado. Não recriar o vínculo pendente 07.02.000. A 0.13.1 amplia a associação por título/grupo do campo e inclui Continuar um vínculo já preenchido no fluxo PDF. Essa rota confere o formulário e permite salvar sem Novo ou pesquisa. Se persistir o bloqueio, solicitar Baixar comparação com diagnosticoCnae; o DOM real desse campo ainda não foi recebido.

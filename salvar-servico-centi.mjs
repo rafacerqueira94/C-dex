@@ -1,6 +1,6 @@
 // Autocontida para execução na aba Centi. Uma tentativa, sem repetição automática.
 export async function salvarServicoCenti(pedido) {
-  let salvamentoAcionado = false;
+  let salvamentoAcionado = false, diagnosticoCnae = null;
   const normal = s => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toUpperCase();
   const visivel = e => e && e.getClientRects().length > 0 && getComputedStyle(e).visibility !== 'hidden';
   const falhar = m => { throw Error(m); };
@@ -26,11 +26,33 @@ export async function salvarServicoCenti(pedido) {
     };
     conferir(true);
     // Não inferir o valor pelo índice ou por valores booleanos internos da Centi.
-    const peloId = [...document.querySelectorAll('select[id]')].filter(e => e.id === 'EspecificarCnae' + sufixo && visivel(e));
-    const pelosRotulos = [...document.querySelectorAll('label[for]')]
-      .filter(e => visivel(e) && /^ESPECIFICAR CNAE\??$/.test(normal(e.textContent)))
-      .map(e => document.getElementById(e.htmlFor)).filter(e => e?.tagName === 'SELECT' && visivel(e));
-    const cnae = unico([...new Set([...peloId, ...pelosRotulos])], 'O campo Especificar CNAE não foi identificado de forma única. É necessário mapear esse campo antes de salvar automaticamente.');
+    const selects = [...document.querySelectorAll('select')].filter(visivel);
+    const peloId = selects.filter(e => e.id === 'EspecificarCnae' + sufixo);
+    const rotulos = [...document.querySelectorAll('label, span, div, td, th')]
+      .filter(e => visivel(e) && /^ESPECIFICAR CNAE\s*[?:*]*$/.test(normal(e.textContent))
+        && ![...e.children].some(c => /^ESPECIFICAR CNAE\s*[?:*]*$/.test(normal(c.textContent))));
+    const associados = rotulos.flatMap(rotulo => {
+      const explicitos = selects.filter(e => (rotulo.htmlFor && e.id === rotulo.htmlFor)
+        || (rotulo.id && (e.getAttribute('aria-labelledby') || '').split(/\s+/).includes(rotulo.id))
+        || rotulo.contains(e));
+      if (explicitos.length) return explicitos;
+      // O formulário pode usar divs para os títulos, sem label/for. Aceitar
+      // somente o menor grupo com um select e sem campos de outro serviço.
+      let grupo = rotulo.parentElement;
+      for (let nivel = 0; grupo && nivel < 3; nivel++, grupo = grupo.parentElement) {
+        if (grupo.contains(primario) || [...grupo.querySelectorAll('input, textarea')].some(visivel)) break;
+        const campos = [...grupo.querySelectorAll('select')].filter(visivel);
+        if (campos.length > 1) break;
+        if (campos.length === 1) return campos;
+      }
+      return [];
+    });
+    const candidatos = [...new Set([...peloId, ...associados])];
+    diagnosticoCnae = {rotulosEncontrados: rotulos.length, candidatos: candidatos.length,
+      selectsVisiveis: selects.map(e => ({id: String(e.id).slice(0, 120),
+        opcao: ['SIM', 'NAO'].includes(normal(e.selectedOptions[0]?.textContent)) ? normal(e.selectedOptions[0].textContent) : 'outra',
+        associadoAoRotulo: associados.includes(e)}))};
+    const cnae = unico(candidatos, 'O campo Especificar CNAE não foi identificado de forma única. O relatório inclui a estrutura desse campo para diagnóstico.');
     if (normal(cnae.selectedOptions[0]?.textContent) !== 'NAO') falhar('Especificar CNAE deve estar como Não neste fluxo.');
     const botao = unico([...document.querySelectorAll('button, [role=button], input[type=submit]')].filter(e => visivel(e)
       && /^SALVAR\s*\(1\)$/.test(normal(e.tagName === 'INPUT' ? e.value : e.textContent))), 'Não foi identificado um único botão Salvar(1). Nenhum salvamento foi iniciado.');
@@ -54,7 +76,7 @@ export async function salvarServicoCenti(pedido) {
     falhar('Não foi observado um ID definitivo após o salvamento.');
   } catch (e) {
     return {ok: false, salvo: salvamentoAcionado ? null : false, salvamentoAcionado, requerReleitura: salvamentoAcionado,
-      etapa: salvamentoAcionado ? 'persistencia_nao_confirmada' : 'salvamento_bloqueado',
+      diagnosticoCnae, etapa: salvamentoAcionado ? 'persistencia_nao_confirmada' : 'salvamento_bloqueado',
       mensagem: e.message + (salvamentoAcionado ? ' O resultado é incerto. Não repita o salvamento; releia Serviços e confira a Centi.' : ' Nenhum botão Salvar foi acionado.')};
   }
 }

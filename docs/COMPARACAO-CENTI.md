@@ -1,4 +1,4 @@
-# Cadastro com a Centi — versão 0.13.0
+# Cadastro com a Centi — versão 0.13.1
 
 ## Roteiro atual — PDF para cadastro
 
@@ -156,3 +156,9 @@ Passaram nove testes DOM do leitor e 13 testes UI com API Chrome simulada; os te
 O relatório comparacao-centi-1792426509098.json confirmou os cinco serviços selecionados como localizados: 08.02.000, 09.02.000, 10.03.000, 13.02.000 e 17.06.000. Os dois novos vínculos aparecem com IDs definitivos 16192 e 16198, respectivamente. Há oito vínculos com ID na captura, zero pendentes identificados e zero linhas não interpretadas. A lista não deve mais oferecer serviços para nova inclusão. Não repetir as inclusões ou salvamentos.
 
 O teste desse caso está concluído: comparação, seleção assistida, salvamento manual e releitura com reconhecimento dos registros. O programa não salvou automaticamente. O vínculo histórico (VETADO) continua sinalizado sem correspondência no catálogo. O sucesso cobre os cinco serviços selecionados; não comprova correspondências completas de todos os CNAEs, ausência em páginas/filtros/herança ou validação de todos os cadastros.
+
+## Retomar bloqueio antes de Salvar — 0.13.1
+
+Se a mensagem confirma que nenhum Salvar foi acionado, preserve o formulário preenchido. Após atualizar, importe o mesmo cartão, confira a lista e continue para cadastro. Use **Conferir vínculo preenchido para salvar**, após confirmar a empresa e que esse é o único pendente. Não use Novo nem repita a pesquisa. A ação lê Serviço e datas e apresenta **Salvar vínculo na Centi** para revisão. Depois do salvamento, volte à tabela e compare. Não usar essa rota para repetir um resultado de salvamento incerto.
+
+O campo Especificar CNAE pode ser identificado pelo título no mesmo grupo visual, além de ID e associação explícita. Ambiguidade ou ausência continuam bloqueando; o relatório de falha inclui diagnosticoCnae para mapear a estrutura real. Essa correção ainda requer validação na Centi.

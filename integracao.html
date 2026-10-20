@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ponte Centi — comparar serviços</title><link rel="stylesheet" href="consulta.css"><script type="module" src="integracao.mjs"></script></head>
 <body>
-<header><div class="marca">Ponte <strong>Centi</strong></div><span>Comparação e seleção · 0.13.0</span></header>
+<header><div class="marca">Ponte <strong>Centi</strong></div><span>Comparação e seleção · 0.13.1</span></header>
 <main>
   <section class="introducao"><h1>Cadastrar serviços na Centi</h1><p>Selecione a pasta Serviços na aba da Centi e mantenha essa aba aberta. Esta etapa lê os vínculos visíveis para comparar com sua lista conferida.</p></section>
   <section class="cartao"><h2>Empresa e serviços do cartão CNPJ</h2><p id="origem-cartao" hidden></p>
@@ -17,6 +17,12 @@
       <button id="comparar" type="submit">Ler vínculos visíveis e comparar</button>
     </form>
     <p id="status" role="status" aria-live="polite"></p><p id="erro" role="alert" hidden></p>
+  </section>
+  <section id="retomada" class="cartao" hidden><h2>Continuar um vínculo já preenchido</h2>
+    <p>Se a tentativa anterior parou antes de salvar, mantenha o formulário preenchido na Centi. Esta opção apenas confere o serviço atual com a lista do cartão; não abre Novo nem refaz a pesquisa.</p>
+    <label class="aceite"><input id="empresa-retomada" type="checkbox"> Conferi que o formulário preenchido está na empresa deste cartão e é a única alteração pendente.</label>
+    <button id="retomar-preenchido" type="button" disabled>Conferir vínculo preenchido para salvar</button>
+    <p id="status-retomada" role="status" aria-live="polite"></p>
   </section>
   <section id="resultado" class="cartao" hidden><h2>Comparação da captura</h2>
     <p id="resumo"></p><ul id="servicos-comparados"></ul>

@@ -158,7 +158,7 @@ $('salvar-vinculo').addEventListener('click', async () => {
   salvando = true;
   const atual = resultado;
   const pedido = {...selecaoParaSalvar, cnpjEsperado: atual.empresa.cnpj, cnpjConfirmado: $('cnpj').value,
-    revisado: $('conferido').checked, somenteEstaPendencia: true};
+    revisado: selecaoParaSalvar.revisado === true || $('conferido').checked, somenteEstaPendencia: true};
   const controles = [...document.querySelectorAll('input, button, select')];
   const anteriores = controles.map(e => e.disabled);
   controles.forEach(e => { e.disabled = true; });
@@ -194,6 +194,7 @@ if (new URLSearchParams(location.search).get('origem') === 'pdf') {
     $('lista').closest('label').nextElementSibling.hidden = true;
     $('origem-cartao').textContent = `${planoDoPdf.empresa.razaoSocial || 'Empresa do cartão'} · CNPJ ${planoDoPdf.empresa.cnpj} · ${planoDoPdf.servicos.length} serviço(s) conferido(s).`;
     $('origem-cartao').hidden = false;
+    $('retomada').hidden = false;
   } catch (e) {
     $('erro').textContent = e.message; $('erro').hidden = false; $('comparar').disabled = true;
   }
@@ -239,5 +240,49 @@ $('cadastrar-servicos').addEventListener('click', async () => {
     controles.forEach((e, i) => { e.disabled = anteriores[i]; });
     cadastrando = false; $('autorizar-cadastro').checked = false;
     $('autorizar-cadastro').disabled = true; $('cadastrar-servicos').disabled = true;
+  }
+});
+
+$('empresa-retomada').addEventListener('change', () => {
+  $('retomar-preenchido').disabled = !$('empresa-retomada').checked;
+});
+$('retomar-preenchido').addEventListener('click', async () => {
+  if (!planoDoPdf || !$('empresa-retomada').checked || cadastrando || salvando) return;
+  const controles = [...document.querySelectorAll('input, button, select')];
+  const anteriores = controles.map(e => e.disabled);
+  controles.forEach(e => { e.disabled = true; });
+  selecaoParaSalvar = null; $('salvamento').hidden = true;
+  $('status-retomada').textContent = 'Conferindo o formulário já preenchido, sem alterá-lo…';
+  try {
+    const resposta = await fetch('data/servicos-centi-extraido.json');
+    if (!resposta.ok) throw Error('Não foi possível carregar o catálogo.');
+    const catalogo = await resposta.json();
+    compararCaptura(planoDoPdf, {tipo: 'captura_vinculos_centi', registros: []}, catalogo, $('cnpj').value);
+    const encontrados = [];
+    for (const s of planoDoPdf.servicos) {
+      const registro = catalogo.find(r => String(r.Id) === String(s.id));
+      const servico = {...s, nome: registro.Nome};
+      const respostas = await chrome.scripting.executeScript({target: {tabId: aba}, func: pesquisarServicoCenti,
+        args: [{servico, conferirManual: true, conferido: true, cnpjEsperado: planoDoPdf.empresa.cnpj, cnpjConfirmado: $('cnpj').value}]});
+      const conferido = respostas[0]?.result;
+      if (conferido?.ok && conferido.selecionado && conferido.campos?.idVinculo === '0') encontrados.push({servico, conferido});
+    }
+    if (encontrados.length !== 1) throw Error('Não foi encontrado um único vínculo novo preenchido correspondente à lista do cartão. Confira o Serviço e feche a lupa.');
+    const {servico, conferido} = encontrados[0];
+    resultado = {tipo: 'retomada_vinculo_centi', empresa: {cnpj: planoDoPdf.empresa.cnpj}, servicos: planoDoPdf.servicos,
+      salvo: false, ultimaPesquisa: conferido};
+    selecaoParaSalvar = {servico, campos: conferido.campos, revisado: true,
+      tentativa: Array.from(crypto.getRandomValues(new Uint8Array(16)), n => n.toString(16).padStart(2, '0')).join('')};
+    $('resumo').textContent = 'Vínculo já preenchido conferido. Esta etapa não releu a tabela Serviços nem criou registros.';
+    $('servicos-comparados').replaceChildren(); $('nao-identificados').replaceChildren(); $('aviso').textContent = '';
+    $('resultado').hidden = false; $('automatico').hidden = true; $('pesquisa').hidden = true;
+    $('servico-salvamento').textContent = `${servico.codigo} · ${servico.aliquota}% · ${conferido.campos.nome}`;
+    $('status-salvamento').textContent = ''; $('revisao-salvamento').checked = false;
+    $('salvamento').hidden = false;
+    $('status-retomada').textContent = 'Vínculo atual conferido. Revise os dados e use Salvar vínculo na Centi abaixo.';
+  } catch (e) { $('status-retomada').textContent = `${e.message} Nenhum botão Novo ou Salvar foi acionado.`; }
+  finally {
+    controles.forEach((e, i) => { e.disabled = anteriores[i]; });
+    $('salvar-vinculo').disabled = true;
   }
 });

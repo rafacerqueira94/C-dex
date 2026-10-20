@@ -47,7 +47,7 @@ class FluxoPdf(unittest.TestCase):
           throw Error('Ação inesperada');
         }}}''')
     def tearDown(self): self.ctx.close()
-    def test_pdf_to_confirmed_persistence_without_json_import(self):
+    def importar_cartao(self):
         self.page.goto('https://ponte.test/consulta.html?aba=123')
         self.page.locator('#arquivo-pdf').set_input_files({'name':'cartao-teste.pdf','mimeType':'application/pdf','buffer':self.pdf})
         self.page.locator('input[name=coworking][value=nao]').check()
@@ -62,6 +62,8 @@ class FluxoPdf(unittest.TestCase):
         self.assertTrue(self.page.locator('#lista').is_hidden())
         self.assertEqual(self.page.locator('#cnpj').input_value(),'11222333000181')
         self.assertTrue(self.page.locator('#cnpj').get_attribute('readonly') is not None)
+    def test_pdf_to_confirmed_persistence_without_json_import(self):
+        self.importar_cartao()
         self.page.locator('#conferido').check();self.page.locator('#comparar').click()
         self.page.locator('#automatico').wait_for(state='visible')
         self.assertTrue(self.page.locator('#cadastrar-servicos').is_disabled())
@@ -76,5 +78,29 @@ class FluxoPdf(unittest.TestCase):
         resultado=json.loads(Path(event.value.path()).read_text())
         self.assertTrue(resultado['ultimoCadastro']['concluido'])
         self.assertEqual(resultado['servicos'][0]['situacao'],'localizado')
+
+    def test_resume_existing_form_does_not_create_or_search_again(self):
+        self.importar_cartao()
+        self.page.evaluate('''() => {window.acoesRetomada=[];chrome.scripting.executeScript=async p=>{
+          window.acoesRetomada.push(p.func.name);
+          if(p.func.name==='pesquisarServicoCenti'){
+            if(p.args[0].conferirManual!==true)throw Error('Não deve pesquisar');
+            return [{result:{ok:true,selecionado:true,campos:{idVinculo:'0',nome:p.args[0].servico.nome,dataInicio:'20/10/2026',dataFim:''}}}];
+          }
+          if(p.func.name==='salvarServicoCenti'){
+            window.revisado=p.args[0].revisado;
+            return [{result:{ok:true,salvo:true,idVinculo:'200',mensagem:'ID definitivo observado'}}];
+          }
+          throw Error('Não deve navegar nem criar vínculo');
+        }}''')
+        self.page.locator('#empresa-retomada').check()
+        self.page.locator('#retomar-preenchido').click()
+        self.page.locator('#salvamento').wait_for(state='visible')
+        self.assertFalse(self.page.locator('#conferido').is_checked())
+        self.page.locator('#revisao-salvamento').check()
+        self.page.locator('#salvar-vinculo').click()
+        self.page.wait_for_function("document.querySelector('#status-salvamento').textContent.includes('ID definitivo')")
+        self.assertTrue(self.page.evaluate('window.revisado'))
+        self.assertEqual(self.page.evaluate('window.acoesRetomada'),['pesquisarServicoCenti','salvarServicoCenti'])
 
 if __name__=='__main__': unittest.main()

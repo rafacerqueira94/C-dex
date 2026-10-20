@@ -55,6 +55,16 @@ class Salvamento(unittest.TestCase):
     def test_ambiguous_cnae_label_blocks(self):
         self.page.locator('select').evaluate("e=>{const s=e.cloneNode(true);s.id='outro';const l=document.createElement('label');l.htmlFor=s.id;l.textContent='Especificar cnae?';e.after(l,s)}")
         self.assertFalse(self.run_save()['ok']);self.assertEqual(self.page.evaluate('cliques'),0)
+    def test_cnae_in_div_row_without_label_for_is_identified(self):
+        self.page.locator('select').evaluate("e=>{e.id='OutroNome';const row=document.createElement('div');row.className='row';e.before(row);row.innerHTML='<div><span>Especificar cnae?</span></div><div class=controle></div>';row.querySelector('.controle').append(e)}")
+        self.assertTrue(self.run_save()['salvo'])
+    def test_unrelated_select_is_not_matched_by_ancestor(self):
+        self.page.locator('select').evaluate("e=>{e.id='Outro';const span=document.createElement('span');span.textContent='Especificar cnae?';document.body.prepend(span)}")
+        r=self.run_save();self.assertFalse(r['ok']);self.assertEqual(self.page.evaluate('cliques'),0)
+        self.assertEqual(r['diagnosticoCnae']['candidatos'],0)
+    def test_multiple_selects_near_label_remain_ambiguous(self):
+        self.page.locator('select').evaluate("e=>{e.id='Outro';const row=document.createElement('div');e.before(row);row.innerHTML='<div>Especificar cnae?</div>';row.append(e,e.cloneNode(true))}")
+        self.assertFalse(self.run_save()['ok']);self.assertEqual(self.page.evaluate('cliques'),0)
     def test_company_and_review_required(self):
         for key,value in [('revisado',False),('somenteEstaPendencia',False),('cnpjConfirmado','99999999999999')]:
             before=self.pedido[key];self.pedido[key]=value;self.assertFalse(self.run_save()['ok']);self.pedido[key]=before
