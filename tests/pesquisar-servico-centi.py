@@ -81,6 +81,22 @@ class PesquisaCenti(unittest.TestCase):
         self.assertEqual(self.page.evaluate('salvos+selecionados'), 0)
         self.assertEqual(self.page.evaluate('pesquisas'), 1)
 
+    def test_hidden_filter_template_is_ignored(self):
+        self.page.evaluate("() => {const l=document.querySelector('.rowFilter').cloneNode(true);l.style.display='none';document.querySelector('#modal').append(l)}")
+        self.assertTrue(self.run_search()['ok'])
+
+    def test_extra_blank_name_filter_with_existing_code_is_accepted(self):
+        self.page.evaluate("() => {const l=document.querySelector('.rowFilter');const extra=l.cloneNode(true);l.querySelector('select').value='CodigoCompleto';document.querySelector('#modal').append(extra)}")
+        self.assertTrue(self.run_search()['ok'])
+
+    def test_extra_filled_filter_blocks_search_and_save(self):
+        self.page.evaluate("() => {const l=document.querySelector('.rowFilter');const extra=l.cloneNode(true);extra.querySelector('input').value='restricao';l.querySelector('select').value='CodigoCompleto';document.querySelector('#modal').append(extra)}")
+        r = self.run_search()
+        self.assertFalse(r['ok'])
+        self.assertEqual(r['diagnosticoFiltros']['visiveis'], 3)
+        self.assertEqual(self.page.evaluate('pesquisas+salvos'), 0)
+        self.assertNotIn('restricao', json.dumps(r))
+
     def test_missing_absence_confirmation_has_no_interaction(self):
         self.pedido['ausenciaConferida'] = False
         r = self.run_search()

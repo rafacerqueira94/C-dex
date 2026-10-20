@@ -2,7 +2,7 @@
 // Abre a lupa e ajusta filtros. Seleção opcional por duplo clique, sem salvar.
 export async function pesquisarServicoCenti(pedido) {
   let etapa = 'conferir_formulario', interacaoIniciada = false, pesquisaAcionada = false,
-    selecaoAcionada = false, selecionado = false, observador, detalhesSelecao = null;
+    selecaoAcionada = false, selecionado = false, observador, detalhesSelecao = null, diagnosticoFiltros = null;
   const falhar = m => { throw Error(m); };
   const normal = s => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toUpperCase();
   const cnpj = s => String(s ?? '').replace(/\D/g, '');
@@ -67,11 +67,23 @@ export async function pesquisarServicoCenti(pedido) {
       const grade = unico(grades(), 'Deixe somente uma lupa de Serviço aberta.');
       const panel = grade.closest('[role=tabpanel]');
       if (!panel) falhar('O painel da pesquisa mudou.');
-      const linhas = [...panel.querySelectorAll('.rowFilter')].filter(e => e.querySelector('.colCamposFilter select'));
-      if (linhas.length !== 2) falhar('A pesquisa deve apresentar exatamente dois filtros.');
+      const todas = [...panel.querySelectorAll('.rowFilter')];
+      const linhas = todas.filter(l => [...l.querySelectorAll('.colCamposFilter select')].some(visivel));
       const campoDa = l => unico([...l.querySelectorAll('.colCamposFilter select')].filter(visivel), 'Filtro Campo não identificado.');
-      const situacao = unico(linhas.filter(l => campoDa(l).value === 'Situacao'), 'Filtro Situação não identificado.');
-      const codigo = unico(linhas.filter(l => l !== situacao), 'Filtro Código não identificado.');
+      const tipo = l => normal(campoDa(l).selectedOptions[0]?.textContent);
+      diagnosticoFiltros = {total: todas.length, visiveis: linhas.length,
+        campos: linhas.map(l => ['CODIGO', 'SITUACAO', 'NOME'].includes(tipo(l)) ? tipo(l) : 'OUTRO')};
+      const situacao = unico(linhas.filter(l => tipo(l) === 'SITUACAO'), 'Filtro Situação não identificado de forma única.');
+      const codigos = linhas.filter(l => tipo(l) === 'CODIGO');
+      const alternativas = linhas.filter(l => l !== situacao &&
+        [...campoDa(l).options].some(o => normal(o.textContent) === 'CODIGO' && !o.disabled));
+      const codigo = unico(codigos.length ? codigos : alternativas, 'Filtro para pesquisar Código não identificado de forma única.');
+      for (const extra of linhas.filter(l => l !== situacao && l !== codigo)) {
+        const valores = [...extra.querySelectorAll('.colFilterFilter input, .colFilterFilter select')].filter(visivel);
+        if (tipo(extra) !== 'NOME' || valores.length !== 1 || valores[0].tagName !== 'INPUT' || valores[0].value.trim()) {
+          falhar('Há filtros adicionais preenchidos ou não reconhecidos na lupa. Limpe os filtros adicionais e tente novamente.');
+        }
+      }
       const operacao = l => unico([...l.querySelectorAll('.colOperationFilter select')].filter(visivel), 'Operação do filtro não identificada.');
       return {grade, panel, codigo, situacao, campo: campoDa(codigo), operacao: operacao(codigo), opSituacao: operacao(situacao)};
     }
@@ -197,7 +209,7 @@ export async function pesquisarServicoCenti(pedido) {
       await esperar(100);
     }
   } catch (e) {
-    return {ok: false, salvo: false, selecionado, selecaoAcionada, etapa, interacaoIniciada, pesquisaAcionada, detalhesSelecao,
+    return {ok: false, salvo: false, selecionado, selecaoAcionada, etapa, interacaoIniciada, pesquisaAcionada, detalhesSelecao, diagnosticoFiltros,
       mensagem: e.message + (selecaoAcionada ? ' O campo Serviço pode ter sido alterado; confira o formulário. Nenhum botão Salvar foi acionado.'
         : interacaoIniciada ? ' A lupa ou os filtros podem ter sido alterados. Nenhum botão Salvar foi acionado.' : ' Nenhuma ação foi iniciada.')};
   } finally { observador?.disconnect(); }

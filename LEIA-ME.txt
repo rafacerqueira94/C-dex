@@ -1,4 +1,4 @@
-Ponte Centi 0.14.7 — do cartão CNPJ ao cadastro na Centi
+Ponte Centi 0.14.8 — do cartão CNPJ ao cadastro na Centi
 
 1. Extraia o pacote e carregue/recarregue a extensão no Chrome/Edge. Confira
    a versão 0.14.7. Autorize acesso a ba.centi.com.br quando o navegador pedir.

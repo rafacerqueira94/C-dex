@@ -371,7 +371,8 @@ $('baixar-conexao').addEventListener('click', async () => {
       mensagem:ultima?.mensagem || cadastro?.mensagem || null,
       salvamentoAcionado:ultima?.salvamentoAcionado ?? null,
       diagnosticoSalvar:ultima?.diagnosticoSalvar || null,
-      diagnosticoNavegacao:ultima?.diagnosticoNavegacao || null
+      diagnosticoNavegacao:ultima?.diagnosticoNavegacao || null,
+      diagnosticoFiltros:ultima?.diagnosticoFiltros || null
     } : null;
     diagnosticoConexao = {...atual, lidoEm: new Date().toISOString(), falhaLocalizacao, falhaCadastro};
     const url = URL.createObjectURL(new Blob([JSON.stringify(diagnosticoConexao, null, 2)], {type: 'application/json'}));
