@@ -11,32 +11,38 @@ export function lerVinculosCenti() {
     if ([...document.querySelectorAll('input[id^="IdServico"], .tableFilterSearch--modal')].some(visivel)) {
       falhar('Selecione a pasta Serviços, fora do formulário e com a lupa fechada.');
     }
-    const grades = [...document.querySelectorAll('.wj-flexgrid')].filter(visivel).filter(g => {
-      const textos = [...g.querySelectorAll('.wj-colheaders .wj-cell')].filter(visivel).map(e => normal(e.textContent));
-      return ['ID', 'SERVICO', 'DATA INICIO', 'DATA FIM'].every(t => textos.includes(t));
-    });
-    if (grades.length !== 1) falhar('Não encontrei uma única relação de Serviços com ID e datas.');
-    const grade = grades[0];
-    const cabecalhos = [...grade.querySelectorAll('.wj-colheaders .wj-cell')].filter(visivel).map(e => normal(e.textContent));
-    // A tela observada contém seleção + ID + Serviço + duas datas. O Wijmo pode
-    // repetir os cabeçalhos e renderizar uma cópia da mesma linha para medição.
+    const obrigatorios = ['ID', 'SERVICO', 'DATA INICIO', 'DATA FIM'];
+    const grades = [...document.querySelectorAll('.wj-flexgrid')].filter(visivel).map(g => {
+      let controle;
+      try { controle = globalThis.wijmo?.Control?.getControl?.(g); } catch { /* usar DOM se completo */ }
+      const colunas = Array.from(controle?.columns || []);
+      const indices = obrigatorios.map(t => colunas.map((c,i) => normal(c.header) === t ? i : -1).filter(i => i >= 0));
+      if (typeof controle?.getCellData === 'function' && indices.every(i => i.length === 1)) return {grade:g, controle, indices:indices.map(i=>i[0])};
+      const textos = [...g.querySelectorAll('.wj-colheaders .wj-cell')].filter(visivel).map(e=>normal(e.textContent));
+      return obrigatorios.every(t=>textos.includes(t)) ? {grade:g,controle:null} : null;
+    }).filter(Boolean);
+    if (grades.length !== 1) falhar('Não encontrei uma única relação de Serviços com ID e datas no DOM ou na API pública.');
+    const {grade, controle, indices} = grades[0];
+    const cabecalhos = controle ? ['', ...obrigatorios] : [...grade.querySelectorAll('.wj-colheaders .wj-cell')].filter(visivel).map(e => normal(e.textContent));
     const modelo = cabecalhos.slice(0, 5);
     if (modelo.length !== 5 || modelo.slice(1).join('|') !== 'ID|SERVICO|DATA INICIO|DATA FIM'
         || cabecalhos.length % 5 !== 0
         || cabecalhos.some((h, i) => h !== modelo[i % 5])) falhar('A ordem das colunas mudou; a leitura foi interrompida.');
-    const linhas = [...grade.querySelectorAll('.wj-cells > .wj-row')].filter(visivel);
+    if (controle && (!Number.isSafeInteger(controle.rows?.length) || controle.rows.length > 10000)) falhar('A quantidade de linhas da API não pôde ser conferida.');
+    const linhas = controle ? Array.from(controle.rows, (_, i) => ['', ...indices.map(c => String(controle.getCellData(i,c,true) ?? '').replace(/\s+/g,' ').trim())])
+      : [...grade.querySelectorAll('.wj-cells > .wj-row')].filter(visivel);
     const registros = new Map();
     const vinculosPendentes = [];
     const detalhesLinhasNaoInterpretadas = [];
     let repeticoesDeRenderizacao = 0, linhasNaoInterpretadas = 0, cabecalhosRepetidosIgnorados = 0;
     for (const linha of linhas) {
-      const celulas = [...linha.children].filter(e => e.matches('.wj-cell'));
-      if (celulas.length !== 5) {
+      const celulas = Array.isArray(linha) ? null : [...linha.children].filter(e => e.matches('.wj-cell'));
+      if (celulas && celulas.length !== 5) {
         linhasNaoInterpretadas++;
         detalhesLinhasNaoInterpretadas.push({motivo: 'quantidade_de_celulas', quantidadeCelulas: celulas.length});
         continue;
       }
-      const valores = celulas.map(e => (e.textContent ?? '').replace(/\s+/g, ' ').trim());
+      const valores = Array.isArray(linha) ? linha : celulas.map(e => (e.textContent ?? '').replace(/\s+/g, ' ').trim());
       if (valores.every((v, i) => normal(v) === modelo[i])) {
         cabecalhosRepetidosIgnorados++;
         continue;
@@ -62,10 +68,10 @@ export function lerVinculosCenti() {
       } else registros.set(idVinculo, registro);
     }
     return {
-      tipo: 'captura_vinculos_centi', versao: 1, lidoEm: new Date().toISOString(),
+      tipo: 'captura_vinculos_centi', versao: 1, origemLeitura: controle ? 'api_publica_wijmo' : 'dom', lidoEm: new Date().toISOString(),
       registros: [...registros.values()], vinculosPendentes, linhasNaoInterpretadas, detalhesLinhasNaoInterpretadas, repeticoesDeRenderizacao, cabecalhosRepetidosIgnorados,
       leituraCompleta: false, empresaVerificadaAutomaticamente: false,
-      observacao: 'Somente linhas renderizadas. Paginação, filtros, serviços herdados e empresa não foram verificados automaticamente.'
+      observacao: (controle ? 'Linhas disponíveis na API pública da grade. ' : 'Somente linhas renderizadas. ') + 'Paginação, filtros, serviços herdados e empresa não foram verificados automaticamente.'
     };
   } catch (erro) {
     return {tipo: 'erro_leitura_centi', versao: 1,

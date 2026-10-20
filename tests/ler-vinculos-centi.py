@@ -46,6 +46,26 @@ class LeituraVinculos(unittest.TestCase):
         self.assertEqual(self.page.content(), before)
         self.assertEqual(self.page.evaluate('window.acoes'), 0)
 
+    def api_virtualizada(self, dados, colunas=None):
+        self.page.set_content(self.grid('', header='<div class="wj-cell"></div><div class="wj-cell">ID</div><div class="wj-cell">Serviço</div>'))
+        self.page.evaluate("""p=>{
+          window.acoes=0;
+          const controle={columns:p.colunas.map(header=>({header})),rows:p.dados.map(()=>({})),
+            getCellData:(i,c)=>p.dados[i][c],select:()=>{window.acoes++;throw Error('Não selecionar durante leitura')}};
+          window.wijmo={Control:{getControl:()=>controle}};
+        }""", {'dados':dados,'colunas':colunas or ['ID','Serviço','Data início','Data fim']})
+    def test_virtualized_dates_are_read_by_public_api_without_clicks(self):
+        self.api_virtualizada([['1000','238','20/10/2026',''],['0','51','20/10/2026','']])
+        r=self.read();self.assertEqual(r['origemLeitura'],'api_publica_wijmo')
+        self.assertEqual(r['registros'][0]['dataInicio'],'20/10/2026')
+        self.assertEqual(r['vinculosPendentes'][0]['nome'],'51')
+        self.assertFalse(r['leituraCompleta']);self.assertEqual(self.page.evaluate('acoes'),0)
+    def test_public_api_missing_date_column_is_not_accepted(self):
+        self.api_virtualizada([['1000','238']],['ID','Serviço'])
+        self.assertEqual(self.read()['tipo'],'erro_leitura_centi')
+    def test_conflicting_rows_from_api_still_abort(self):
+        self.api_virtualizada([['1000','238','20/10/2026',''],['1000','51','20/10/2026','']])
+        self.assertIn('dados divergentes',self.read()['mensagem'])
     def test_distinct_binding_ids_are_never_merged_by_service_name(self):
         self.page.set_content(self.grid(self.row('1000')+self.row('1001')))
         self.assertEqual(len(self.read()['registros']), 2)

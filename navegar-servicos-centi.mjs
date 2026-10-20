@@ -8,7 +8,11 @@ export async function navegarServicosCenti(pedido) {
   const inputs = () => [...document.querySelectorAll('input[id^="IdServico"]')].filter(e => !e.id.endsWith('-second') && visivel(e));
   const grades = () => [...document.querySelectorAll('.wj-flexgrid')].filter(visivel).filter(g => {
     const textos = [...g.querySelectorAll('.wj-colheaders .wj-cell')].filter(visivel).map(e => normal(e.textContent));
-    return ['ID', 'SERVICO', 'DATA INICIO', 'DATA FIM'].every(t => textos.includes(t));
+    if (['ID', 'SERVICO', 'DATA INICIO', 'DATA FIM'].every(t => textos.includes(t))) return true;
+    let controle;
+    try { controle = globalThis.wijmo?.Control?.getControl?.(g); } catch { return false; }
+    const colunas = Array.from(controle?.columns || []).map(c => normal(c.header));
+    return typeof controle?.getCellData === 'function' && ['ID','SERVICO','DATA INICIO','DATA FIM'].every(t => colunas.filter(c => c === t).length === 1);
   });
   try {
     if (location.origin !== 'https://ba.centi.com.br' || !location.pathname.startsWith('/caetite/')) falhar('Abra a Centi de Caetité.');

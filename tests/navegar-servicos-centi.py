@@ -49,6 +49,12 @@ class Navegacao(unittest.TestCase):
     def test_hidden_header_template_does_not_make_unrelated_grid_compatible(self):
         self.page.evaluate("""()=>{const g=document.querySelector('#lista').cloneNode(true);g.id='outraGrade';g.querySelector('.wj-colheaders').style.visibility='hidden';document.body.append(g)}""")
         self.assertTrue(self.run_action('lista')['ok']);self.assertEqual(self.page.evaluate('cliques'),0)
+    def test_partial_rendered_headers_accept_complete_public_columns(self):
+        self.page.evaluate("""()=>{
+          const h=document.querySelector('.wj-colheaders');h.children[3].remove();h.children[2].remove();
+          window.wijmo={Control:{getControl:()=>({columns:['ID','Serviço','Data início','Data fim'].map(header=>({header})),getCellData(){throw Error('Somente metadados na navegação')}})}};
+        }""")
+        self.assertTrue(self.run_action('lista')['ok']);self.assertEqual(self.page.evaluate('cliques'),0)
     def test_existing_list_does_not_click_navigation(self):
         self.assertTrue(self.run_action('lista')['ok']);self.assertEqual(self.page.evaluate('cliques'),0)
 

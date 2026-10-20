@@ -46,8 +46,15 @@ export function inspecionarConexaoCenti() {
     .map(g => ({tag:g.tagName.toLowerCase(),classes:[...g.classList].slice(0,8),role:g.getAttribute('role'),
       cabecalhos:[...g.querySelectorAll('.wj-colheaders .wj-cell, [role=columnheader], th')].filter(visivel)
         .map(c => cabecalhosConhecidos.has(normal(c.textContent)) ? normal(c.textContent) : 'outro'),
-      linhasNoDom:g.querySelectorAll('.wj-cells > .wj-row, tbody > tr').length}));
-  return {tipo: 'diagnostico_conexao_centi', versao: 3, alvosNavegacao, grades, estado: document.readyState === 'loading' || !rotulosVisiveis.length ? 'carregando' : 'tela_disponivel',
+      linhasNoDom:g.querySelectorAll('.wj-cells > .wj-row, tbody > tr').length,
+      apiPublica: (() => {
+        try {const controle=globalThis.wijmo?.Control?.getControl?.(g);
+          return {disponivel:typeof controle?.getCellData==='function',
+            cabecalhos:Array.from(controle?.columns || []).map(c=>cabecalhosConhecidos.has(normal(c.header))?normal(c.header):'outro'),
+            quantidadeLinhas:Number.isSafeInteger(controle?.rows?.length)?controle.rows.length:null};
+        } catch {return {disponivel:false};}
+      })()}));
+  return {tipo: 'diagnostico_conexao_centi', versao: 4, alvosNavegacao, grades, estado: document.readyState === 'loading' || !rotulosVisiveis.length ? 'carregando' : 'tela_disponivel',
     somenteLeitura: true, controles,
     rotulosVisiveis,
     possuiFormularioServico: [...document.querySelectorAll('input[id^="IdServico"]')].some(visivel),

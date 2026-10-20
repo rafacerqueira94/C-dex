@@ -1,4 +1,4 @@
-# Cadastro com a Centi — versão 0.14.3
+# Cadastro com a Centi — versão 0.14.4
 
 ## Entrada atual — pode começar com a Centi fechada
 
@@ -176,3 +176,5 @@ O cartão de Cadastros pode usar div/li com clique delegado; agora é identifica
 Correção 0.14.2: o mapa real mostrou Atividade econômica em div.sidebarSubItens sem role/onclick. Esse controle agora é reconhecido pelo rótulo exato; com submenu visível, não procura Arrecadação antes. A continuidade ainda precisa de validação na Centi real.
 
 0.14.3: o novo mapa parou em navegarServicosCenti ao confirmar Serviços, já selecionado na árvore. A navegação usa o divTreeSelected observado e cabeçalhos visíveis como o leitor. Mapa v3/falhaLocalizacao incluem estrutura das grades, cabeçalhos conhecidos, contagem de linhas e etapa de espera; não copiam dados das células. A continuidade ainda depende de validação real.
+
+0.14.4: o mapa v3 confirmou que os cabeçalhos de data não estavam renderizados na espera, embora aparecessem depois. A identificação/leitura agora aceita metadados e getCellData da API pública Wijmo, sem depender da renderização de todas as colunas. Mantém bloqueio por coluna ausente/ambiguidade e fallback DOM completo. A captura indica origemLeitura e continua parcial quanto a paginação, filtros e herança. Mapa v4 registra metadados da API, sem valores de células.

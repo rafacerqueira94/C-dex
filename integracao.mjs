@@ -64,7 +64,7 @@ $('form-comparar').addEventListener('submit', async e => {
     // Validar lista e confirmação antes de acessar a página.
     compararCaptura(plano, {tipo: 'captura_vinculos_centi', registros: []}, catalogo, cnpj);
     $('status').textContent = 'Lendo os vínculos visíveis da aba da Centi…';
-    const leituras = await chrome.scripting.executeScript({target: {tabId: aba}, func: lerVinculosCenti});
+    const leituras = await chrome.scripting.executeScript({target: {tabId: aba}, func: lerVinculosCenti, world:'MAIN'});
     const captura = leituras[0]?.result;
     if (captura?.tipo === 'erro_leitura_centi') throw Error(captura.mensagem || 'Não foi possível ler a relação de Serviços.');
     if (!captura) throw Error('A aba da Centi não retornou a leitura. Clique novamente no ícone na aba da Centi.');
@@ -231,8 +231,8 @@ $('cadastrar-servicos').addEventListener('click', async () => {
   const fases = {reler_servicos: 'Relendo os serviços…', abrir_vinculo: 'Abrindo vínculo novo…', pesquisar_selecionar: 'Pesquisando e selecionando serviço…', salvar: 'Salvando vínculo…', voltar_servicos: 'Voltando à lista para confirmar…'};
   try {
     const cadastro = await cadastrarServicos({plano: planoAtual, catalogo: catalogoAtual, cnpj: resultado.empresa.cnpj, ausenciaConferida: true}, {
-      ler: () => executar(lerVinculosCenti),
-      navegar: acao => executar(navegarServicosCenti, {acao}),
+      ler: () => executar(lerVinculosCenti, undefined, 'MAIN'),
+      navegar: acao => executar(navegarServicosCenti, {acao}, 'MAIN'),
       selecionar: pedido => executar(pesquisarServicoCenti, pedido, 'MAIN'),
       salvar: pedido => executar(salvarServicoCenti, pedido),
       identificador: () => Array.from(crypto.getRandomValues(new Uint8Array(16)), n => n.toString(16).padStart(2, '0')).join(''),
@@ -305,7 +305,7 @@ async function verificarConexao() {
   if (verificandoConexao || !Number.isSafeInteger(aba)) return;
   verificandoConexao = true;
   try {
-    const respostas = await chrome.scripting.executeScript({target: {tabId: aba}, func: inspecionarConexaoCenti});
+    const respostas = await chrome.scripting.executeScript({target: {tabId: aba}, func: inspecionarConexaoCenti, world:'MAIN'});
     const leitura = respostas[0]?.result;
     if (!leitura || ['aguardando_login', 'fora_da_centi', 'carregando'].includes(leitura.estado)) {
       $('status-conexao').textContent = 'Entre na Centi na aba aberta. O aplicativo verificará a conexão novamente.';
@@ -337,7 +337,7 @@ $('abrir-centi').addEventListener('click', abrirConexao);
 $('baixar-conexao').addEventListener('click', async () => {
   $('baixar-conexao').disabled = true;
   try {
-    const leituras = await chrome.scripting.executeScript({target:{tabId:aba},func:inspecionarConexaoCenti});
+    const leituras = await chrome.scripting.executeScript({target:{tabId:aba},func:inspecionarConexaoCenti,world:'MAIN'});
     const atual = leituras[0]?.result;
     if (!atual) throw Error('Não foi possível ler a tela atual da Centi.');
     diagnosticoConexao = {...atual, lidoEm: new Date().toISOString(), falhaLocalizacao};
@@ -379,7 +379,7 @@ async function localizarEmpresa() {
     const aberto=await executar(abrirEmpresaCenti,encontrado,'MAIN');
     if (aberto.empresaConferida !== true) throw Error('A identidade da empresa não foi confirmada.');
     $('status-localizacao').textContent='Empresa conferida. Abrindo a pasta Serviços…';
-    await executar(navegarServicosCenti,{acao:'lista'});
+    await executar(navegarServicosCenti,{acao:'lista'},'MAIN');
     empresaLocalizada=true;
     $('conferido').checked=true;
     $('status-localizacao').textContent='Empresa e pasta Serviços abertas automaticamente. Lendo os vínculos…';

@@ -1,6 +1,6 @@
 # Como retomar e recuperar o Ponte Centi
 
-Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.14.3** (entrada pelo PDF, passagem interna sem JSON e cadastro sequencial com salvamento/releitura; nova automação ainda sem validação real).
+Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.14.4** (entrada pelo PDF, passagem interna sem JSON e cadastro sequencial com salvamento/releitura; nova automação ainda sem validação real).
 
 ## Onde o projeto está salvo
 
@@ -105,3 +105,5 @@ O mapa v1 enviado tinha AR022 visível mas não registrava ancestrais do cartão
 O mapa real seguinte confirmou submenu em div.sidebarSubItens com span Atividade econômica, ignorado pelo seletor, causando procura indevida de Arrecadação. A 0.14.2 inclui essa classe específica nos controles de navegação; não ampliar para qualquer div de texto semelhante.
 
 Último mapa: pesquisa/abertura da empresa avançaram, mas navegarServicosCenti expirou ao confirmar a lista. Serviços aparece em div.divTreeSelected / rowTree.normalRowTree.row. A 0.14.3 clica nesse controle, alinha visibilidade de cabeçalhos ao leitor e inclui grades/cabeçalhos e etapa exata no mapa v3. Ainda falta confirmar o DOM da grade real; não inferir ausência de serviços ou sucesso de salvamento desse mapa.
+
+Mapa v3 confirmou datas não renderizadas na espera, mas presentes depois. A 0.14.4 usa API pública Wijmo para identificar colunas e ler os vínculos independentemente da virtualização horizontal. Navegação/leitura/diagnóstico são injetados em MAIN; sem API completa, usa DOM completo ou bloqueia. Exporta origemLeitura e não declara cobertura integral de paginação/herança. Mapa v4 inclui metadados da API para diagnóstico, sem dados das células.
