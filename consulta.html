@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ponte Centi — conferir serviços</title><link rel="stylesheet" href="consulta.css"><script type="module" src="consulta.mjs"></script></head>
 <body>
-<header><div class="marca">Ponte <strong>Centi</strong></div><span>Consulta e conferência · 0.14.9</span></header>
+<header><div class="marca">Ponte <strong>Centi</strong></div><span>Consulta e conferência · 0.14.10</span></header>
 <main>
   <section class="introducao"><p class="passo">1. IMPORTAR PDF → 2. CONFERIR SERVIÇOS → 3. CADASTRAR NA CENTI</p><h1>Do cartão CNPJ ao cadastro na Centi</h1><p>Anexe o cartão CNPJ da Receita e confira os serviços sugeridos antes do cadastro na Centi.</p></section>
   <section class="cartao" aria-labelledby="titulo-consulta"><h2 id="titulo-consulta">Identificar empresa</h2>
@@ -25,7 +25,7 @@
   <section id="revisao" class="cartao" hidden aria-labelledby="titulo-revisao"><p class="passo">REVISAR SUGESTÕES</p><h2 id="titulo-revisao">Serviços para conferência</h2><p id="aliquota" class="destaque"></p>
     <p>Marque os serviços que deseja incluir na lista. Confira a atividade efetivamente exercida e o enquadramento municipal.</p>
     <div id="lacunas" class="aviso" hidden></div><p id="sem-servicos" hidden></p>
-    <div class="tabela"><table><thead><tr><th scope="col">Selecionar</th><th scope="col">Serviço</th><th scope="col">CNAEs de origem</th><th scope="col">Registro na Centi</th></tr></thead><tbody id="servicos"></tbody></table></div>
+    <div class="tabela"><table><thead><tr><th scope="col"><label><input id="selecionar-todos" type="checkbox" disabled> Selecionar todos</label></th><th scope="col">Serviço</th><th scope="col">CNAEs de origem</th><th scope="col">Registro na Centi</th></tr></thead><tbody id="servicos"></tbody></table></div>
     <p id="contagem" role="status"></p>
     <form id="form-confirmacao"><label class="aceite"><input id="aceite" type="checkbox" required> Conferi os dados da empresa, a alíquota e os serviços selecionados, incluindo os avisos de correspondências ausentes.</label><button id="confirmar" disabled type="submit">Confirmar lista</button></form>
   </section>

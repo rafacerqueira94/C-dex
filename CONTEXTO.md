@@ -322,3 +322,8 @@ Verificação: 20 testes simulados da pesquisa, 14 da interface de integração 
 O usuário relatou erro ao iniciar sem Arrecadação expandida. O mapa enviado foi capturado já no formulário Serviço, sem falhaLocalizacao/falhaCadastro, e não confirma a estrutura do menu fechado. A inspeção do código mostrou seletor restrito a controles com atributos de clique e espera fixa de 200 ms pelo submenu.
 
 A navegação identifica rótulos exatos mínimos inclusive div/span com clique delegado; mantém recusa em caso de ambiguidade. Abre Arrecadação somente se Atividade econômica ainda não está visível e espera até oito segundos pelo submenu. Rola o alvo para a área visível antes de conferir cobertura/clique. Preserva bloqueio por alterações pendentes. Nove testes simulados da navegação/pesquisa passaram, incluindo menu fechado com listener delegado e abertura atrasada, menu já aberto e ambiguidade. Validação real com menu fechado ainda pendente.
+
+
+## Selecionar todos — 0.14.10
+
+O usuário confirmou funcionamento da correção anterior e pediu seleção em lote na revisão. O cabeçalho da lista agora permite selecionar/desmarcar todos os serviços habilitados. Itens sem registro ativo ou com registro municipal ainda não escolhido continuam desabilitados. Seleções individuais atualizam o estado parcial do cabeçalho; mudanças invalidam a conferência anterior e exigem novamente o aceite antes de continuar.

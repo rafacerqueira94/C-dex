@@ -26,6 +26,11 @@ function selecoes() {
 }
 function atualizarContagem() {
   const total = selecoes().length;
+  const disponiveis = [...$('servicos').querySelectorAll('input[type=checkbox]:not(:disabled)')];
+  const marcados = disponiveis.filter(input => input.checked).length;
+  $('selecionar-todos').disabled = disponiveis.length === 0;
+  $('selecionar-todos').checked = disponiveis.length > 0 && marcados === disponiveis.length;
+  $('selecionar-todos').indeterminate = marcados > 0 && marcados < disponiveis.length;
   $('contagem').textContent = `${total} serviço${total === 1 ? '' : 's'} selecionado${total === 1 ? '' : 's'}.`;
   $('confirmar').disabled = total === 0 || !$('aceite').checked;
 }
@@ -84,6 +89,11 @@ function renderizarConversao() {
   }
   atualizarContagem();
 }
+$('selecionar-todos').addEventListener('change', () => {
+  const marcar = $('selecionar-todos').checked;
+  for (const input of $('servicos').querySelectorAll('input[type=checkbox]:not(:disabled)')) input.checked = marcar;
+  invalidarConferencia(); atualizarContagem();
+});
 $('arquivo-pdf').addEventListener('change',limparConsulta);
 window.addEventListener('beforeunload',() => { if(estado.anexoUrl) URL.revokeObjectURL(estado.anexoUrl); });
 for (const input of document.querySelectorAll('input[name=coworking]')) input.addEventListener('change',() => { erro(''); renderizarConversao(); });
