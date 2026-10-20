@@ -1,6 +1,6 @@
 # Como retomar e recuperar o Ponte Centi
 
-Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.14.1** (entrada pelo PDF, passagem interna sem JSON e cadastro sequencial com salvamento/releitura; nova automação ainda sem validação real).
+Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.14.2** (entrada pelo PDF, passagem interna sem JSON e cadastro sequencial com salvamento/releitura; nova automação ainda sem validação real).
 
 ## Onde o projeto está salvo
 
@@ -101,3 +101,5 @@ O percurso novo passou por testes simulados; ainda requer validação real de DO
 ## Diagnóstico da navegação 0.14.1
 
 O mapa v1 enviado tinha AR022 visível mas não registrava ancestrais do cartão nem falha da localização e podia ser anterior à tentativa. O cartão AR022 agora aceita div/li de texto exato e o mapa v2 é lido de novo ao baixar, com ancestrais estruturais e função/etapa da falha. Não afirmar correção real só pelo mapa antigo.
+
+O mapa real seguinte confirmou submenu em div.sidebarSubItens com span Atividade econômica, ignorado pelo seletor, causando procura indevida de Arrecadação. A 0.14.2 inclui essa classe específica nos controles de navegação; não ampliar para qualquer div de texto semelhante.

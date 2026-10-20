@@ -51,6 +51,15 @@ class Empresa(unittest.TestCase):
         }""")
         r=self.pesquisar();self.assertTrue(r['ok'],r)
         self.assertEqual(self.page.evaluate('cliques'),['arrec','econ','ar022','pesquisar'])
+    def test_real_sidebar_subitem_div_does_not_require_arrecadacao_click(self):
+        self.page.evaluate("""()=>{
+          document.querySelector('#arrec').remove();document.querySelector('#econ').remove();
+          const item=document.createElement('div');item.className='sidebarSubItens';
+          item.innerHTML='<span>Atividade econômica</span>';document.body.prepend(item);
+          document.body.addEventListener('click',e=>{if(item.contains(e.target)){cliques.push('econ');document.querySelector('#card').hidden=false}});
+        }""")
+        r=self.pesquisar();self.assertTrue(r['ok'],r)
+        self.assertEqual(self.page.evaluate('cliques'),['econ','ar022','pesquisar'])
     def test_no_result_or_duplicates_do_not_open_company(self):
         for modo in ['vazio','duplicado']:
             self.page.evaluate('m=>window.modo=m',modo);r=self.pesquisar();self.assertFalse(r['ok'])

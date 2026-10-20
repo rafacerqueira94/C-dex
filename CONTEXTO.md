@@ -228,3 +228,10 @@ O usuário enviou mapa-conexao-centi.json v1: tela_disponivel, rótulos CONTRIBU
 O resolvedor de AR022 foi ampliado para cartão em div/li com listener delegado, sem atributo onclick/href/role. Exige texto exato Atividade econômica + AR022 (+ indicador VIDEO opcional), escolhe o menor grupo e preserva unicidade; não clica em um contêiner amplo de funcionalidades. O mapa v2 registra ancestrais estruturais dos títulos (tags/classes/roles/indicação de handler) sem copiar texto livre, e o download agora injeta uma nova leitura no momento do clique, incluindo horário e falhaLocalizacao (função/etapa/mensagem). Falha de transporte também registra a função. O ajuste ainda precisa de teste na Centi real; se persistir, pedir o novo mapa após o bloqueio, não adivinhar outro controle.
 
 Verificação 0.14.1: seis testes DOM de pesquisa/abertura da empresa, cinco de fluxo PDF/conexão (incluindo download atualizado após erro) e 14 UI de integração passaram (25 afetados). O teste de mapa comprova nova leitura após alteração da tela e inclusão da função/etapa com falha. Não houve ação na Centi real.
+
+
+## Submenu real sidebarSubItens — 0.14.2 (20/10/2026)
+
+O novo mapa v2 registrou falhaLocalizacao pesquisarEmpresaCenti / abrir_pesquisa: O menu Arrecadação não foi identificado de forma única. Seu alvo ATIVIDADE ECONOMICA é um span dentro de div.sidebarSubItens, sem onclick ou role; não havia filtros/formulário de serviço. O seletor ignorava esse submenu visível e procurava Arrecadação desnecessariamente. Adicionado div.sidebarSubItens à lista de controles elegíveis, mantendo rótulo exato, visibilidade, unicidade e verificação do alvo do clique. O teste reproduz o div real com span e clique delegado, remove Arrecadação e verifica sequência direta economia→AR022→pesquisar. Não houve teste na Centi real nesta correção.
+
+Verificação 0.14.2: passaram sete testes DOM de pesquisa/abertura de empresa, cinco de fluxo PDF e 14 UI de integração (26 afetados). O caso novo reproduz a estrutura recebida no mapa, sem usar dados privados da empresa.

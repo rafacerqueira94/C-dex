@@ -6,7 +6,7 @@ export async function pesquisarEmpresaCenti(pedido) {
   const esperar = ms => new Promise(r => setTimeout(r, ms));
   const falhar = m => { throw Error(m); };
   const unico = (lista, m) => {if (lista.length !== 1) falhar(m);return lista[0];};
-  const controles = () => [...document.querySelectorAll('a,button,[role=button],[onclick],[ng-click],[data-action]')].filter(visivel);
+  const controles = () => [...document.querySelectorAll('a,button,[role=button],[onclick],[ng-click],[data-action],div.sidebarSubItens')].filter(visivel);
   const clicar = e => {
     if (e.disabled || e.getAttribute('aria-disabled') === 'true') falhar('Controle de navegação desabilitado.');
     const r = e.getBoundingClientRect(), alvo = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
