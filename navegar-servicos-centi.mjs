@@ -2,6 +2,12 @@
 export async function navegarServicosCenti(pedido) {
   let interacaoIniciada = false;
   const normal = s => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toUpperCase();
+  const tituloColuna = c => {
+    const titulo = normal(c.header);
+    if (['ID','SERVICO','DATA INICIO','DATA FIM'].includes(titulo)) return titulo;
+    const internos = {DATAINICIO:'DATA INICIO', DATAFIM:'DATA FIM'};
+    return internos[normal(c.binding)] || titulo;
+  };
   const visivel = e => e && e.getClientRects().length > 0 && getComputedStyle(e).visibility !== 'hidden';
   const falhar = m => { throw Error(m); };
   const unicos = lista => [...new Set(lista)];
@@ -26,7 +32,7 @@ export async function navegarServicosCenti(pedido) {
     if (['ID', 'SERVICO', 'DATA INICIO', 'DATA FIM'].every(t => textos.includes(t))) return true;
     let controle;
     try { controle = globalThis.wijmo?.Control?.getControl?.(g); } catch { return false; }
-    const colunas = Array.from(controle?.columns || []).map(c => normal(c.header));
+    const colunas = Array.from(controle?.columns || []).map(c => tituloColuna(c));
     const completa = typeof controle?.getCellData === 'function' && ['ID','SERVICO','DATA INICIO','DATA FIM'].every(t => colunas.filter(c => c === t).length === 1);
     if (completa) {globalThis.__ponteCentiVazioConfirmado?.delete(g);return true;}
     return listaVaziaConfirmada(g,controle);
@@ -38,7 +44,7 @@ export async function navegarServicosCenti(pedido) {
     if (!/^[1-9]\d*$/.test(pedido.idVinculoEsperado)) return false;
     const g = encontradas[0];let controle;
     try {controle = globalThis.wijmo?.Control?.getControl?.(g);} catch { /* usar células renderizadas */ }
-    const colunas = Array.from(controle?.columns || []).map(c=>normal(c.header));
+    const colunas = Array.from(controle?.columns || []).map(c=>tituloColuna(c));
     const indice = colunas.indexOf('ID');
     if (typeof controle?.getCellData === 'function' && indice >= 0) return Array.from(controle.rows || [],(_,i)=>String(controle.getCellData(i,indice,true)).trim()).includes(pedido.idVinculoEsperado);
     const cabecalhos = [...g.querySelectorAll('.wj-colheaders .wj-cell')].filter(visivel).map(c=>normal(c.textContent));

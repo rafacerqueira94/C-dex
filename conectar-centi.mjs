@@ -51,6 +51,7 @@ export function inspecionarConexaoCenti() {
         try {const controle=globalThis.wijmo?.Control?.getControl?.(g);
           return {disponivel:typeof controle?.getCellData==='function',
             cabecalhos:Array.from(controle?.columns || []).map(c=>cabecalhosConhecidos.has(normal(c.header))?normal(c.header):'outro'),
+            bindingsReconhecidos:Array.from(controle?.columns || []).map(c=>['ID','IDSERVICO','DATAINICIO','DATAFIM'].includes(normal(c.binding))?normal(c.binding):'outro'),
             quantidadeLinhas:Number.isSafeInteger(controle?.rows?.length)?controle.rows.length:null,
             fonteDisponivel:Array.isArray(controle?.collectionView?.sourceCollection),
             tamanhoFonte:Array.isArray(controle?.collectionView?.sourceCollection)?controle.collectionView.sourceCollection.length:null,

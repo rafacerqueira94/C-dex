@@ -7,6 +7,12 @@ export function lerVinculosCenti() {
     }
     const visivel = e => e.getClientRects().length > 0 && getComputedStyle(e).visibility !== 'hidden';
     const normal = s => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toUpperCase();
+  const tituloColuna = c => {
+    const titulo = normal(c.header);
+    if (['ID','SERVICO','DATA INICIO','DATA FIM'].includes(titulo)) return titulo;
+    const internos = {DATAINICIO:'DATA INICIO', DATAFIM:'DATA FIM'};
+    return internos[normal(c.binding)] || titulo;
+  };
     if ([...document.querySelectorAll('input[type=password]')].some(visivel)) falhar('Entre na Centi antes de comparar.');
     if ([...document.querySelectorAll('input[id^="IdServico"], .tableFilterSearch--modal')].some(visivel)) {
       falhar('Selecione a pasta Serviços, fora do formulário e com a lupa fechada.');
@@ -31,7 +37,7 @@ export function lerVinculosCenti() {
       let controle;
       try { controle = globalThis.wijmo?.Control?.getControl?.(g); } catch { /* usar DOM se completo */ }
       const colunas = Array.from(controle?.columns || []);
-      const indices = obrigatorios.map(t => colunas.map((c,i) => normal(c.header) === t ? i : -1).filter(i => i >= 0));
+      const indices = obrigatorios.map(t => colunas.map((c,i) => tituloColuna(c) === t ? i : -1).filter(i => i >= 0));
       if (typeof controle?.getCellData === 'function' && indices.every(i => i.length === 1)) {
         globalThis.__ponteCentiVazioConfirmado?.delete(g);
         return {grade:g, controle, indices:indices.map(i=>i[0])};

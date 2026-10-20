@@ -1,6 +1,6 @@
 # Como retomar e recuperar o Ponte Centi
 
-Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.15.0** (entrada pelo PDF, passagem interna sem JSON e cadastro com salvamento único ao final do lote; novo fluxo em validação, com salvamento individual anterior confirmado em casos reais).
+Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.15.1** (entrada pelo PDF, passagem interna sem JSON e cadastro com salvamento único ao final do lote; novo fluxo em validação, com salvamento individual anterior confirmado em casos reais).
 
 ## Onde o projeto está salvo
 

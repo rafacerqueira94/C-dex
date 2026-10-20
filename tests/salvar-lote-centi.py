@@ -22,6 +22,9 @@ class Lote(unittest.TestCase):
  def test_one_click_for_two_pending_and_no_repeat(self):
   r=self.run_save();self.assertTrue(r['ok'],r);self.assertTrue(r['requerReleitura']);self.assertEqual(self.page.evaluate('cliques'),1)
   self.assertFalse(self.run_save()['ok']);self.assertEqual(self.page.evaluate('cliques'),1)
+ def test_date_caption_missing_is_identified_by_binding(self):
+  self.page.evaluate("()=>{controle.columns[3]={header:'',binding:'DataFim'}}")
+  self.assertTrue(self.run_save()['ok']);self.assertEqual(self.page.evaluate('cliques'),1)
  def test_external_pending_or_changed_dates_block(self):
   for script in ["linhas.push(['0','999','20/10/2026',''])","linhas[0][2]='01/01/2020'"]:
    self.page.evaluate(script);self.assertFalse(self.run_save()['ok']);self.assertEqual(self.page.evaluate('cliques'),0)

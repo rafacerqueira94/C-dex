@@ -350,3 +350,12 @@ O lote começa sem pendências/conflitos. Cada seleção tem serviço, datas e E
 A navegação com pendências e o salvamento pela lista são novos comportamentos ainda sem validação na Centi real. Leituras continuam parciais quanto a páginas, filtros e serviços herdados. A divergência 16220/16222 versus 16223/16224 do mesmo CNPJ continua sem explicação e não é resolvida por esta mudança. Não repetir esses registros como teste.
 
 Verificação 0.15.0: 70 testes afetados passaram (sete do lote Node, nove da fila individual/armazenamento, 12 de navegação, três do botão de lote em Chromium, 18 do salvamento individual/conferência, 14 da UI de integração e sete do fluxo PDF). Incluem espera por IDs definitivos sem novo clique, preservação dos vínculos existentes e recusa de pendências externas. Nenhuma operação foi realizada na Centi real durante esta implementação.
+
+
+## Coluna Data fim sem título reconhecido no lote — 0.15.1
+
+O relatório comparacao-centi-1792510997474.json parou após preencher e conferir 07.02.000/214, antes de iniciar 07.05.000/217 e sem clicar Salvar. Ao voltar à lista, não encontrou grade compatível. O mapa subsequente confirma Serviços selecionado, API pública disponível, fonte/itens/linhas = 1, sem carregamento; títulos da API: outro, ID, SERVICO, DATA INICIO, outro. Logo não é indisponibilidade da API nem contexto de execução errado (a navegação já era MAIN). A última coluna não tem título reconhecido. Os bindings não constam desse mapa, portanto não presumir seu valor concreto.
+
+A navegação, a leitura e o salvamento do lote agora aceitam os bindings exatos DataInicio/DataFim quando o título não é reconhecido, exigindo colunas únicas e conservando todos os demais bloqueios. Não inferem a última coluna pela posição. O mapa passa a registrar apenas bindings reconhecidos, para diagnóstico se houver outra estrutura. Testes simulam DataFim com título vazio nas três etapas. Precisa de validação na Centi real.
+
+O serviço 07.02.000 pode continuar pendente: não repetir Novo para ele. Para recuperar esta tentativa da versão anterior, conferir e salvar o pendente na Centi; depois iniciar nova consulta para somente os ausentes. O lote automático recusa pendências preexistentes e não adota silenciosamente alterações de execuções anteriores. Não houve operação remota na Centi nesta correção.

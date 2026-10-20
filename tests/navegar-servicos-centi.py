@@ -71,6 +71,13 @@ class Navegacao(unittest.TestCase):
           window.wijmo={Control:{getControl:()=>({columns:['ID','Serviço','Data início','Data fim'].map(header=>({header})),getCellData(){throw Error('Somente metadados na navegação')}})}};
         }""")
         self.assertTrue(self.run_action('lista')['ok']);self.assertEqual(self.page.evaluate('cliques'),0)
+    def test_pending_list_with_missing_date_caption_uses_binding(self):
+        self.page.evaluate("""()=>{
+          document.querySelector('.wj-colheaders').lastElementChild.remove();
+          window.wijmo={Control:{getControl:()=>({columns:[{header:'ID'},{header:'Serviço'},{header:'Data início'},{header:'',binding:'DataFim'}],rows:[{}],getCellData:()=>''})}};
+        }""")
+        self.assertTrue(self.run_action('lista')['ok'])
+
     def test_confirmed_empty_services_collection_allows_first_new_link(self):
         self.page.evaluate("""()=>{
           const g=document.querySelector('#lista');g.classList.add('wj-state-empty','tableSearch','gridCollectionTotal');g.innerHTML='<div class="wj-cells"><div class="wj-row"></div></div>';

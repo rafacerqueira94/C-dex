@@ -2,6 +2,12 @@
 export async function salvarLoteCenti(pedido) {
   let salvamentoAcionado=false;
   const normal=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim().toUpperCase();
+  const tituloColuna = c => {
+    const titulo = normal(c.header);
+    if (['ID','SERVICO','DATA INICIO','DATA FIM'].includes(titulo)) return titulo;
+    const internos = {DATAINICIO:'DATA INICIO', DATAFIM:'DATA FIM'};
+    return internos[normal(c.binding)] || titulo;
+  };
   const visivel=e=>e&&e.getClientRects().length>0&&getComputedStyle(e).visibility!=='hidden';
   try {
     if(location.origin!=='https://ba.centi.com.br'||!location.pathname.startsWith('/caetite/'))throw Error('Abra a Centi de Caetité.');
@@ -10,10 +16,10 @@ export async function salvarLoteCenti(pedido) {
     if(!esperado?.vinculosPendentes?.length||esperado.linhasNaoInterpretadas)throw Error('Lote pendente não conferido.');
     if([...document.querySelectorAll('input[type=password],input[id^=IdServico],.tableFilterSearch--modal,[role=dialog],.modal-backdrop')].some(visivel))throw Error('Mantenha apenas a lista de Serviços aberta.');
     const grades=[...document.querySelectorAll('.wj-flexgrid')].filter(visivel).map(g=>globalThis.wijmo?.Control?.getControl?.(g)).filter(c=>{
-      const h=Array.from(c?.columns||[]).map(v=>normal(v.header));return ['ID','SERVICO','DATA INICIO','DATA FIM'].every(t=>h.filter(v=>v===t).length===1)&&typeof c.getCellData==='function';
+      const h=Array.from(c?.columns||[]).map(v=>tituloColuna(v));return ['ID','SERVICO','DATA INICIO','DATA FIM'].every(t=>h.filter(v=>v===t).length===1)&&typeof c.getCellData==='function';
     });
     if(grades.length!==1)throw Error('A lista do lote não foi identificada na API pública.');
-    const grade=grades[0],colunas=Array.from(grade.columns).map(c=>normal(c.header));
+    const grade=grades[0],colunas=Array.from(grade.columns).map(c=>tituloColuna(c));
     const conferir=()=>{
       const registros=[],pendentes=[];
       for(let i=0;i<grade.rows.length;i++){
