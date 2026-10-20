@@ -99,14 +99,11 @@ class IntegracaoUI(unittest.TestCase):
             self.assertNotIn('private text', self.page.locator('#erro').inner_text())
             self.assertEqual(self.page.evaluate('window.leituras'), 0)
 
-    def test_generate_list_link_preserves_comparison_tab(self):
-        with self.page.expect_popup() as popup:
-            self.page.locator('#gerar-lista').click()
-        new_page = popup.value
-        new_page.wait_for_load_state()
-        self.assertTrue(new_page.url.endswith('/consulta.html'))
-        self.assertIn('integracao.html?aba=123', self.page.url)
-        self.assertEqual(new_page.locator('#arquivo-pdf').count(), 1)
+    def test_pdf_entry_preserves_centi_tab_in_same_application(self):
+        self.page.locator('#gerar-lista').click()
+        self.page.wait_for_url('**/consulta.html?aba=123')
+        self.assertEqual(self.page.locator('#arquivo-pdf').count(), 1)
+        self.assertFalse(self.page.locator('#continuar-centi').is_disabled())
 
     def test_search_requires_confirmation_and_exports_its_result(self):
         self.page.evaluate('''() => { chrome.scripting.executeScript=async p=>{

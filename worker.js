@@ -4,6 +4,6 @@ chrome.action.onClicked.addListener(tab => {
     const url = new URL(tab.url);
     naCenti = url.origin === 'https://ba.centi.com.br' && url.pathname.startsWith('/caetite/');
   } catch { /* Sem URL da aba, abrir a consulta PDF. */ }
-  const pagina = naCenti ? `integracao.html?aba=${tab.id}` : 'consulta.html';
+  const pagina = naCenti ? `consulta.html?aba=${tab.id}` : 'consulta.html';
   chrome.tabs.create({url: chrome.runtime.getURL(pagina)});
 });

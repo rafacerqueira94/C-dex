@@ -1,5 +1,7 @@
+import {guardarPlanoDaAba} from './fluxo-pdf.mjs';
 import {importarCartaoPdf} from './pdf.mjs';
 import {converterServicos, criarPlano, definirAliquota, formatarCnpj} from './dominio.mjs';
+const abaCenti = Number(new URLSearchParams(location.search).get('aba'));
 const $ = id => document.getElementById(id);
 const estado = {empresa: null, mapa: null, catalogo: null, conversao: null, plano: null, controle: null, sequencia: 0, anexoUrl: null};
 const rotuloBotao = () => 'Ler cartão e sugerir serviços';
@@ -125,3 +127,14 @@ try {
   }));
   [estado.mapa,estado.catalogo] = arquivos; $('consultar').disabled = false; $('status').textContent = 'Anexe o cartão CNPJ em PDF e informe o enquadramento em coworking.';
 } catch(e) { erro(e.message); $('status').textContent = ''; }
+
+$('continuar-centi').addEventListener('click', () => {
+  try {
+    guardarPlanoDaAba(sessionStorage, estado.plano, abaCenti);
+    location.href = `integracao.html?aba=${abaCenti}&origem=pdf`;
+  } catch (e) { erro(e.message); }
+});
+if (!Number.isSafeInteger(abaCenti) || abaCenti <= 0) {
+  $('conectar-centi').hidden = false;
+  $('continuar-centi').disabled = true;
+}

@@ -1,6 +1,10 @@
 # Integração Centi — evidências recuperadas
 
-## Desenvolvimento atual — 0.12.0
+## Desenvolvimento atual — 0.13.0
+
+O usuário corrigiu o objetivo: PDF da empresa atual → serviços filtrados → adicionar e salvar na Centi. A entrada padrão agora é consulta.html vinculada à aba Centi, com passagem interna do plano por sessão, sem exportação/importação de JSON. A integração preenche e protege o CNPJ vindo do PDF. cadastrar-servicos.mjs coordena a fila e exige releitura pelo ID salvo antes do próximo vínculo; navegar-servicos-centi.mjs automatiza Novo e retorno a Serviços por controles únicos. Em falha, interrompe sem repetir ações. Há teste completo com PDF real sintético e ações Chrome simuladas. A nova navegação e persistência ainda dependem de validação na Centi real; não repetir o caso já concluído. Veja LEIA-ME.txt para o fluxo atual.
+
+## Histórico 0.12.0
 
 O usuário priorizou automatizar o salvamento. A nova ação após revisão valida o formulário contra a seleção conferida, exige Especificar CNAE = Não e um único Salvar(1), aciona uma vez e observa ID definitivo. Falhas após o clique ou sem retorno são incertas e exigem releitura sem repetição. Testes simulados não validam a Centi real: o ID DOM de Especificar CNAE ainda não consta dos diagnósticos antigos. A identificação conservadora bloqueia se o campo não corresponder. Ainda falta validar o salvamento em um novo caso legítimo, preservando o caso concluído abaixo.
 

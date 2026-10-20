@@ -26,7 +26,11 @@ export async function salvarServicoCenti(pedido) {
     };
     conferir(true);
     // Não inferir o valor pelo índice ou por valores booleanos internos da Centi.
-    const cnae = unico([...document.querySelectorAll('select[id]')].filter(e => e.id === 'EspecificarCnae' + sufixo && visivel(e)), 'O campo Especificar CNAE não foi identificado. É necessário mapear esse campo antes de salvar automaticamente.');
+    const peloId = [...document.querySelectorAll('select[id]')].filter(e => e.id === 'EspecificarCnae' + sufixo && visivel(e));
+    const pelosRotulos = [...document.querySelectorAll('label[for]')]
+      .filter(e => visivel(e) && /^ESPECIFICAR CNAE\??$/.test(normal(e.textContent)))
+      .map(e => document.getElementById(e.htmlFor)).filter(e => e?.tagName === 'SELECT' && visivel(e));
+    const cnae = unico([...new Set([...peloId, ...pelosRotulos])], 'O campo Especificar CNAE não foi identificado de forma única. É necessário mapear esse campo antes de salvar automaticamente.');
     if (normal(cnae.selectedOptions[0]?.textContent) !== 'NAO') falhar('Especificar CNAE deve estar como Não neste fluxo.');
     const botao = unico([...document.querySelectorAll('button, [role=button], input[type=submit]')].filter(e => visivel(e)
       && /^SALVAR\s*\(1\)$/.test(normal(e.tagName === 'INPUT' ? e.value : e.textContent))), 'Não foi identificado um único botão Salvar(1). Nenhum salvamento foi iniciado.');

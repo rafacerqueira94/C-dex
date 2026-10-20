@@ -1,6 +1,6 @@
 # Como retomar e recuperar o Ponte Centi
 
-Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.12.0** (resumo da comparação e salvamento após revisão, ainda sem validação real).
+Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.13.0** (entrada pelo PDF, passagem interna sem JSON e cadastro sequencial com salvamento/releitura; nova automação ainda sem validação real).
 
 ## Onde o projeto está salvo
 
@@ -29,7 +29,7 @@ Não repetir essas inclusões para refazer o teste. A versão validada 0.11.2 n�
 
 1. Baixe o código pelo GitHub ou extraia o ZIP de código da pasta `backups/`.
 2. No Chrome/Edge, abra Extensões, ative o modo do desenvolvedor e carregue sem compactação a pasta que contém o `manifest.json` principal.
-3. Clique no ícone fora da Centi para abrir a leitura PDF. Na aba `https://ba.centi.com.br/caetite/`, o ícone abre a comparação.
+3. Na aba `https://ba.centi.com.br/caetite/`, com a empresa e a tabela Serviços abertas, clique no ícone: ele abre a importação do PDF já vinculada à aba Centi. Depois de conferir, use Continuar para cadastrar na Centi; não é preciso transportar JSON. Fora da Centi, o ícone abre apenas a consulta sem aba conectada.
 4. Para comparar, a tabela da pasta Serviços deve estar visível, com a lupa e o formulário de vínculo fechados. Abra um vínculo novo somente depois da comparação pronta.
 
 O operador não precisa de Node.js, servidor ou instalação npm. PDF.js e suas fontes já estão incorporados. O projeto recuperado não contém package.json, lockfile ou scripts npm originais; não presumir que os comandos npm citados em versões antigas existam.
@@ -43,10 +43,13 @@ Leia primeiro este arquivo e o final de `CONTEXTO.md`, pois as seções anterior
 As verificações usadas durante o desenvolvimento foram:
 
 ```sh
-node --test tests/conciliacao.test.mjs tests/comparar-captura.test.mjs tests/worker.test.mjs
+node --test tests/conciliacao.test.mjs tests/comparar-captura.test.mjs tests/worker.test.mjs tests/cadastrar-servicos.test.mjs
 python tests/ler-vinculos-centi.py
 python tests/pesquisar-servico-centi.py
 python tests/integracao-ui.py
+python tests/salvar-servico-centi.py
+python tests/navegar-servicos-centi.py
+python tests/fluxo-pdf-ui.py
 ```
 
 Os testes Python usam Playwright e Chromium, já disponíveis na máquina cloud onde o projeto foi preparado. Não há manifesto de dependências Python no projeto; uma máquina nova precisa disponibilizá-los para executar esses testes. O aplicativo empacotado não depende deles.
@@ -76,3 +79,9 @@ O bundle preserva objetos e referências Git, não credenciais/configurações l
 ## Preservar o trabalho daqui para frente
 
 Antes de encerrar uma etapa: verificar `git status`, revisar as mudanças, fazer commit, enviar ao GitHub e confirmar o SHA remoto. Atualizar `CONTEXTO.md` com validações e limitações. Para marcos importantes, criar uma nova tag e um novo bundle/ZIP sem sobrescrever os anteriores. Não guardar a única cópia em `/tmp` ou na conversa.
+
+## Fluxo atual 0.13.0
+
+A finalidade explicitada pelo usuário é importar o cartão CNPJ da empresa atual, filtrar serviços, adicionar e salvar na Centi. Não retornar ao roteiro de exigir exportar/importar JSON entre as etapas. O ícone na Centi abre consulta.html?aba=ID; a lista conferida passa na mesma aba por sessionStorage, vinculada à aba Centi, com prazo de 30 minutos e consumo único. A integração recebe o CNPJ do PDF, bloqueado para edição. Após comparar e autorizar a conferência de empresa/ausência fora da captura, Adicionar e salvar na Centi executa a fila em cadastrar-servicos.mjs. Novo/lista usam navegar-servicos-centi.mjs; pesquisa/seleção reaproveitam o módulo validado; persistência exige ID definitivo mais correspondência na releitura antes do próximo item. Falhas interrompem a fila, preservam relatório em ultimoCadastro e não repetem salvamento incerto.
+
+As novas navegações e salvamento ainda dependem de validação na Centi real; o teste completo usa um PDF real sintético e ações Chrome simuladas. A revisão da empresa, heranças/páginas/filtros e de outras alterações pendentes continua manual. O modo avançado por JSON em integracao.html permanece compatível, mas não é a entrada padrão.

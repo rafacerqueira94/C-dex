@@ -49,6 +49,12 @@ class Salvamento(unittest.TestCase):
         self.assertFalse(self.run_save()['ok'])
         self.page.locator('button').evaluate("e=>{e.textContent='Salvar(1)';e.after(e.cloneNode(true))}")
         self.assertFalse(self.run_save()['ok']);self.assertEqual(self.page.evaluate('cliques'),0)
+    def test_cnae_with_explicit_label_and_different_id_is_identified(self):
+        self.page.locator('select').evaluate("e=>{e.id='CnaeCustom';const l=document.createElement('label');l.htmlFor=e.id;l.textContent='Especificar cnae?';e.before(l)}")
+        self.assertTrue(self.run_save()['salvo'])
+    def test_ambiguous_cnae_label_blocks(self):
+        self.page.locator('select').evaluate("e=>{const s=e.cloneNode(true);s.id='outro';const l=document.createElement('label');l.htmlFor=s.id;l.textContent='Especificar cnae?';e.after(l,s)}")
+        self.assertFalse(self.run_save()['ok']);self.assertEqual(self.page.evaluate('cliques'),0)
     def test_company_and_review_required(self):
         for key,value in [('revisado',False),('somenteEstaPendencia',False),('cnpjConfirmado','99999999999999')]:
             before=self.pedido[key];self.pedido[key]=value;self.assertFalse(self.run_save()['ok']);self.pedido[key]=before

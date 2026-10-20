@@ -15,8 +15,8 @@ function abrir(tab) {
   callback(tab);
   return abertas;
 }
-test('ícone na Centi de Caetité abre comparação com a aba de origem', () => {
-  assert.deepEqual(abrir({id: 12, url: 'https://ba.centi.com.br/caetite/#/'}), ['chrome-extension://teste/integracao.html?aba=12']);
+test('ícone na Centi de Caetité abre importação PDF com a aba de origem', () => {
+  assert.deepEqual(abrir({id: 12, url: 'https://ba.centi.com.br/caetite/#/'}), ['chrome-extension://teste/consulta.html?aba=12']);
 });
 test('outro site ou outro município mantém a abertura da consulta PDF', () => {
   for (const url of ['https://exemplo.com/', 'https://ba.centi.com.br/outro/', 'https://ba.centi.com.br.evil.example/caetite/']) {

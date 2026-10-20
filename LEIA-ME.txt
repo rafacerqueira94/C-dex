@@ -1,71 +1,67 @@
-Ponte Centi 0.12.0 — guia de uso
+Ponte Centi 0.13.0 — do cartão CNPJ ao cadastro na Centi
 
-1. No Chrome/Edge, abra Extensões, ative o modo do desenvolvedor e carregue
-   sem compactação a pasta raiz que contém manifest.json.
-2. Fora da Centi, clique no ícone Ponte Centi para abrir a leitura do PDF.
-   Não abra consulta.html diretamente pela pasta no Windows.
-3. Anexe o cartão CNPJ completo da Receita Federal em PDF com texto
-   selecionável (até 10 MB e 20 páginas). Informe o enquadramento em coworking.
-4. Clique em Ler cartão e sugerir serviços. Confira empresa, porte, CNAEs,
-   serviços e avisos. Confirme a revisão e baixe servicos-conferidos-….json.
-5. Na Centi de Caetité, abra a empresa e selecione a pasta Serviços, deixando
-   a tabela visível, fora da lupa e do formulário de vínculo. Clique no ícone
-   da extensão nessa aba para abrir a comparação.
-6. Importe o JSON da lista conferida, informe e confira o mesmo CNPJ e use
-   Ler vínculos visíveis e comparar. PDF e JSON de diagnóstico/comparação
-   não são a lista a importar nessa tela.
-7. Revise os serviços localizados, pendentes, conflitos e não identificados.
-   Não localizado na captura não prova ausência: confira também filtros,
-   páginas, serviços herdados e vigência antes de decidir por uma inclusão.
-8. Para um serviço ausente, abra manualmente um vínculo novo na Centi:
-   Id 0, Serviço vazio, lupa fechada. Na comparação pronta, escolha o serviço
-   e confirme os requisitos. Pesquisar e selecionar pesquisa uma linha exata,
-   seleciona pela API pública Wijmo e ativa por clique ou duplo clique.
-9. Confira no formulário o código, descrição/alíquota, datas e Especificar
-   CNAE. O aplicativo verifica Serviço e preservação das datas, mas a revisão
-   dos demais campos é do operador. Pesquisa e seleção não acionam Salvar.
-10. Na seção Salvar o vínculo conferido, confirme a revisão e que este é o
-    único registro pendente. Clique em Salvar vínculo na Centi. O programa
-    confere os campos, exige Especificar CNAE = Não e um único Salvar(1),
-    aciona esse botão uma vez e aguarda um ID definitivo. Depois volte à
-    tabela da pasta Serviços e compare novamente antes de outro vínculo.
-    Se o resultado for incerto, não repita: releia a lista e confira a Centi.
-    Você também pode optar por salvar manualmente na Centi.
+1. Extraia o pacote. Em chrome://extensions ou edge://extensions, carregue
+   sem compactação a pasta raiz que contém manifest.json. Se já instalada,
+   recarregue a extensão e feche as abas antigas do Ponte Centi.
+2. Abra a empresa na Centi de Caetité e selecione a pasta Serviços, deixando
+   a tabela visível, fora do formulário e da lupa. Confira que não há outras
+   alterações pendentes no cadastro.
+3. Nessa aba Centi, clique no ícone Ponte Centi. A primeira tela agora pede
+   o cartão CNPJ em PDF da empresa atual, e não uma lista JSON antiga.
+4. Importe o cartão completo da Receita Federal e informe o enquadramento
+   em coworking. Clique em Ler cartão e sugerir serviços.
+5. Confira a empresa, os CNAEs, a alíquota, as sugestões e eventuais lacunas.
+   Marque os serviços aplicáveis, confirme a revisão e clique em Confirmar
+   lista. Use Continuar para cadastrar na Centi.
+6. A empresa e a lista passam diretamente para a etapa de cadastro. O CNPJ
+   vem do PDF e fica protegido contra edição. Não precisa baixar/importar
+   JSON. Confirme que o cadastro aberto na Centi é o da empresa do cartão
+   e clique em Ler vínculos visíveis e comparar.
+7. Confira a ausência dos serviços também nas páginas, filtros e serviços
+   herdados e confirme que não há outras alterações pendentes. Marque a
+   autorização e clique em Adicionar e salvar na Centi.
+8. O aplicativo ignora os serviços localizados. Para cada ausente, abre Novo,
+   pesquisa e seleciona o registro exato, confere os dados, aciona Salvar uma
+   vez, aguarda ID definitivo, volta a Serviços e relê a lista. Só avança
+   para o próximo quando o vínculo salvo foi localizado com o mesmo ID.
+9. Ao concluir, confira o resumo. Baixar comparação é opcional e inclui
+   as etapas do cadastro. Ele serve também para investigar um bloqueio.
 
-NOVO NA 0.12.0: salvamento após revisão com testes simulados. Ainda falta
-validar essa nova ação na Centi real. Se Especificar CNAE ou Salvar não forem
-identificados, a extensão bloqueia sem clicar; será necessário mapear os
-controles reais. Não refazer os cadastros do caso concluído para testar.
+Se houver falha ou resultado incerto, o fluxo para sem repetir ações.
+Confira o formulário e a lista na Centi antes de tentar novamente. Os
+vínculos já salvos serão reconhecidos pela próxima comparação; não recrie
+serviços para repetir testes. Uma falha pode deixar um vínculo novo aberto.
 
-Abrir lupa e pesquisar altera apenas filtros e resultados. Se a seleção não
-retornar ao formulário, confira a tela antes de tentar novamente; é possível
-escolher manualmente a linha exata e usar Conferir seleção manual. A extensão
-registra essa origem e não atribui a seleção manual à automação.
-Baixar comparação registra a captura e o resultado da última tentativa.
+O fluxo automático exige início igual à data de hoje em São Paulo, fim
+vazio e Especificar CNAE = Não. Ele preserva as datas geradas pela Centi;
+se forem diferentes, interrompe antes de salvar. A identificação de Novo,
+Serviços, Especificar CNAE ou Salvar precisa ser única. O botão Salvar é
+do cadastro: outras alterações pendentes impedem este fluxo.
+
+Estado de validação
+
+O fluxo PDF → conferência → passagem sem JSON → cadastro foi testado em
+navegador com PDF real sintético e ações Centi simuladas. Pesquisa/seleção
+de dois serviços e reconhecimento após salvamento manual já foram validados
+na Centi real na 0.11.2. Navegação e salvamento automático da 0.13.0 ainda
+precisam de validação real em um novo caso legítimo. Não repetir os cinco
+serviços do caso anterior, já concluído nos vínculos 16192 e 16198.
 
 Dados e limites
 
-O PDF é lido neste navegador, sem envio do documento nem consulta por API.
-Não há OCR. PDFs protegidos, ilegíveis ou com vários CNPJs são recusados.
-O PDF original fica acessível somente enquanto a aba está aberta: guarde-o.
-O JSON inclui metadados e SHA-256 do PDF, sem seu conteúdo.
-As correspondências CNAE/ISS são parciais; não há aproximação para dados
-ambíguos. O CNPJ na Centi é confirmado pelo operador. A comparação lê apenas
-linhas renderizadas, sem garantir cobertura completa de páginas ou herança.
-Na etapa de salvamento, salvo=null significa resultado incerto; true exige
-ID definitivo observado e ainda requer releitura. Nas etapas anteriores,
-salvo=false significa que a extensão não acionou Salvar, mesmo
-quando o operador já salvou manualmente. Id 0 significa vínculo pendente.
+O cartão é lido neste navegador, sem envio do PDF nem consulta por API.
+Até 10 MB e 20 páginas; precisa ter texto selecionável. Não há OCR.
+O PDF original fica acessível enquanto a aba de importação está aberta;
+guarde o original. A navegação para o cadastro libera essa visualização.
+A lista passa pela sessão da mesma aba, expira em 30 minutos e é consumida
+uma vez; recarregar a tela de cadastro exige importar novamente o cartão.
+Baixar cópia da lista é opcional, para arquivo ou fluxo avançado.
 
-Estado validado e continuidade
+As correspondências CNAE/ISS são parciais; avisos de lacunas exigem revisão.
+O CNPJ aberto na Centi ainda é confirmado pelo operador. A comparação lê
+linhas renderizadas, sem percorrer todas as páginas, filtros ou heranças.
+Resultados não localizados não provam ausência fora da captura.
 
-O caso real dos cinco serviços selecionados foi concluído: todos localizados
-na releitura, incluindo os novos vínculos 16192 e 16198. Não os cadastre de
-novo. Essa validação não comprova cobertura de todos os CNAEs ou empresas.
-O vínculo histórico VETADO continua separado para revisão.
-
-O operador não precisa de Node.js, servidor ou npm. PDF.js e bases já estão
-incorporados. O projeto não inclui package.json ou build npm original.
-Para continuar o desenvolvimento ou recuperar o código, leia RETOMAR.md.
-Instruções detalhadas: docs/COMPARACAO-CENTI.md.
-Histórico técnico: CONTEXTO.md e docs/INTEGRACAO-CENTI.md.
+Não é preciso Node.js, npm ou servidor no computador do operador. PDF.js e
+bases estão incorporados. A ferramenta tools/diagnostico-centi é separada.
+Recuperação e desenvolvimento: RETOMAR.md. Histórico: CONTEXTO.md.

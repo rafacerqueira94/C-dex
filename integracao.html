@@ -2,12 +2,12 @@
 <html lang="pt-BR">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ponte Centi — comparar serviços</title><link rel="stylesheet" href="consulta.css"><script type="module" src="integracao.mjs"></script></head>
 <body>
-<header><div class="marca">Ponte <strong>Centi</strong></div><span>Comparação e seleção · 0.12.0</span></header>
+<header><div class="marca">Ponte <strong>Centi</strong></div><span>Comparação e seleção · 0.13.0</span></header>
 <main>
-  <section class="introducao"><h1>Comparar com a Centi</h1><p>Selecione a pasta Serviços na aba da Centi e mantenha essa aba aberta. Esta etapa lê os vínculos visíveis para comparar com sua lista conferida.</p></section>
-  <section class="cartao"><h2>Lista e empresa</h2>
-    <p>Ainda tem apenas o cartão CNPJ em PDF? Primeiro leia o cartão, confira os serviços e baixe a lista JSON.</p>
-    <p><a id="gerar-lista" href="consulta.html" target="_blank" rel="noopener">Gerar lista conferida a partir do PDF</a></p>
+  <section class="introducao"><h1>Cadastrar serviços na Centi</h1><p>Selecione a pasta Serviços na aba da Centi e mantenha essa aba aberta. Esta etapa lê os vínculos visíveis para comparar com sua lista conferida.</p></section>
+  <section class="cartao"><h2>Empresa e serviços do cartão CNPJ</h2><p id="origem-cartao" hidden></p>
+    <p>Comece importando o cartão CNPJ da empresa atual. O aplicativo leva os serviços conferidos diretamente para esta etapa.</p>
+    <p><a id="gerar-lista" href="consulta.html">Importar cartão CNPJ e iniciar cadastro</a></p>
     <form id="form-comparar">
       <label for="lista">Lista conferida pelo Ponte Centi (.json)<input id="lista" type="file" accept=".json,application/json" required></label>
       <p class="ajuda">Selecione o arquivo servicos-conferidos-….json baixado após confirmar a lista. O cartão PDF e os relatórios de diagnóstico são usados em outras etapas.</p>
@@ -22,6 +22,12 @@
     <p id="resumo"></p><ul id="servicos-comparados"></ul>
     <h3>Vínculos que precisam de identificação</h3><ul id="nao-identificados"></ul>
     <p id="aviso" class="aviso"></p><button id="exportar-comparacao" type="button">Baixar comparação</button>
+  </section>
+  <section id="automatico" class="cartao" hidden><h2>Adicionar e salvar os serviços ausentes</h2>
+    <p>O aplicativo abrirá cada vínculo novo, pesquisará o registro exato, selecionará, salvará e voltará à lista para confirmar antes do próximo serviço. Os já localizados serão ignorados.</p>
+    <label class="aceite"><input id="autorizar-cadastro" type="checkbox"> Conferi a empresa do cartão na Centi, os serviços e alíquotas selecionados, a ausência dos serviços também nas páginas, filtros e serviços herdados, e que não há outras alterações pendentes. Autorizo adicionar e salvar os serviços ausentes.</label>
+    <button id="cadastrar-servicos" type="button" disabled>Adicionar e salvar na Centi</button>
+    <p id="status-cadastro" role="status" aria-live="polite"></p>
   </section>
   <section id="pesquisa" class="cartao" hidden><h2>Pesquisar um serviço após conferência</h2>
     <p>Escolha um serviço não localizado na captura. Na Centi, confira sua ausência nas páginas, filtros e serviços herdados. Depois abra um vínculo novo com Novo, deixando o campo Serviço vazio e a lupa fechada.</p>
@@ -42,6 +48,6 @@
     <p id="status-salvamento" role="status" aria-live="polite"></p>
     <p class="ajuda">Uma tentativa por seleção. Após o salvamento, volte à pasta Serviços e compare novamente. Se o resultado for incerto, confira a lista antes de qualquer nova tentativa.</p>
   </section>
-  <p class="ajuda">A comparação lê ID do vínculo, descrição e datas da grade. A pesquisa altera os filtros da lupa; a opção de seleção também preenche o Serviço por clique ou duplo clique. O CNPJ é informado por você. As datas são conferidas após a seleção. O salvamento é uma ação separada, disponível após revisão.</p>
+  <p class="ajuda">A comparação lê ID do vínculo, descrição e datas da grade. A pesquisa altera os filtros da lupa; a opção de seleção também preenche o Serviço por clique ou duplo clique. No fluxo iniciado pelo PDF, o CNPJ vem do cartão. Confira a empresa aberta na Centi. As datas são conferidas após a seleção. O salvamento é uma ação separada, disponível após revisão.</p>
 </main>
 </body></html>

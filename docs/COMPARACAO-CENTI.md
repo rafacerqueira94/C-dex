@@ -1,10 +1,19 @@
-# Comparação com a Centi — versão 0.12.0
+# Cadastro com a Centi — versão 0.13.0
 
-## Roteiro atual
+## Roteiro atual — PDF para cadastro
 
-Para o uso cotidiano, siga LEIA-ME.txt. A interface 0.12.0 resume os serviços localizados, pendentes, em conflito e não localizados. Quando todos estão localizados, informa que não devem ser incluídos novamente; a captura continua parcial e requer revisão de vigência e avisos.
+1. Abra a empresa na Centi, deixe a tabela da pasta Serviços visível e clique no ícone da extensão.
+2. Importe o cartão CNPJ atual em PDF, informe coworking, confira os dados e selecione os serviços.
+3. Confirme a lista e use **Continuar para cadastrar na Centi**. O aplicativo passa a lista internamente; baixar/importar JSON não faz parte do caminho normal.
+4. O CNPJ vem do PDF, sem edição nesta etapa. Confirme a mesma empresa aberta na Centi e compare os vínculos.
+5. Confira ausência inclusive fora da captura e ausência de outras alterações pendentes. Use **Adicionar e salvar na Centi**.
+6. A fila ignora os localizados. Para cada ausente, abre Novo, pesquisa/seleciona, confere datas (hoje em São Paulo e fim vazio) e Especificar CNAE = Não, salva uma vez, observa ID definitivo e relê Serviços. Somente avança após localizar o vínculo com o mesmo ID.
 
-O caso real dos cinco serviços já está concluído, incluindo 09.02.000 no vínculo 16192 e 10.03.000 no vínculo 16198, após salvamento manual. Não repetir essas inclusões. Os exemplos e testes históricos abaixo mostram como o fluxo foi validado, não novas tarefas nesse cadastro.
+Falhas interrompem a fila. Não repetir a inclusão de serviço já salvo nem uma tentativa com resultado incerto. O relatório **Baixar comparação** inclui `ultimoCadastro`, com cada etapa e código, a última captura e a última comparação. O fluxo é limitado pela leitura renderizada e correspondências CNAE disponíveis; a confirmação externa da empresa, páginas, filtros e herança é manual.
+
+O teste de navegador usa PDF real sintético, extração PDF.js e ações Centi simuladas. Navegação Novo/Serviços e salvamento automático ainda não estão validados na Centi real. Se controles não forem identificados de forma única, o fluxo bloqueia. A identificação de Especificar CNAE aceita o ID esperado ou uma associação explícita label/for, sem adivinhar pelo índice de opções.
+
+O caso anterior dos cinco serviços está concluído. Não refazer seus vínculos para testar. O restante deste documento preserva instruções de etapas anteriores, incluindo uso avançado de JSON e operações individuais.
 
 ## Salvamento após revisão — novo na 0.12.0
 
