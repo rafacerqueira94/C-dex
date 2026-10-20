@@ -58,37 +58,53 @@ export async function salvarServicoCenti(pedido) {
       && /^SALVAR\s*\(1\)$/.test(normal(e.tagName === 'INPUT' ? e.value : e.textContent))), 'Não foi identificado um único botão Salvar(1). Nenhum salvamento foi iniciado.');
     if (botao.disabled || botao.getAttribute('aria-disabled') === 'true') falhar('Salvar está desabilitado.');
     if (botao.id.startsWith('btnFooterSalvar') && botao.id.slice('btnFooterSalvar'.length).replace(/-/g,'') !== sufixo.replace(/-/g,'')) falhar('O botão Salvar pertence a outro formulário.');
-    botao.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});
-    const limiteBotao = Date.now() + 3000;
-    let livre = false;
-    while (Date.now() < limiteBotao) {
-      conferir(true);
-      if (!botao.isConnected || botao.disabled || botao.getAttribute('aria-disabled') === 'true') falhar('O botão Salvar mudou ou foi desabilitado.');
-      const rect = botao.getBoundingClientRect(), x = rect.x + rect.width / 2, y = rect.y + rect.height / 2;
-      const alvo = document.elementFromPoint(x,y);
-      diagnosticoSalvar = {abaVisivel:document.visibilityState === 'visible',
-        botaoId:String(botao.id).slice(0,120),noViewport:rect.width>0 && rect.height>0 && x>=0 && y>=0 && x<innerWidth && y<innerHeight,
-        alvo:alvo ? {tag:alvo.tagName.toLowerCase(),classes:[...alvo.classList].slice(0,8)} : null};
-      if (diagnosticoSalvar.noViewport && (alvo === botao || botao.contains(alvo))) {livre=true;break;}
-      await new Promise(r=>setTimeout(r,100));
-    }
-    if (!livre) {
-      if (document.visibilityState !== 'visible') return {ok:false,salvo:false,salvamentoAcionado:false,ativacaoNecessaria:true,
-        etapa:'ativar_aba_para_conferir_salvar',diagnosticoSalvar,
-        mensagem:'A aba Centi precisa ficar visível para conferir o botão Salvar. Nenhum botão Salvar foi acionado.'};
-      falhar('O botão Salvar continua coberto ou fora da área visível após a espera.');
+    const identificacaoExata = botao.tagName === 'BUTTON' && botao.id.startsWith('btnFooterSalvar')
+      && botao.id.slice('btnFooterSalvar'.length).replace(/-/g,'') === sufixo.replace(/-/g,'');
+    if (identificacaoExata) {
+      const limiteCamada = Date.now()+1500;
+      while ([...document.querySelectorAll('.modal-backdrop')].some(visivel) && Date.now()<limiteCamada) await new Promise(r=>setTimeout(r,100));
+      if ([...document.querySelectorAll('.modal-backdrop,[aria-modal=true],dialog[open]')].some(visivel)) falhar('Feche o diálogo ou a camada modal antes de salvar.');
+      if (botao.matches(':disabled') || botao.classList.contains('disabled') || botao.closest('[inert],[aria-disabled=true]')) falhar('Salvar está desabilitado ou inativo.');
+      diagnosticoSalvar = {metodo:'botao_identificado_por_formulario',abaVisivel:document.visibilityState==='visible',botaoId:String(botao.id).slice(0,120)};
+    } else {
+      botao.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});
+      const limiteBotao = Date.now() + 3000;
+      let livre = false;
+      while (Date.now() < limiteBotao) {
+        conferir(true);
+        if (!botao.isConnected || botao.disabled || botao.getAttribute('aria-disabled') === 'true') falhar('O botão Salvar mudou ou foi desabilitado.');
+        const rect = botao.getBoundingClientRect(), x = rect.x + rect.width / 2, y = rect.y + rect.height / 2;
+        const alvo = document.elementFromPoint(x,y);
+        diagnosticoSalvar = {abaVisivel:document.visibilityState === 'visible',
+          botaoId:String(botao.id).slice(0,120),noViewport:rect.width>0 && rect.height>0 && x>=0 && y>=0 && x<innerWidth && y<innerHeight,
+          alvo:alvo ? {tag:alvo.tagName.toLowerCase(),classes:[...alvo.classList].slice(0,8)} : null};
+        if (diagnosticoSalvar.noViewport && (alvo === botao || botao.contains(alvo))) {livre=true;break;}
+        await new Promise(r=>setTimeout(r,100));
+      }
+      if (!livre) {
+        if (document.visibilityState !== 'visible') return {ok:false,salvo:false,salvamentoAcionado:false,ativacaoNecessaria:true,
+          etapa:'ativar_aba_para_conferir_salvar',diagnosticoSalvar,
+          mensagem:'A aba Centi precisa ficar visível para conferir o botão Salvar. Nenhum botão Salvar foi acionado.'};
+        falhar('O botão Salvar continua coberto ou fora da área visível após a espera.');
+      }
     }
     if (typeof pedido.tentativa !== 'string' || !/^[a-zA-Z0-9-]{16,80}$/.test(pedido.tentativa)) falhar('Identificador da tentativa inválido.');
     const tentativas = globalThis.__ponteCentiSalvamentos ??= new Set();
     if (tentativas.has(pedido.tentativa)) falhar('Esta tentativa já foi acionada. Releia a lista antes de qualquer nova ação.');
     conferir(true);
-    tentativas.add(pedido.tentativa); salvamentoAcionado = true; botao.click();
+    if (!botao.isConnected || botao.matches(':disabled') || botao.getAttribute('aria-disabled') === 'true'
+        || normal(botao.textContent || botao.value).replace(/\s/g,'') !== 'SALVAR(1)'
+        || normal(cnae.selectedOptions[0]?.textContent) !== 'NAO') falhar('O botão ou os dados de salvamento mudaram.');
+    if ([...document.querySelectorAll('[role=dialog],[aria-modal=true],dialog[open],.modal-backdrop')].some(visivel)) falhar('Há um diálogo aberto antes de Salvar.');
+    tentativas.add(pedido.tentativa); salvamentoAcionado = true;
+    if (identificacaoExata) HTMLButtonElement.prototype.click.call(botao);
+    else botao.click();
     const limite = Date.now() + 12000;
     while (Date.now() < limite) {
       conferir(false);
       const definitivo = id.value.trim();
       if (/^[1-9]\d*$/.test(definitivo)) return {ok: true, salvo: true, salvamentoAcionado, etapa: 'id_definitivo_observado',
-        idVinculo: definitivo, requerReleitura: true,
+        idVinculo: definitivo, requerReleitura: true, diagnosticoSalvar,
         mensagem: `Salvamento acionado uma vez. ID definitivo ${definitivo} observado no formulário. Volte à pasta Serviços e refaça a comparação para confirmar o vínculo na lista.`};
       await new Promise(r => setTimeout(r, 100));
     }

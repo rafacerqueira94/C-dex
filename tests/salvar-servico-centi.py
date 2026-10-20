@@ -87,6 +87,25 @@ class Salvamento(unittest.TestCase):
     def test_footer_for_another_form_blocks(self):
         self.page.locator('button').evaluate("e=>e.id='btnFooterSalvarOUTRO'")
         self.assertFalse(self.run_save()['salvamentoAcionado']);self.assertEqual(self.page.evaluate('cliques'),0)
+    def test_real_footer_uses_native_button_without_clicking_undo(self):
+        self.page.locator('button').evaluate("""e=>{
+          e.id='btnFooterSalvarT';e.click=()=>{throw Error('Método sobrescrito não deve ser usado')};
+          const desfazer=document.createElement('button');desfazer.textContent='Desfazer';desfazer.className='btnFooterDesfazer';
+          desfazer.onclick=()=>window.desfeitos++;
+          document.body.append(desfazer);window.desfeitos=0;
+          document.elementFromPoint=()=>desfazer;
+          Object.defineProperty(document,'visibilityState',{get:()=> 'hidden'});
+        }""")
+        r=self.run_save();self.assertTrue(r['salvo'],r)
+        self.assertEqual(r['diagnosticoSalvar']['metodo'],'botao_identificado_por_formulario')
+        self.assertEqual(self.page.evaluate('cliques'),1);self.assertEqual(self.page.evaluate('desfeitos'),0)
+    def test_exact_footer_still_blocks_open_modal_and_disabled_ancestor(self):
+        self.page.locator('button').evaluate("e=>e.id='btnFooterSalvarT'")
+        self.page.evaluate("()=>{const d=document.createElement('div');d.setAttribute('role','dialog');d.textContent='Diálogo';document.body.append(d)}")
+        self.assertFalse(self.run_save()['salvamentoAcionado'])
+        self.page.locator('[role=dialog]').evaluate('e=>e.remove()')
+        self.page.locator('button').evaluate("e=>e.setAttribute('inert','')")
+        self.assertFalse(self.run_save()['salvamentoAcionado']);self.assertEqual(self.page.evaluate('cliques'),0)
     def test_company_and_review_required(self):
         for key,value in [('revisado',False),('somenteEstaPendencia',False),('cnpjConfirmado','99999999999999')]:
             before=self.pedido[key];self.pedido[key]=value;self.assertFalse(self.run_save()['ok']);self.pedido[key]=before

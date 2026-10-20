@@ -1,6 +1,6 @@
 # Integração Centi — evidências recuperadas
 
-## Desenvolvimento atual — 0.14.5
+## Desenvolvimento atual — 0.14.6
 
 O mapa v1 recebido mostra AR022 disponível mas nenhum filtro/formulário de serviço, sem registrar alvos clicáveis ou etapa da falha; podia ser uma leitura inicial reutilizada. O cartão AR022 agora admite div/li com listener delegado, exigindo texto exato e unicidade. O mapa v2 é coletado novamente ao baixar e inclui ancestrais estruturais e função/etapa da falha. A hipótese de bloqueio no cartão foi reproduzida em teste simulado; validação real ainda pendente.
 
@@ -140,3 +140,5 @@ Correção 0.14.2: o mapa real mostrou Atividade econômica em div.sidebarSubIte
 0.14.4: o mapa v3 confirmou que os cabeçalhos de data não estavam renderizados na espera, embora aparecessem depois. A identificação/leitura agora aceita metadados e getCellData da API pública Wijmo, sem depender da renderização de todas as colunas. Mantém bloqueio por coluna ausente/ambiguidade e fallback DOM completo. A captura indica origemLeitura e continua parcial quanto a paginação, filtros e herança. Mapa v4 registra metadados da API, sem valores de células.
 
 0.14.5: bloqueio real antes de qualquer clique por Salvar coberto. Agora espera transições/hit-test, rola o botão à vista e confere sufixo do btnFooterSalvar. Aba oculta pode solicitar ativação; a interface só ativa e reconfere se salvo=false e salvamentoAcionado=false explícitos. Não ignora cobertura persistente nem repete resultado incerto. Mapa inclui falhaCadastro/diagnosticoSalvar. Preservar e retomar o vínculo já preenchido, sem Novo. Persistência automática real ainda precisa ser observada.
+
+0.14.6: o novo diagnóstico do hit-test apontou Desfazer em vez do botão Salvar identificado no formulário, antes de qualquer clique. Para btnFooterSalvar com sufixo exato do formulário validado, usa o acionamento DOM nativo do próprio botão. Não depende de coordenadas nem aciona Desfazer. Mantém bloqueios de diálogo, modal persistente, inert, desabilitação e tentativa já enviada. Botões genéricos conservam hit-test. Ainda requer observação real da persistência/ID/releitura.

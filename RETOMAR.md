@@ -1,6 +1,6 @@
 # Como retomar e recuperar o Ponte Centi
 
-Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.14.5** (entrada pelo PDF, passagem interna sem JSON e cadastro sequencial com salvamento/releitura; nova automação ainda sem validação real).
+Ponto de recuperação: **progresso-2026-10-19**. Código no marco: **0.11.2**. Desenvolvimento atual: **0.14.6** (entrada pelo PDF, passagem interna sem JSON e cadastro sequencial com salvamento/releitura; nova automação ainda sem validação real).
 
 ## Onde o projeto está salvo
 
@@ -109,3 +109,5 @@ O mapa real seguinte confirmou submenu em div.sidebarSubItens com span Atividade
 Mapa v3 confirmou datas não renderizadas na espera, mas presentes depois. A 0.14.4 usa API pública Wijmo para identificar colunas e ler os vínculos independentemente da virtualização horizontal. Navegação/leitura/diagnóstico são injetados em MAIN; sem API completa, usa DOM completo ou bloqueia. Exporta origemLeitura e não declara cobertura integral de paginação/herança. Mapa v4 inclui metadados da API para diagnóstico, sem dados das células.
 
 Último bloqueio: 0.14.4 chegou a Salvar, mas hit-test detectou cobertura antes de qualquer clique. Preservar o vínculo pendente. A 0.14.5 aguarda transições, coloca Salvar à vista e, só com comprovação de nenhum clique, pode ativar a aba Centi para refazer a conferência. Cobertura persistente/resultado incerto não são ignorados nem repetidos. Mapa inclui falhaCadastro/diagnosticoSalvar. Ainda falta confirmação real de persistência pela automação.
+
+Mapa mais recente: hit-test do Salvar retornou Desfazer em aba oculta; nenhum clique foi enviado. A 0.14.6 aciona diretamente o botão HTML nativo somente quando btnFooterSalvar corresponde exatamente ao sufixo do formulário validado, sem coordenadas. Mantém diálogos/inert/desabilitação e proteção de tentativa; botões genéricos continuam no caminho de hit-test. Ainda não há evidência de persistência real pela automação.
