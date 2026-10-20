@@ -366,7 +366,7 @@ async function localizarEmpresa() {
     }
     const retorno=respostas[0]?.result;
     if (!retorno?.ok) {
-      falhaLocalizacao = {funcao:func.name,etapa:retorno?.etapa || 'sem_retorno',mensagem:retorno?.mensagem || 'A ação na Centi não foi confirmada.'};
+      falhaLocalizacao = {funcao:func.name,etapa:retorno?.etapa || 'sem_retorno',mensagem:retorno?.mensagem || 'A ação na Centi não foi confirmada.', diagnosticoNavegacao:retorno?.diagnosticoNavegacao || null};
       throw Error(falhaLocalizacao.mensagem);
     }
     return retorno;

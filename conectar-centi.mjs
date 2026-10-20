@@ -40,7 +40,14 @@ export function inspecionarConexaoCenti() {
         possuiTituloECodigo:/ATIVIDADE ECONOMICA/.test(normal(p.textContent)) && /\bAR022\b/.test(normal(p.textContent))});
       return {rotulo:normal(e.textContent),ancestrais};
     });
-  return {tipo: 'diagnostico_conexao_centi', versao: 2, alvosNavegacao, estado: document.readyState === 'loading' || !rotulosVisiveis.length ? 'carregando' : 'tela_disponivel',
+  const cabecalhosConhecidos = new Set(['ID','SERVICO','DATA INICIO','DATA FIM','CPF/CNPJ','RAZAO SOCIAL','SITUACAO','INSCRICAO MUNICIPAL']);
+  const grades = [...document.querySelectorAll('.wj-flexgrid, [role=grid], table')].filter(visivel)
+    .filter(g => !g.parentElement?.closest('.wj-flexgrid, [role=grid], table'))
+    .map(g => ({tag:g.tagName.toLowerCase(),classes:[...g.classList].slice(0,8),role:g.getAttribute('role'),
+      cabecalhos:[...g.querySelectorAll('.wj-colheaders .wj-cell, [role=columnheader], th')].filter(visivel)
+        .map(c => cabecalhosConhecidos.has(normal(c.textContent)) ? normal(c.textContent) : 'outro'),
+      linhasNoDom:g.querySelectorAll('.wj-cells > .wj-row, tbody > tr').length}));
+  return {tipo: 'diagnostico_conexao_centi', versao: 3, alvosNavegacao, grades, estado: document.readyState === 'loading' || !rotulosVisiveis.length ? 'carregando' : 'tela_disponivel',
     somenteLeitura: true, controles,
     rotulosVisiveis,
     possuiFormularioServico: [...document.querySelectorAll('input[id^="IdServico"]')].some(visivel),

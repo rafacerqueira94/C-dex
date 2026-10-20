@@ -7,7 +7,7 @@ export async function navegarServicosCenti(pedido) {
   const unicos = lista => [...new Set(lista)];
   const inputs = () => [...document.querySelectorAll('input[id^="IdServico"]')].filter(e => !e.id.endsWith('-second') && visivel(e));
   const grades = () => [...document.querySelectorAll('.wj-flexgrid')].filter(visivel).filter(g => {
-    const textos = [...g.querySelectorAll('.wj-colheaders .wj-cell')].map(e => normal(e.textContent));
+    const textos = [...g.querySelectorAll('.wj-colheaders .wj-cell')].filter(visivel).map(e => normal(e.textContent));
     return ['ID', 'SERVICO', 'DATA INICIO', 'DATA FIM'].every(t => textos.includes(t));
   });
   try {
@@ -29,7 +29,7 @@ export async function navegarServicosCenti(pedido) {
       }
       const pastas = unicos([...document.querySelectorAll('a, span, [role=treeitem]')]
         .filter(e => visivel(e) && !e.children.length && normal(e.textContent) === 'SERVICOS')
-        .map(e => e.closest('a, [role=treeitem]') || e));
+        .map(e => e.closest('.divTreeSelected') || e.closest('a, [role=treeitem]') || e));
       if (pastas.length !== 1) falhar('Não identifiquei uma única pasta Serviços para reler a lista.');
       alvo = pastas[0];
     } else falhar('Ação de navegação inválida.');
@@ -48,5 +48,10 @@ export async function navegarServicosCenti(pedido) {
       await new Promise(r => setTimeout(r, 100));
     }
     falhar('A navegação não retornou a tela esperada. Confira a Centi antes de continuar.');
-  } catch (e) { return {ok: false, interacaoIniciada, mensagem: e.message}; }
+  } catch (e) { return {ok: false, interacaoIniciada, etapa: pedido?.acao === 'lista' ? 'aguardar_lista_servicos' : 'aguardar_formulario_servico',
+    diagnosticoNavegacao: {formulariosVisiveis: inputs().length, gradesCompativeis: grades().length,
+      gradesVisiveis: [...document.querySelectorAll('.wj-flexgrid')].filter(visivel).map(g => ({
+        cabecalhos: [...g.querySelectorAll('.wj-colheaders .wj-cell')].filter(visivel).map(c => {
+          const texto = normal(c.textContent); return ['ID','SERVICO','DATA INICIO','DATA FIM'].includes(texto) ? texto : 'outro';
+        }), linhasNoDom: g.querySelectorAll('.wj-cells > .wj-row').length}))}, mensagem: e.message}; }
 }

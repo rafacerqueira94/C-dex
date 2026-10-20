@@ -34,6 +34,21 @@ class Navegacao(unittest.TestCase):
         self.page.locator('#salvar').evaluate("e=>e.textContent='Salvar'")
         self.page.locator('#novo').evaluate('e=>e.after(e.cloneNode(true))')
         self.assertFalse(self.run_action('novo')['ok']);self.assertEqual(self.page.evaluate('cliques'),0)
+    def test_real_tree_click_targets_selected_div_instead_of_text_span(self):
+        self.page.evaluate("""()=>{
+          document.querySelector('#lista').hidden=true;
+          const antigo=document.querySelector('#pasta');antigo.remove();
+          const row=document.createElement('div');row.className='rowTree normalRowTree row';
+          row.innerHTML='<div class="divTreeSelected"><span>Serviços</span></div>';
+          document.body.prepend(row);
+          document.body.addEventListener('click',e=>{
+            if(e.target.matches('.divTreeSelected')){window.cliques++;document.querySelector('#lista').hidden=false}
+          });
+        }""")
+        self.assertTrue(self.run_action('lista')['ok']);self.assertEqual(self.page.evaluate('cliques'),1)
+    def test_hidden_header_template_does_not_make_unrelated_grid_compatible(self):
+        self.page.evaluate("""()=>{const g=document.querySelector('#lista').cloneNode(true);g.id='outraGrade';g.querySelector('.wj-colheaders').style.visibility='hidden';document.body.append(g)}""")
+        self.assertTrue(self.run_action('lista')['ok']);self.assertEqual(self.page.evaluate('cliques'),0)
     def test_existing_list_does_not_click_navigation(self):
         self.assertTrue(self.run_action('lista')['ok']);self.assertEqual(self.page.evaluate('cliques'),0)
 

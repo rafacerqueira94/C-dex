@@ -1,6 +1,6 @@
 # Integração Centi — evidências recuperadas
 
-## Desenvolvimento atual — 0.14.2
+## Desenvolvimento atual — 0.14.3
 
 O mapa v1 recebido mostra AR022 disponível mas nenhum filtro/formulário de serviço, sem registrar alvos clicáveis ou etapa da falha; podia ser uma leitura inicial reutilizada. O cartão AR022 agora admite div/li com listener delegado, exigindo texto exato e unicidade. O mapa v2 é coletado novamente ao baixar e inclui ancestrais estruturais e função/etapa da falha. A hipótese de bloqueio no cartão foi reproduzida em teste simulado; validação real ainda pendente.
 
@@ -134,3 +134,5 @@ O relatório comparacao-centi-1792426509098.json confirmou os cinco serviços se
 O teste desse caso está concluído: comparação, seleção assistida, salvamento manual e releitura com reconhecimento dos registros. O programa não salvou automaticamente. O vínculo histórico (VETADO) continua sinalizado sem correspondência no catálogo. O sucesso cobre os cinco serviços selecionados; não comprova correspondências completas de todos os CNAEs, ausência em páginas/filtros/herança ou validação de todos os cadastros.
 
 Correção 0.14.2: o mapa real mostrou Atividade econômica em div.sidebarSubItens sem role/onclick. Esse controle agora é reconhecido pelo rótulo exato; com submenu visível, não procura Arrecadação antes. A continuidade ainda precisa de validação na Centi real.
+
+0.14.3: o novo mapa parou em navegarServicosCenti ao confirmar Serviços, já selecionado na árvore. A navegação usa o divTreeSelected observado e cabeçalhos visíveis como o leitor. Mapa v3/falhaLocalizacao incluem estrutura das grades, cabeçalhos conhecidos, contagem de linhas e etapa de espera; não copiam dados das células. A continuidade ainda depende de validação real.

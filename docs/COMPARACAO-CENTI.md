@@ -1,4 +1,4 @@
-# Cadastro com a Centi — versão 0.14.2
+# Cadastro com a Centi — versão 0.14.3
 
 ## Entrada atual — pode começar com a Centi fechada
 
@@ -174,3 +174,5 @@ O campo Especificar CNAE pode ser identificado pelo título no mesmo grupo visua
 O cartão de Cadastros pode usar div/li com clique delegado; agora é identificado pelo título e código exatos no menor grupo visível, com unicidade. O mapa v2 relê a tela no momento do download e inclui ancestrais estruturais e função/etapa da falha. O mapa v1 anterior podia registrar a tela inicial em vez do estado após o erro. Em bloqueio, envie o novo mapa sem navegar manualmente.
 
 Correção 0.14.2: o mapa real mostrou Atividade econômica em div.sidebarSubItens sem role/onclick. Esse controle agora é reconhecido pelo rótulo exato; com submenu visível, não procura Arrecadação antes. A continuidade ainda precisa de validação na Centi real.
+
+0.14.3: o novo mapa parou em navegarServicosCenti ao confirmar Serviços, já selecionado na árvore. A navegação usa o divTreeSelected observado e cabeçalhos visíveis como o leitor. Mapa v3/falhaLocalizacao incluem estrutura das grades, cabeçalhos conhecidos, contagem de linhas e etapa de espera; não copiam dados das células. A continuidade ainda depende de validação real.
