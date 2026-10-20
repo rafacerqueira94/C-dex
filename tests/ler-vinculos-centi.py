@@ -65,6 +65,14 @@ class LeituraVinculos(unittest.TestCase):
         self.page.evaluate("()=>{const c=wijmo.Control.getControl();c.columns[3]={header:'',binding:'DataFim'}}")
         r=self.read();self.assertEqual(r['origemLeitura'],'api_publica_wijmo');self.assertEqual(r['vinculosPendentes'][0]['dataFim'],'')
 
+    def test_real_pending_schema_without_end_date_keeps_unknown_null(self):
+        self.api_virtualizada([['','0','214','20/10/2026','interno']])
+        self.page.evaluate("()=>{wijmo.Control.getControl().columns=[{}, {header:'Id',binding:'Id'}, {header:'Serviço'}, {header:'Data início'}, {header:'Guid',binding:'Guid',visible:false}]}")
+        r=self.read();self.assertEqual(r['tipo'],'captura_vinculos_centi');self.assertFalse(r['dataFimDisponivel'])
+        self.assertIsNone(r['vinculosPendentes'][0]['dataFim']);self.assertEqual(r['vinculosPendentes'][0]['nome'],'214')
+        self.page.evaluate("()=>{wijmo.Control.getControl().columns[4].visible=true}")
+        self.assertEqual(self.read()['tipo'],'erro_leitura_centi')
+
     def test_public_api_missing_date_column_is_not_accepted(self):
         self.api_virtualizada([['1000','238']],['ID','Serviço'])
         self.assertEqual(self.read()['tipo'],'erro_leitura_centi')

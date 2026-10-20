@@ -33,3 +33,18 @@ test('preserva existentes e adiciona somente o ausente',async()=>{
  const c=cenario();c.registros.push({idVinculo:'90',nome:'214',dataInicio:'01/01/2020',dataFim:''});
  const r=await cadastrarLote(entrada,c.io);assert.equal(r.concluido,true,r.mensagem);assert.equal(c.registros.length,2);assert.equal(c.eventos.filter(e=>e==='conferir').length,1);assert.equal(c.registros[0].idVinculo,'90');
 });
+
+test('grade real sem Data fim permite completar lote sem inventar a data',async()=>{
+ const c=cenario(),ler=c.io.ler;
+ c.io.ler=async()=>{const r=await ler();return {...r,dataFimDisponivel:false,registros:r.registros.map(v=>({...v,dataFim:null})),vinculosPendentes:r.vinculosPendentes.map(v=>({...v,dataFim:null}))}};
+ const r=await cadastrarLote(entrada,c.io);assert.equal(r.concluido,true,r.mensagem);assert.equal(c.eventos.filter(e=>e==='salvar').length,1);assert.equal(c.registros.length,2);assert.equal(r.ultimaCaptura.registros[0].dataFim,null);
+});
+test('retomada explícita preserva primeiro pendente e abre Novo só para restante',async()=>{
+ const c=cenario();c.pendentes.push({idVinculo:'0',nome:'214',dataInicio:'20/10/2026',dataFim:''});
+ const r=await cadastrarLote({...entrada,retomarPendentes:true},c.io);assert.equal(r.concluido,true,r.mensagem);assert.deepEqual(r.pendenciasRetomadas,['07.02.000']);assert.equal(c.eventos.filter(e=>e==='novo').length,1);assert.equal(c.eventos.filter(e=>e==='salvar').length,1);assert.equal(c.registros.length,2);
+});
+test('retomada recusa pendência de outro serviço e datas incompatíveis',async()=>{
+ for(const p of [{nome:'999',dataInicio:'20/10/2026',dataFim:''},{nome:'214',dataInicio:'19/10/2026',dataFim:''},{nome:'214',dataInicio:'20/10/2026',dataFim:'21/10/2026'}]){
+  const c=cenario();c.pendentes.push({idVinculo:'0',...p});assert.equal((await cadastrarLote({...entrada,retomarPendentes:true},c.io)).ok,false);assert.deepEqual(c.eventos,[]);
+ }
+});

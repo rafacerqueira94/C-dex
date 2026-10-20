@@ -366,3 +366,16 @@ O serviço 07.02.000 pode continuar pendente: não repetir Novo para ele. Para r
 O mapa mapa-conexao-centi.json de 20/10/2026 15:53 UTC mostra a mesma API com cinco colunas: títulos outro/ID/SERVICO/DATA INICIO/outro e bindings outro/ID/outro/outro/outro. Assim o binding exato DataFim não está presente; o suporte 0.15.1 não resolve o esquema observado. Também registra falhaLocalizacao por alterações pendentes ao reiniciar pesquisa. Nenhum sucesso de salvamento do lote foi confirmado.
 
 A versão 0.15.2 amplia exclusivamente o diagnóstico, sem afirmar corrigir o lote: estruturaColunas registra título e identificadores binding/name, limitados em tamanho e formato, e visibilidade. Não lê valores de células nem itens da fonte. Precisa de novo mapa da lista pendente para conhecer a coluna real antes de implementar aliases. Manter o registro pendente, não repetir Novo e não remover a validação de datas. A hipótese anterior de execução isolada já foi descartada na 0.15.1.
+
+
+## Esquema real sem Data fim e retomada do lote — 0.15.3
+
+O mapa detalhado recebido, junto à captura da lista Serviços, esclareceu o esquema: seletor sem título, Id (binding Id), Serviço, Data início, Guid (binding Guid, visible=false). Não existe coluna Data fim nessa grade; os bindings dos campos compostos são null. A linha observada é Id 0, serviço municipal 214, início 20/10/2026. O usuário confirmou que Novo permite acrescentar os próximos pendentes sucessivamente antes do único Salvar.
+
+Navegação, leitor e botão final aceitam esse esquema exato de cinco colunas na API pública, sem inferir data final pelo Guid. O leitor informa dataFimDisponivel=false e dataFim=null para ausência de observação, sem inventar fim vazio. As datas finais continuam conferidas no formulário antes de cada novo item; na lista somente os valores observáveis são confrontados, com o caráter parcial registrado. Após Salvar, exige IDs positivos únicos e início correto; data final é conferida se disponível. Leituras iniciais e finais podem alternar entre a grade completa e a compacta sem alegar alteração por diferença entre null e data observada.
+
+Nova opção explícita em Retomar uma tentativa interrompida → Continuar lote pendente, no fluxo PDF: operador confirma empresa, pendentes pertencentes à lista, início hoje, fim vazio e CNAE Não. Só aceita pendências que correspondam unicamente ao catálogo/lista do cartão e datas compatíveis; recusa pendentes externos/conflitos. Ignora esses códigos ao abrir Novo, preenche apenas os restantes e salva todos uma vez ao final. Não adota pendências automaticamente na entrada normal. A revisão de CNAE/fim dos pendentes retomados é do operador; não afirma ter lido esses formulários na retomada.
+
+Testes simulam o esquema real com Guid oculto em navegação/leitura/salvamento, data final não observada, continuidade de lote, retomada sem duplicar e bloqueio de outros pendentes. Validação desse percurso na Centi real ainda necessária. Não houve salvamento remoto nesta implementação.
+
+Verificação 0.15.3: 76 testes afetados passaram: 19 Node da fila/lote/armazenamento, 16 de leitura, 14 de navegação, cinco do botão de lote, oito do fluxo PDF e 14 da interface de integração. Incluem retomada explícita sem Novo para o pendente já existente.

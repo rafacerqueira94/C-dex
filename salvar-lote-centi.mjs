@@ -8,6 +8,11 @@ export async function salvarLoteCenti(pedido) {
     const internos = {DATAINICIO:'DATA INICIO', DATAFIM:'DATA FIM'};
     return internos[normal(c.binding)] || titulo;
   };
+  const esquemaSemFim = colunas => colunas.length === 5
+    && !normal(colunas[0].header)
+    && tituloColuna(colunas[1]) === 'ID' && normal(colunas[1].binding) === 'ID'
+    && tituloColuna(colunas[2]) === 'SERVICO' && tituloColuna(colunas[3]) === 'DATA INICIO'
+    && normal(colunas[4].binding) === 'GUID' && colunas[4].visible === false;
   const visivel=e=>e&&e.getClientRects().length>0&&getComputedStyle(e).visibility!=='hidden';
   try {
     if(location.origin!=='https://ba.centi.com.br'||!location.pathname.startsWith('/caetite/'))throw Error('Abra a Centi de Caetité.');
@@ -16,14 +21,14 @@ export async function salvarLoteCenti(pedido) {
     if(!esperado?.vinculosPendentes?.length||esperado.linhasNaoInterpretadas)throw Error('Lote pendente não conferido.');
     if([...document.querySelectorAll('input[type=password],input[id^=IdServico],.tableFilterSearch--modal,[role=dialog],.modal-backdrop')].some(visivel))throw Error('Mantenha apenas a lista de Serviços aberta.');
     const grades=[...document.querySelectorAll('.wj-flexgrid')].filter(visivel).map(g=>globalThis.wijmo?.Control?.getControl?.(g)).filter(c=>{
-      const h=Array.from(c?.columns||[]).map(v=>tituloColuna(v));return ['ID','SERVICO','DATA INICIO','DATA FIM'].every(t=>h.filter(v=>v===t).length===1)&&typeof c.getCellData==='function';
+      const h=Array.from(c?.columns||[]).map(v=>tituloColuna(v));return (['ID','SERVICO','DATA INICIO','DATA FIM'].every(t=>h.filter(v=>v===t).length===1)||esquemaSemFim(Array.from(c.columns||[])))&&typeof c.getCellData==='function';
     });
     if(grades.length!==1)throw Error('A lista do lote não foi identificada na API pública.');
     const grade=grades[0],colunas=Array.from(grade.columns).map(c=>tituloColuna(c));
     const conferir=()=>{
       const registros=[],pendentes=[];
       for(let i=0;i<grade.rows.length;i++){
-        const [idVinculo,nome,dataInicio,dataFim]=['ID','SERVICO','DATA INICIO','DATA FIM'].map(t=>String(grade.getCellData(i,colunas.indexOf(t),true)??'').replace(/\s+/g,' ').trim());
+        const [idVinculo,nome,dataInicio,dataFim]=['ID','SERVICO','DATA INICIO','DATA FIM'].map(t=>colunas.indexOf(t)<0 ? null : String(grade.getCellData(i,colunas.indexOf(t),true)??'').replace(/\s+/g,' ').trim());
         if(!nome||!/^\d+$/.test(idVinculo))throw Error('Linha do lote não interpretada.');
         (idVinculo==='0'?pendentes:registros).push({idVinculo,nome,dataInicio,dataFim});
       }

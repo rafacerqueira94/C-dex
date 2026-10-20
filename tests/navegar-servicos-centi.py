@@ -78,6 +78,15 @@ class Navegacao(unittest.TestCase):
         }""")
         self.assertTrue(self.run_action('lista')['ok'])
 
+    def test_real_pending_schema_allows_next_new_without_saving(self):
+        self.page.evaluate("""()=>{
+          document.querySelector('.wj-colheaders').lastElementChild.remove();
+          document.querySelector('#salvar').textContent='Salvar(1)';
+          window.wijmo={Control:{getControl:()=>({columns:[{}, {header:'Id',binding:'Id'}, {header:'Serviço'}, {header:'Data início'}, {header:'Guid',binding:'Guid',visible:false}],rows:[{}],getCellData:()=>''})}};
+        }""")
+        self.assertTrue(self.run_action('novo',{'quantidadePendente':1})['ok'])
+        self.assertEqual(self.page.evaluate('cliques'),1)
+
     def test_confirmed_empty_services_collection_allows_first_new_link(self):
         self.page.evaluate("""()=>{
           const g=document.querySelector('#lista');g.classList.add('wj-state-empty','tableSearch','gridCollectionTotal');g.innerHTML='<div class="wj-cells"><div class="wj-row"></div></div>';

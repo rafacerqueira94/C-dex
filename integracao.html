@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ponte Centi — comparar serviços</title><link rel="stylesheet" href="consulta.css"><script type="module" src="integracao.mjs"></script></head>
 <body>
-<header><div class="marca">Ponte <strong>Centi</strong></div><span>Comparação e seleção · 0.15.2</span></header>
+<header><div class="marca">Ponte <strong>Centi</strong></div><span>Comparação e seleção · 0.15.3</span></header>
 <main>
   <section class="cartao"><h2>Conexão com a Centi</h2>
     <p>Se a Centi estiver fechada, o aplicativo pode abri-la. Faça o login quando solicitado. O cartão e os serviços permanecem nesta aba.</p>
@@ -31,6 +31,11 @@
     <label class="aceite"><input id="empresa-retomada" type="checkbox"> Conferi que o formulário preenchido está na empresa deste cartão e é a única alteração pendente.</label>
     <button id="retomar-preenchido" type="button" disabled>Conferir vínculo preenchido para salvar</button>
     <p id="status-retomada" role="status" aria-live="polite"></p>
+  </section>
+  <section id="retomada-lote" class="cartao" hidden><h2>Continuar um lote pendente na lista</h2>
+    <p>Com a pasta Serviços aberta, continue os serviços deste cartão que ficaram pendentes. O aplicativo adicionará somente os restantes e salvará o lote ao final.</p>
+    <label class="aceite"><input id="conferir-lote-pendente" type="checkbox"> Conferi que a lista está na empresa deste cartão, que todos os pendentes pertencem a esta lista, com início hoje, data final vazia e Especificar CNAE = Não. Autorizo continuar e salvar o lote.</label>
+    <button id="retomar-lote" type="button" disabled>Continuar lote pendente</button><p id="status-retomada-lote" role="status"></p>
   </section>
   </details>
   <section id="resultado" class="cartao" hidden><h2>Comparação da captura</h2>

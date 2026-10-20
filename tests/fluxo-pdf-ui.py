@@ -87,6 +87,19 @@ class FluxoPdf(unittest.TestCase):
         self.assertTrue(resultado['ultimoCadastro']['concluido'])
         self.assertEqual(resultado['servicos'][0]['situacao'],'localizado')
 
+    def test_explicit_resume_saves_existing_pending_without_new(self):
+        self.test_pdf_to_confirmed_persistence_without_json_import()
+        self.page.evaluate("()=>{const e=JSON.parse(sessionStorage.getItem('teste-centi'));e.pendentes=e.salvos.map(v=>({...v,idVinculo:'0'}));e.salvos=[];e.acoes=[];sessionStorage.setItem('teste-centi',JSON.stringify(e))}")
+        self.importar_cartao()
+        self.page.locator('#opcoes-retomada summary').click()
+        self.page.locator('#conferir-lote-pendente').check()
+        self.page.locator('#retomar-lote').click()
+        self.page.wait_for_function("document.querySelector('#status').textContent.includes('concluído e conferido')")
+        estado=json.loads(self.page.evaluate("sessionStorage.getItem('teste-centi')"))
+        self.assertEqual(estado['acoes'].count('salvarLoteCenti'),1)
+        self.assertNotIn('novo',estado['acoes'])
+        self.assertEqual(len(estado['salvos']),1)
+
     def test_start_with_centi_closed_keeps_pdf_plan_and_opens_login(self):
         self.importar_cartao(conectado=False)
         self.page.wait_for_function("document.querySelector('#status-conexao').textContent.includes('Entre na Centi')")

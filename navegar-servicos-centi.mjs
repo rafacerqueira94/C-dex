@@ -8,6 +8,11 @@ export async function navegarServicosCenti(pedido) {
     const internos = {DATAINICIO:'DATA INICIO', DATAFIM:'DATA FIM'};
     return internos[normal(c.binding)] || titulo;
   };
+  const esquemaSemFim = colunas => colunas.length === 5
+    && !normal(colunas[0].header)
+    && tituloColuna(colunas[1]) === 'ID' && normal(colunas[1].binding) === 'ID'
+    && tituloColuna(colunas[2]) === 'SERVICO' && tituloColuna(colunas[3]) === 'DATA INICIO'
+    && normal(colunas[4].binding) === 'GUID' && colunas[4].visible === false;
   const visivel = e => e && e.getClientRects().length > 0 && getComputedStyle(e).visibility !== 'hidden';
   const falhar = m => { throw Error(m); };
   const unicos = lista => [...new Set(lista)];
@@ -33,7 +38,7 @@ export async function navegarServicosCenti(pedido) {
     let controle;
     try { controle = globalThis.wijmo?.Control?.getControl?.(g); } catch { return false; }
     const colunas = Array.from(controle?.columns || []).map(c => tituloColuna(c));
-    const completa = typeof controle?.getCellData === 'function' && ['ID','SERVICO','DATA INICIO','DATA FIM'].every(t => colunas.filter(c => c === t).length === 1);
+    const completa = typeof controle?.getCellData === 'function' && (['ID','SERVICO','DATA INICIO','DATA FIM'].every(t => colunas.filter(c => c === t).length === 1) || esquemaSemFim(Array.from(controle.columns || [])));
     if (completa) {globalThis.__ponteCentiVazioConfirmado?.delete(g);return true;}
     return listaVaziaConfirmada(g,controle);
   });

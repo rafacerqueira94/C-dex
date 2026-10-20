@@ -201,3 +201,10 @@ Caso concluído: não refazer essas inclusões para repetir o teste.
 Após importar o PDF e conferir os serviços, o aplicativo preenche os ausentes e confere cada vínculo na lista como pendente, sem salvar a cada inclusão. Ao terminar, aciona Salvar(N) uma vez e relê a lista para confirmar todos os IDs definitivos. Os serviços já localizados são ignorados.
 
 Se houver falha antes do clique final, os serviços preenchidos podem continuar pendentes na Centi; confira-os antes de reiniciar. Não iniciar outra execução enquanto existirem pendências e não repetir inclusão após resultado incerto. A retomada individual existente exige somente um vínculo pendente; não usar para salvar um lote. Este novo percurso precisa de validação na plataforma real; a cobertura da leitura continua limitada à captura atual.
+
+
+### Continuar lote interrompido na lista — 0.15.3
+
+Se os serviços ficaram com Id 0 na lista, mantenha Serviços aberto. Atualize a extensão, importe o mesmo cartão e confira sua seleção. Na integração, abra **Retomar uma tentativa interrompida**, confira a empresa, todos os pendentes, datas e Especificar CNAE e use **Continuar lote pendente**. A opção acrescenta somente os serviços restantes e aciona Salvar ao final. Pendências externas ou datas incompatíveis impedem continuar. Não use Novo manualmente para repetir os que já estão na lista.
+
+Na grade compacta da Centi, Data fim não existe e Guid é uma coluna interna oculta. Os relatórios agora distinguem data final não observada (null) de campo vazio observado (""). A data final é conferida no formulário; para pendências de tentativas anteriores, a confirmação é feita pelo operador na retomada.

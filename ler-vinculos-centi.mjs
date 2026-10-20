@@ -13,6 +13,11 @@ export function lerVinculosCenti() {
     const internos = {DATAINICIO:'DATA INICIO', DATAFIM:'DATA FIM'};
     return internos[normal(c.binding)] || titulo;
   };
+  const esquemaSemFim = colunas => colunas.length === 5
+    && !normal(colunas[0].header)
+    && tituloColuna(colunas[1]) === 'ID' && normal(colunas[1].binding) === 'ID'
+    && tituloColuna(colunas[2]) === 'SERVICO' && tituloColuna(colunas[3]) === 'DATA INICIO'
+    && normal(colunas[4].binding) === 'GUID' && colunas[4].visible === false;
     if ([...document.querySelectorAll('input[type=password]')].some(visivel)) falhar('Entre na Centi antes de comparar.');
     if ([...document.querySelectorAll('input[id^="IdServico"], .tableFilterSearch--modal')].some(visivel)) {
       falhar('Selecione a pasta Serviços, fora do formulário e com a lupa fechada.');
@@ -38,9 +43,9 @@ export function lerVinculosCenti() {
       try { controle = globalThis.wijmo?.Control?.getControl?.(g); } catch { /* usar DOM se completo */ }
       const colunas = Array.from(controle?.columns || []);
       const indices = obrigatorios.map(t => colunas.map((c,i) => tituloColuna(c) === t ? i : -1).filter(i => i >= 0));
-      if (typeof controle?.getCellData === 'function' && indices.every(i => i.length === 1)) {
+      if (typeof controle?.getCellData === 'function' && (indices.every(i => i.length === 1) || esquemaSemFim(colunas))) {
         globalThis.__ponteCentiVazioConfirmado?.delete(g);
-        return {grade:g, controle, indices:indices.map(i=>i[0])};
+        return {grade:g, controle, indices:indices.map(i=>i[0] ?? -1), semFim:esquemaSemFim(colunas)};
       }
       if (listaVaziaConfirmada(g,controle)) return {grade:g,controle,vazia:true};
       const textos = [...g.querySelectorAll('.wj-colheaders .wj-cell')].filter(visivel).map(e=>normal(e.textContent));
@@ -58,7 +63,7 @@ export function lerVinculosCenti() {
         || cabecalhos.length % 5 !== 0
         || cabecalhos.some((h, i) => h !== modelo[i % 5])) falhar('A ordem das colunas mudou; a leitura foi interrompida.');
     if (controle && (!Number.isSafeInteger(controle.rows?.length) || controle.rows.length > 10000)) falhar('A quantidade de linhas da API não pôde ser conferida.');
-    const linhas = controle ? Array.from(controle.rows, (_, i) => ['', ...indices.map(c => String(controle.getCellData(i,c,true) ?? '').replace(/\s+/g,' ').trim())])
+    const linhas = controle ? Array.from(controle.rows, (_, i) => ['', ...indices.map(c => c < 0 ? null : String(controle.getCellData(i,c,true) ?? '').replace(/\s+/g,' ').trim())])
       : [...grade.querySelectorAll('.wj-cells > .wj-row')].filter(visivel);
     const registros = new Map();
     const vinculosPendentes = [];
@@ -98,9 +103,10 @@ export function lerVinculosCenti() {
     }
     return {
       tipo: 'captura_vinculos_centi', versao: 1, origemLeitura: controle ? 'api_publica_wijmo' : 'dom', lidoEm: new Date().toISOString(),
+      dataFimDisponivel: !grades[0].semFim,
       registros: [...registros.values()], vinculosPendentes, linhasNaoInterpretadas, detalhesLinhasNaoInterpretadas, repeticoesDeRenderizacao, cabecalhosRepetidosIgnorados,
       leituraCompleta: false, empresaVerificadaAutomaticamente: false,
-      observacao: (controle ? 'Linhas disponíveis na API pública da grade. ' : 'Somente linhas renderizadas. ') + 'Paginação, filtros, serviços herdados e empresa não foram verificados automaticamente.'
+      observacao: (grades[0].semFim ? 'Esta grade não apresenta Data fim; o valor não foi observado e é null. ' : '') + (controle ? 'Linhas disponíveis na API pública da grade. ' : 'Somente linhas renderizadas. ') + 'Paginação, filtros, serviços herdados e empresa não foram verificados automaticamente.'
     };
   } catch (erro) {
     return {tipo: 'erro_leitura_centi', versao: 1,

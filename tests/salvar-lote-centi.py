@@ -25,6 +25,11 @@ class Lote(unittest.TestCase):
  def test_date_caption_missing_is_identified_by_binding(self):
   self.page.evaluate("()=>{controle.columns[3]={header:'',binding:'DataFim'}}")
   self.assertTrue(self.run_save()['ok']);self.assertEqual(self.page.evaluate('cliques'),1)
+ def test_real_pending_schema_saves_once_without_inventing_end_date(self):
+  self.page.evaluate("()=>{controle.columns=[{}, {header:'Id',binding:'Id'}, {header:'Serviço'}, {header:'Data início'}, {header:'Guid',binding:'Guid',visible:false}];linhas=[['','0','214','20/10/2026','interno1'],['','0','217','20/10/2026','interno2']]}")
+  for p in self.pedido['capturaEsperada']['vinculosPendentes']:p['dataFim']=None
+  self.pedido['capturaEsperada']['dataFimDisponivel']=False
+  self.assertTrue(self.run_save()['ok']);self.assertEqual(self.page.evaluate('cliques'),1)
  def test_external_pending_or_changed_dates_block(self):
   for script in ["linhas.push(['0','999','20/10/2026',''])","linhas[0][2]='01/01/2020'"]:
    self.page.evaluate(script);self.assertFalse(self.run_save()['ok']);self.assertEqual(self.page.evaluate('cliques'),0)

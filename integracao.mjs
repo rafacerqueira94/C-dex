@@ -211,7 +211,7 @@ if (new URLSearchParams(location.search).get('origem') === 'pdf') {
     $('lista').closest('label').nextElementSibling.hidden = true;
     $('origem-cartao').textContent = `${planoDoPdf.empresa.razaoSocial || 'Empresa do cartão'} · CNPJ ${planoDoPdf.empresa.cnpj} · ${planoDoPdf.servicos.length} serviço(s) conferido(s).`;
     $('origem-cartao').hidden = false;
-    $('retomada').hidden = false;
+    $('retomada').hidden = false; $('retomada-lote').hidden = false;
     $('form-comparar').hidden = true;
   } catch (e) {
     $('erro').textContent = e.message; $('erro').hidden = false; $('comparar').disabled = true;
@@ -243,7 +243,8 @@ async function restaurarAbaAplicativo() {
 $('autorizar-cadastro').addEventListener('change', () => {
   $('cadastrar-servicos').disabled = cadastrando || !$('autorizar-cadastro').checked;
 });
-$('cadastrar-servicos').addEventListener('click', async () => {
+$('cadastrar-servicos').addEventListener('click', () => executarCadastro());
+async function executarCadastro(retomarPendentes = false) {
   if (cadastrando || !resultado || !planoAtual || !$('conferido').checked || !$('autorizar-cadastro').checked) return;
   cadastrando = true;
   const controles = [...document.querySelectorAll('input, button, select')];
@@ -256,7 +257,7 @@ $('cadastrar-servicos').addEventListener('click', async () => {
   };
   const fases = {reler_servicos: 'Relendo os serviços…', abrir_vinculo: 'Abrindo vínculo novo…', pesquisar_selecionar: 'Pesquisando e selecionando serviço…', salvar: 'Salvando vínculo…', voltar_servicos: 'Voltando à lista para confirmar…', conferir_pendencia:'Conferindo o serviço antes de continuar…', voltar_servicos_pendentes:'Conferindo as pendências do lote…'};
   try {
-    const cadastro = await cadastrarServicos({plano: planoAtual, catalogo: catalogoAtual, cnpj: resultado.empresa.cnpj, ausenciaConferida: true}, {
+    const cadastro = await cadastrarServicos({plano: planoAtual, catalogo: catalogoAtual, cnpj: resultado.empresa.cnpj, ausenciaConferida: true, retomarPendentes}, {
       lote: true,
       conferir: pedido => executar(salvarServicoCenti,pedido),
       salvarLote: pedido => executar(salvarLoteCenti,pedido,'MAIN'),
@@ -285,7 +286,7 @@ $('cadastrar-servicos').addEventListener('click', async () => {
     $('autorizar-cadastro').disabled = true; $('cadastrar-servicos').disabled = true;
     await restaurarAbaAplicativo();
   }
-});
+}
 
 $('empresa-retomada').addEventListener('change', () => {
   $('retomar-preenchido').disabled = !$('empresa-retomada').checked;
@@ -435,4 +436,26 @@ $('nova-consulta').addEventListener('click', () => {
   if (cadastrando || salvando || localizandoEmpresa) return;
   sessionStorage.removeItem('ponte-centi-fluxo-pdf');
   location.assign(Number.isSafeInteger(aba) && aba > 0 ? `consulta.html?aba=${aba}` : 'consulta.html');
+});
+
+$('conferir-lote-pendente').addEventListener('change', () => {
+  $('retomar-lote').disabled = !$('conferir-lote-pendente').checked;
+});
+$('retomar-lote').addEventListener('click', async () => {
+  if (!planoDoPdf || !$('conferir-lote-pendente').checked || cadastrando || salvando || localizandoEmpresa) return;
+  $('retomar-lote').disabled = true;
+  try {
+    if (!Number.isSafeInteger(aba) || aba <= 0) throw Error('Conecte a aba Centi antes de retomar.');
+    const resposta = await fetch('data/servicos-centi-extraido.json');
+    if (!resposta.ok) throw Error('Não foi possível carregar o catálogo.');
+    catalogoAtual = await resposta.json(); planoAtual = planoDoPdf;
+    const respostas = await chrome.scripting.executeScript({target:{tabId:aba},func:lerVinculosCenti,world:'MAIN'});
+    const captura = respostas[0]?.result;
+    resultado = {...compararCaptura(planoAtual,captura,catalogoAtual,$('cnpj').value),captura};
+    apresentarComparacao(resultado,captura);
+    $('conferido').checked = true; $('autorizar-cadastro').checked = true;
+    await executarCadastro(true);
+    $('status-retomada-lote').textContent = $('status-cadastro').textContent;
+  } catch(e) { $('status-retomada-lote').textContent = e.message; }
+  finally { $('conferir-lote-pendente').checked = false; $('retomar-lote').disabled = true; }
 });
